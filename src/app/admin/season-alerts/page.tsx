@@ -13,7 +13,6 @@
 'use client'
 
 import { useState, useEffect, useCallback, Fragment } from 'react'
-import type { Metadata } from 'next'
 import { SeasonAlertForm } from '@/components/admin/SeasonAlertForm'
 import type { SeasonAlertFormData } from '@/components/admin/SeasonAlertForm'
 
@@ -24,8 +23,8 @@ interface AlertRow {
   id: string
   titleZh: string
   titleEn: string | null
-  bodyZh: string
-  bodyEn: string | null
+  // bodyZh / bodyEn are DB fields reserved for a future rich-banner story;
+  // not surfaced in this form.
   ctaLabelZh: string
   ctaLabelEn: string | null
   ctaUrl: string
@@ -114,8 +113,6 @@ export default function SeasonAlertsPage() {
       id: a.id,
       titleZh: a.titleZh,
       titleEn: a.titleEn ?? '',
-      bodyZh: a.bodyZh,
-      bodyEn: a.bodyEn ?? '',
       ctaLabelZh: a.ctaLabelZh,
       ctaLabelEn: a.ctaLabelEn ?? '',
       ctaUrl: a.ctaUrl,

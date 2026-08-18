@@ -27,6 +27,8 @@ export interface ActiveAlert {
   id: string
   titleZh: string
   titleEn: string | null
+  // bodyZh / bodyEn exist in the DB but are not rendered here; reserved for
+  // a future rich-banner story.
   ctaLabelZh: string
   ctaLabelEn: string | null
   ctaUrl: string

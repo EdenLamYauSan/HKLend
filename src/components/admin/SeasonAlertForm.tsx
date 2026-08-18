@@ -16,8 +16,8 @@ export interface SeasonAlertFormData {
   id?: string
   titleZh: string
   titleEn: string
-  bodyZh: string
-  bodyEn: string
+  // bodyZh / bodyEn are DB fields reserved for a future rich-banner story;
+  // they are not rendered in the banner and are intentionally omitted here.
   ctaLabelZh: string
   ctaLabelEn: string
   ctaUrl: string
@@ -35,8 +35,6 @@ interface SeasonAlertFormProps {
 const EMPTY: SeasonAlertFormData = {
   titleZh: '',
   titleEn: '',
-  bodyZh: '',
-  bodyEn: '',
   ctaLabelZh: '',
   ctaLabelEn: '',
   ctaUrl: '',
@@ -117,35 +115,6 @@ export function SeasonAlertForm({ initial, onSave, onCancel }: SeasonAlertFormPr
           value={form.titleEn}
           onChange={e => field('titleEn', e.target.value)}
           maxLength={100}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#264a58] focus:outline-none focus:ring-1 focus:ring-[#264a58]"
-        />
-      </div>
-
-      {/* TC Body */}
-      <div className="space-y-1">
-        <label className="block text-sm font-medium text-gray-700">
-          內文（中文，必填）
-        </label>
-        <textarea
-          value={form.bodyZh}
-          onChange={e => field('bodyZh', e.target.value)}
-          required
-          rows={3}
-          maxLength={500}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#264a58] focus:outline-none focus:ring-1 focus:ring-[#264a58]"
-        />
-      </div>
-
-      {/* EN Body */}
-      <div className="space-y-1">
-        <label className="block text-sm font-medium text-gray-700">
-          內文（英文，選填）
-        </label>
-        <textarea
-          value={form.bodyEn}
-          onChange={e => field('bodyEn', e.target.value)}
-          rows={3}
-          maxLength={500}
           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#264a58] focus:outline-none focus:ring-1 focus:ring-[#264a58]"
         />
       </div>
