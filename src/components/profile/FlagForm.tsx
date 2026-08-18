@@ -21,6 +21,8 @@
  */
 
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { Turnstile } from '@marsidev/react-turnstile'
+import type { TurnstileInstance } from '@marsidev/react-turnstile'
 import { FLAG_CATEGORIES, type FlagCategory } from '@/types/flag.schema'
 import type { Locale } from '@/locales'
 
@@ -76,8 +78,11 @@ export function FlagForm({ lenderSlug, locale }: Props) {
   const [submitted, setSubmitted] = useState(false)
   const [alreadyFlagged, setAlreadyFlagged] = useState(false)
 
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
+
   const disclaimerRef = useRef<HTMLDivElement>(null)
   const firstInputRef = useRef<HTMLFieldSetElement>(null)
+  const turnstileRef = useRef<TurnstileInstance>(null)
 
   // Read localStorage on mount to show "已舉報" chip.
   // Deferred via subscribeToStorage callback so the effect body subscribes
@@ -139,14 +144,17 @@ export function FlagForm({ lenderSlug, locale }: Props) {
     e.preventDefault()
     if (!canSubmit) return
 
+    // Ensure Turnstile token is present; trigger execution if needed
+    if (!turnstileToken) {
+      turnstileRef.current?.execute()
+      setError(isZh ? '人機驗證失敗，請重試。' : 'Verification failed. Please try again.')
+      return
+    }
+
     setBusy(true)
     setError(null)
 
     try {
-      // For production, Turnstile invisible widget would call .execute() here.
-      // We pass a placeholder token; the server validates via submissionGuard.
-      const turnstileToken = (window as Window & { turnstileToken?: string }).turnstileToken ?? 'dev-token'
-
       const res = await fetch(`/api/lenders/${lenderSlug}/flags`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -159,8 +167,14 @@ export function FlagForm({ lenderSlug, locale }: Props) {
       }
 
       if (!res.ok) {
-        const data = await res.json().catch(() => ({})) as { message?: string }
-        setError(data.message ?? (isZh ? '提交失敗，請稍後再試。' : 'Submission failed. Please try again.'))
+        const data = await res.json().catch(() => ({})) as { message?: string; error?: string }
+        if (res.status === 400 && data.error === 'TURNSTILE_FAILED') {
+          setError(isZh ? '人機驗證失敗，請重試。' : 'Verification failed. Please try again.')
+          turnstileRef.current?.reset()
+          setTurnstileToken(null)
+        } else {
+          setError(data.message ?? (isZh ? '提交失敗，請稍後再試。' : 'Submission failed. Please try again.'))
+        }
         return
       }
 
@@ -379,6 +393,19 @@ export function FlagForm({ lenderSlug, locale }: Props) {
                       {details.length}/500
                     </p>
                   </div>
+
+                  {/* Cloudflare Turnstile (invisible mode) */}
+                  <Turnstile
+                    ref={turnstileRef}
+                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                    options={{ execution: 'execute', appearance: 'interaction-only' }}
+                    onSuccess={setTurnstileToken}
+                    onExpire={() => setTurnstileToken(null)}
+                    onError={() => {
+                      setTurnstileToken(null)
+                      setError(isZh ? '人機驗證失敗，請重試。' : 'Verification failed. Please try again.')
+                    }}
+                  />
 
                   {/* Error */}
                   {error && (

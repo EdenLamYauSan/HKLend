@@ -12,7 +12,9 @@
  * NFR-6: all fields rendered/stored as plain text.
  */
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { Turnstile } from '@marsidev/react-turnstile'
+import type { TurnstileInstance } from '@marsidev/react-turnstile'
 import type { Locale } from '@/locales'
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -30,6 +32,9 @@ export function ScamReportForm({ locale }: Props) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
+
+  const turnstileRef = useRef<TurnstileInstance>(null)
 
   const [companyName, setCompanyName] = useState('')
   const [licenceNumber, setLicenceNumber] = useState('')
@@ -67,13 +72,17 @@ export function ScamReportForm({ locale }: Props) {
     e.preventDefault()
     if (!canSubmit) return
 
+    // Ensure Turnstile token is present; trigger execution if needed
+    if (!turnstileToken) {
+      turnstileRef.current?.execute()
+      setError(isZh ? '人機驗證失敗，請重試。' : 'Verification failed. Please try again.')
+      return
+    }
+
     setBusy(true)
     setError(null)
 
     try {
-      const turnstileToken =
-        (window as Window & { turnstileToken?: string }).turnstileToken ?? 'dev-token'
-
       const lossAmountHkd =
         lossAmount.trim() !== '' && !isNaN(parseInt(lossAmount))
           ? parseInt(lossAmount)
@@ -98,8 +107,14 @@ export function ScamReportForm({ locale }: Props) {
       }
 
       if (!res.ok) {
-        const data = await res.json().catch(() => ({})) as { message?: string }
-        setError(data.message ?? (isZh ? '提交失敗，請稍後再試。' : 'Submission failed. Please try again.'))
+        const data = await res.json().catch(() => ({})) as { message?: string; error?: string }
+        if (res.status === 400 && data.error === 'TURNSTILE_FAILED') {
+          setError(isZh ? '人機驗證失敗，請重試。' : 'Verification failed. Please try again.')
+          turnstileRef.current?.reset()
+          setTurnstileToken(null)
+        } else {
+          setError(data.message ?? (isZh ? '提交失敗，請稍後再試。' : 'Submission failed. Please try again.'))
+        }
         return
       }
 
@@ -312,6 +327,19 @@ export function ScamReportForm({ locale }: Props) {
                       <span className="text-gray-400">{evidenceText.length}/2000</span>
                     </p>
                   </div>
+
+                  {/* Cloudflare Turnstile (invisible mode) */}
+                  <Turnstile
+                    ref={turnstileRef}
+                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                    options={{ execution: 'execute', appearance: 'interaction-only' }}
+                    onSuccess={setTurnstileToken}
+                    onExpire={() => setTurnstileToken(null)}
+                    onError={() => {
+                      setTurnstileToken(null)
+                      setError(isZh ? '人機驗證失敗，請重試。' : 'Verification failed. Please try again.')
+                    }}
+                  />
 
                   {/* Error */}
                   {error && (
