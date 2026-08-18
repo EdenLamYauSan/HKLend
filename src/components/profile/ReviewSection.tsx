@@ -111,7 +111,7 @@ function getReviewsForProfile(lenderId: string, slug: string) {
     },
     [`reviews-${slug}`],
     {
-      tags: [`reviews:${slug}`, `lender:${slug}`],
+      tags: [`reviews:${slug}`],
       revalidate: 604800, // 7-day fallback; tag purge handles real-time updates
     }
   )()
