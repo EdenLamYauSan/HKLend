@@ -243,6 +243,21 @@ export type Translation = {
     failed: string
   }
 
+  // ── News feed (FR-35, Story 6.2) ──────────────────────────────────────────────
+  news: {
+    pageTitle: string
+    pageDescription: string
+    empty: string
+    translationUnavailable: string  // "Translation not available — showing Chinese original"
+    relatedLenders: string          // "相關放債人"
+    categories: {
+      regulatory: string
+      industry: string
+      enforcement: string
+      general: string
+    }
+  }
+
   // ── Admin (TC only — EN mirrors TC, not translated) ─────────────────────────
   admin: {
     loginTitle: string

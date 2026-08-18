@@ -1,0 +1,44 @@
+# Story 6.1: News Scraper — HKMA/SFC RSS feed monitoring.
+#
+# Runs daily at 08:00 UTC. Detects new items since last run,
+# inserts DRAFT news items for admin review.
+# Offset from HKMA scraper (Monday 03:00) and rate scraper (Tuesday 04:00).
+#
+# FR-36: News scraper monitors HKMA and SFC pages for new content.
+
+name: scrape-news
+
+on:
+  schedule:
+    - cron: '0 8 * * *'   # Daily 08:00 UTC
+  workflow_dispatch:        # Manual trigger
+
+jobs:
+  scrape-news:
+    name: Scrape HKMA/SFC News RSS
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        run: npm install -g pnpm@9
+
+      - name: Install root dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install scraper dependencies
+        working-directory: scripts/scraper
+        run: pnpm install --frozen-lockfile
+
+      - name: Run news scraper
+        working-directory: scripts/scraper
+        env:
+          SCRAPER_DATABASE_URL: ${{ secrets.SCRAPER_DATABASE_URL }}
+        run: pnpm run scrape:news
