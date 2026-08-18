@@ -118,6 +118,37 @@ export function LicencePanel({ lender, locale }: Props) {
           </div>
         )}
       </dl>
+
+      {/* S-14: Apply / Enquire CTA — only shown when the lender has a website URL */}
+      {lender.websiteUrl && (
+        <div className="border-t border-gray-100 pt-4">
+          <a
+            href={lender.websiteUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#264a58] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#1e3a45] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#264a58]"
+          >
+            {isZh ? '向此放債人查詢' : 'Apply / Enquire'}
+            {/* External-link icon */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+              <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+            </svg>
+            <span className="sr-only">({isZh ? '將跳轉至外部網站' : 'opens external website'})</span>
+          </a>
+          <p className="mt-1.5 text-xs text-gray-400">
+            {isZh
+              ? '點擊後將離開 HK Lend，前往放債人官方網站。'
+              : "You will leave HK Lend and visit the lender's own website."}
+          </p>
+        </div>
+      )}
     </section>
   )
 }
