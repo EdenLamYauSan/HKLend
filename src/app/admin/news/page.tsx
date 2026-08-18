@@ -104,7 +104,7 @@ export default async function AdminNewsPage() {
                       rel="noopener noreferrer"
                       className="truncate block text-xs text-blue-600 hover:underline"
                     >
-                      {new URL(item.source).hostname}
+                      {(() => { try { return new URL(item.source).hostname } catch { return item.source } })()}
                     </a>
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-right">

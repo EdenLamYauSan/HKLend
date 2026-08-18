@@ -76,23 +76,28 @@ function getNewsItem(slug: string): Promise<NewsDetail | null> {
         },
       }),
     [`news-item-${slug}`],
-    { tags: [`news:${slug}`, 'news:list'], revalidate: REVALIDATE_SECONDS }
+    { tags: [`news:${slug}`], revalidate: REVALIDATE_SECONDS }
   )()
 }
 
-async function getLinkedLenders(slugs: string[]): Promise<LinkedLender[]> {
-  if (slugs.length === 0) return []
-  return db.lender.findMany({
-    where: { slug: { in: slugs } },
-    select: {
-      slug: true,
-      companyNameZh: true,
-      companyNameEn: true,
-      districtZh: true,
-      districtEn: true,
-      licenceStatus: true,
-    },
-  })
+function getLinkedLenders(slugs: string[]): Promise<LinkedLender[]> {
+  if (slugs.length === 0) return Promise.resolve([])
+  return unstable_cache(
+    async () =>
+      db.lender.findMany({
+        where: { slug: { in: slugs } },
+        select: {
+          slug: true,
+          companyNameZh: true,
+          companyNameEn: true,
+          districtZh: true,
+          districtEn: true,
+          licenceStatus: true,
+        },
+      }),
+    [slugs.join(',')],
+    { tags: ['lenders:list'], revalidate: 86400 }
+  )()
 }
 
 // ─── generateStaticParams ─────────────────────────────────────────────────────
@@ -136,7 +141,7 @@ export async function generateMetadata({
   const description = body.slice(0, 160)
 
   return {
-    title: `${title} — ${locale === 'zh' ? 'HK Lend' : 'HK Lend'}`,
+    title: `${title.slice(0, 50)} — hklend`,
     description,
     openGraph: {
       title,
@@ -164,7 +169,7 @@ function buildJsonLd(item: NewsDetail, locale: Locale) {
     headline: title,
     description: body.slice(0, 160),
     datePublished: item.publishedAt.toISOString(),
-    url: `https://hklend.com/${locale}/news/${item.slug}`,
+    url: `https://hklend.hk/${locale}/news/${item.slug}`,
     articleSection: item.category,
     inLanguage: locale === 'zh' ? 'zh-HK' : 'en',
   }

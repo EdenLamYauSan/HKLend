@@ -134,8 +134,8 @@ export async function generateMetadata({
   const labelEn = districtEn(districtZh)
   const title =
     locale === 'zh'
-      ? `${districtZh}持牌放債人 — HK Lend`
-      : `${labelEn} Licensed Money Lenders — HK Lend`
+      ? `${districtZh}持牌放債人 — hklend`
+      : `${labelEn} Licensed Money Lenders — hklend`
 
   const description =
     locale === 'zh'
@@ -166,7 +166,7 @@ function buildJsonLd(lenders: LenderCardData[], districtZh: string, locale: Loca
     itemListElement: lenders.slice(0, 20).map((l, idx) => ({
       '@type': 'ListItem',
       position: idx + 1,
-      url: `https://hklend.com/${locale}/lenders/${l.slug}`,
+      url: `https://hklend.hk/${locale}/lenders/${l.slug}`,
       name: getLocalizedField(l, 'companyName', locale),
     })),
   }

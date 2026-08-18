@@ -224,7 +224,7 @@ export async function generateMetadata({
   const description = locale === 'zh' ? meta.descZh : meta.descEn
 
   return {
-    title: `${title} — HK Lend`,
+    title: `${title} — hklend`,
     description,
     alternates: {
       canonical: `/zh/best/${criterion}`,
@@ -245,7 +245,7 @@ function buildJsonLd(lenders: RankedLender[], criterion: Criterion, locale: Loca
     itemListElement: lenders.map((l, idx) => ({
       '@type': 'ListItem',
       position: idx + 1,
-      url: `https://hklend.com/${locale}/lenders/${l.slug}`,
+      url: `https://hklend.hk/${locale}/lenders/${l.slug}`,
       name: getLocalizedField(l, 'companyName', locale),
     })),
   }
