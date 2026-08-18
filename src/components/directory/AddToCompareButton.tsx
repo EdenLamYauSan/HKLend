@@ -29,14 +29,14 @@ interface AddToCompareButtonProps {
 export function AddToCompareButton({ lender, locale }: AddToCompareButtonProps) {
   const isZh = locale === 'zh'
   const add = useCompareStore(state => state.add)
-  const has = useCompareStore(state => state.has)
+  const isAddedInStore = useCompareStore(state => state.items.some(i => i.slug === lender.slug))
 
   // Hydration guard: localStorage rehydrates after SSR. Defer reading store
   // state until after mount so SSR and initial client render agree (both idle).
   const [mounted, setMounted] = useState(false)
   useEffect(() => { setMounted(true) }, [])
 
-  const isAdded = mounted && has(lender.slug)
+  const isAdded = mounted && isAddedInStore
 
   return (
     <button

@@ -32,13 +32,13 @@ export function ProfileActions({ lender, locale, onOpenCalc }: ProfileActionsPro
   const isZh = locale === 'zh'
 
   const add = useCompareStore(state => state.add)
-  const has = useCompareStore(state => state.has)
+  const isAddedInStore = useCompareStore(state => state.items.some(i => i.slug === lender.slug))
 
   // Hydration guard — defer reading localStorage-backed store state until mounted
   const [mounted, setMounted] = useState(false)
   useEffect(() => { setMounted(true) }, [])
 
-  const isAdded = mounted && has(lender.slug)
+  const isAdded = mounted && isAddedInStore
 
   return (
     <div className="flex flex-wrap gap-2 mt-3">
