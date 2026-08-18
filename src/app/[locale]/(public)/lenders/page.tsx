@@ -18,9 +18,11 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { isLocale } from '@/locales'
 import { db } from '@/lib/db'
+import { searchLenders } from '@/lib/search-lenders'
 import { LenderFilters } from '@/components/directory/LenderFilters'
 import { ZeroResultVerdict } from '@/components/directory/ZeroResultVerdict'
 import { LenderCard } from '@/components/directory/LenderCard'
+import { DataSourceAttribution } from '@/components/directory/DataSourceAttribution'
 import { Suspense } from 'react'
 import type { Locale } from '@/locales'
 
@@ -65,9 +67,17 @@ export default async function LendersPage({
   const sortBy = ['createdAt', 'name'].includes(sp.sortBy as string) ? sp.sortBy as string : 'recommended'
   const sortOrder = sp.sortOrder === 'desc' ? 'desc' : 'asc'
   const page = parseIntParam(typeof sp.page === 'string' ? sp.page : undefined, 1)
-  const skip = (page - 1) * PAGE_SIZE
 
   const isZh = locale === 'zh'
+
+  // ── Fetch filter options, last-checked date, and results ─────────────────
+  // lastScrapedAt from the most recently scraped lender = the last scraper run date.
+  const lastScrapedRow = await db.lender.findFirst({
+    where: { lastScrapedAt: { not: null } },
+    orderBy: { lastScrapedAt: 'desc' },
+    select: { lastScrapedAt: true },
+  })
+  const lastChecked = lastScrapedRow?.lastScrapedAt ?? null
 
   // ── Fetch filter options (distinct districts and loan type tags) ───────────
   const [allDistricts, allLoanTypes] = await Promise.all([
@@ -136,9 +146,13 @@ export default async function LendersPage({
       {/* ── Directory ── */}
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
         <div className="mb-4 flex items-baseline justify-between">
-          <h1 className="text-lg font-semibold text-primary">
-            {isZh ? '持牌放債人名冊' : 'Licensed Money Lenders Registry'}
-          </h1>
+          <div>
+            <h1 className="text-lg font-semibold text-primary">
+              {isZh ? '持牌放債人名冊' : 'Licensed Money Lenders Registry'}
+            </h1>
+            {/* S-10: data source attribution */}
+            <DataSourceAttribution lastChecked={lastChecked} locale={locale as 'zh' | 'en'} />
+          </div>
           <span className="text-sm text-muted-foreground">
             {search || districtZh || loanType
               ? (isZh ? `${total.toLocaleString()} 個結果` : `${total.toLocaleString()} results`)

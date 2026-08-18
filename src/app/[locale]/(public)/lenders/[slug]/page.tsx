@@ -26,6 +26,7 @@ import { db } from '@/lib/db'
 import { isLocale } from '@/locales'
 import { getLocalizedField } from '@/lib/utils/get-localized-field'
 import { LicenceBadge } from '@/components/directory/LicenceBadge'
+import { DataSourceAttribution } from '@/components/directory/DataSourceAttribution'
 import { LicencePanel } from '@/components/profile/LicencePanel'
 import { LoanTypeTags } from '@/components/profile/LoanTypeTags'
 import { LenderPulse } from '@/components/profile/LenderPulse'
@@ -55,6 +56,7 @@ type LenderData = {
   loanTypeTags: string[]
   eligibilityTags: string[]
   adminNote: string | null
+  lastScrapedAt: Date | null
   activityEvents: Array<{
     descriptionZh: string
     descriptionEn: string | null
@@ -93,6 +95,7 @@ function getLenderBySlug(slug: string): Promise<LenderData | null> {
           loanTypeTags: true,
           eligibilityTags: true,
           adminNote: true,
+          lastScrapedAt: true,
           activityEvents: {
             orderBy: { detectedAt: 'desc' },
             take: 1,
@@ -297,6 +300,9 @@ export default async function LenderProfilePage({
           <p className="text-sm text-primary">{lender.adminNote}</p>
         </div>
       )}
+
+      {/* S-10: Data source attribution */}
+      <DataSourceAttribution lastChecked={lender.lastScrapedAt} locale={locale as 'zh' | 'en'} />
     </div>
   )
 }
