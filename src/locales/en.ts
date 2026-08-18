@@ -16,7 +16,7 @@ export const en: Translation = {
 
   // ── Scope banner ──────────────────────────────────────────────────────────
   scopeBanner: {
-    text: 'HK Lend verifies licences — we do not approve loans',
+    text: 'hklend verifies licences — we do not approve loans',
     hkmaLink: 'View HKMA official directory',
   },
 

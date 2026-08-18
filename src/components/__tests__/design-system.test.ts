@@ -138,6 +138,9 @@ describe('AC-3: Saira font and CJK system stack', () => {
 
 describe('AC-4: ScopeBanner component', () => {
   const banner = readFile('src/components/layout/ScopeBanner.tsx')
+  // After Finding 5 the copy lives in the locale files, not the component.
+  const zhLocale = readFile('src/locales/zh.ts')
+  const enLocale = readFile('src/locales/en.ts')
 
   it('is not a client component (no "use client" directive)', () => {
     const lines = banner.split('\n').filter(l => !l.trim().startsWith('*') && !l.trim().startsWith('//'))
@@ -146,11 +149,13 @@ describe('AC-4: ScopeBanner component', () => {
   })
 
   it('contains the TC scope message', () => {
-    expect(banner).toContain('hklend 核實牌照，唔批貸款')
+    // TC copy lives in zh.ts (ScopeBanner reads it via getTranslations)
+    expect(zhLocale).toContain('hklend 核實牌照，唔批貸款')
   })
 
   it('contains the EN scope message', () => {
-    expect(banner).toContain('hklend verifies licences')
+    // EN copy lives in en.ts (ScopeBanner reads it via getTranslations)
+    expect(enLocale).toContain('hklend verifies licences')
   })
 
   it('has z-30 positioning class', () => {

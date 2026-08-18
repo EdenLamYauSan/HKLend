@@ -31,7 +31,7 @@ export function Header({ locale }: HeaderProps) {
       "
     >
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
-        {/* Logo / wordmark — links to locale homepage */}
+        {/* hklend wordmark — links to locale homepage */}
         <a
           href={`/${locale}`}
           className="
