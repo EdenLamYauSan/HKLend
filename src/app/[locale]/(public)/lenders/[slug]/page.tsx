@@ -36,6 +36,8 @@ import { EligibilityChips } from '@/components/profile/EligibilityChips'
 import { ReviewSection } from '@/components/profile/ReviewSection'
 import { ActivityFeed } from '@/components/profile/ActivityFeed'
 import { FlagsSection } from '@/components/profile/FlagsSection'
+import { RatePanel } from '@/components/profile/RatePanel'
+import type { Decimal } from '@/generated/prisma/client/runtime/library'
 
 // ─── Site config ──────────────────────────────────────────────────────────────
 
@@ -61,8 +63,10 @@ type LenderData = {
   licenceIssuedDate: Date | null
   loanTypeTags: string[]
   eligibilityTags: string[]
-  adminNote: string | null
+  interestRateMin: Decimal | null
+  interestRateMax: Decimal | null
   lastScrapedAt: Date | null
+  adminNote: string | null
   id: string
   activityEvents: Array<{
     id: string
@@ -106,6 +110,8 @@ function getLenderBySlug(slug: string): Promise<LenderData | null> {
           licenceIssuedDate: true,
           loanTypeTags: true,
           eligibilityTags: true,
+          interestRateMin: true,
+          interestRateMax: true,
           adminNote: true,
           lastScrapedAt: true,
           activityEvents: {
@@ -344,6 +350,14 @@ export default async function LenderProfilePage({
         events={lender.activityEvents.slice(0, 1)}
         lenderId={lender.id}
         lenderSlug={lender.slug}
+        locale={locale}
+      />
+
+      {/* Advertised rates panel — shows "pending" when no rate scraped yet (Story 5.1) */}
+      <RatePanel
+        interestRateMin={lender.interestRateMin}
+        interestRateMax={lender.interestRateMax}
+        lastScrapedAt={lender.lastScrapedAt}
         locale={locale}
       />
 

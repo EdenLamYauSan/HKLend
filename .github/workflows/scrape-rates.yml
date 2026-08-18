@@ -1,0 +1,53 @@
+name: Scrape Lender Advertised Rates
+
+on:
+  # Every Tuesday at 04:00 UTC (offset from HKMA scraper at 03:00 Monday)
+  schedule:
+    - cron: '0 4 * * 2'
+  # Allow manual trigger from the GitHub Actions UI
+  workflow_dispatch:
+
+jobs:
+  scrape-rates:
+    name: Scrape advertised rate ranges
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install root dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ── Install scraper dependencies separately (isolated package.json) ────────
+      # The scraper lives in scripts/scraper/ with its own package.json (ARCH-3).
+      - name: Install scraper dependencies
+        working-directory: scripts/scraper
+        run: pnpm install --frozen-lockfile
+
+      # ── Install Chromium for Playwright ────────────────────────────────────────
+      - name: Install Playwright browsers
+        working-directory: scripts/scraper
+        run: pnpm run install-browsers
+
+      # ── Run the rate scraper ───────────────────────────────────────────────────
+      # SCRAPER_DATABASE_URL uses a separate env var with connection_limit=5
+      # to support parallel rate scraping without exhausting the DB pool (ARCH-4).
+      # The scraper exits 1 when ScrapeRun.status === 'FAILED'.
+      - name: Run rate scraper
+        working-directory: scripts/scraper
+        run: pnpm run scrape:rates
+        env:
+          SCRAPER_DATABASE_URL: ${{ secrets.SCRAPER_DATABASE_URL }}
+          NODE_ENV: production
