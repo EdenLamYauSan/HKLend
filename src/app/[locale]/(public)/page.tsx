@@ -18,47 +18,49 @@ export default async function HomePage({
 
   return (
     <div>
-      {/* ── Hero ── */}
-      <section className="bg-[#264a58] px-4 pt-16 pb-14 sm:pt-20 sm:pb-16 text-center">
-        <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-amber-400">
-          {isZh ? '香港持牌放債人查冊' : 'HK Licensed Money Lenders Registry'}
-        </p>
-        <h1 className="mb-5 text-4xl font-bold leading-tight text-white sm:text-5xl">
-          {isZh ? (
-            <>核實牌照<span className="text-amber-400">，</span><br className="sm:hidden" />保障自己</>
-          ) : (
-            <>Verify licences,<br /><span className="text-amber-400">protect yourself</span></>
-          )}
-        </h1>
-        <p className="mb-10 mx-auto max-w-sm text-sm leading-relaxed text-white/50">
-          {isZh
-            ? '免費查核HKMA持牌放債人名冊，避免接觸無牌放債人'
-            : 'Free checks from the HKMA official money lenders register'}
-        </p>
-        <Suspense fallback={null}>
-          <HeroSearch locale={lang} targetPath={`/${lang}/lenders`} />
-        </Suspense>
+      {/* ── Hero + Stats (unified dark section) ── */}
+      <section className="bg-[#264a58] text-center">
+        <div className="px-4 pt-12 pb-10 sm:pt-16 sm:pb-12">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-amber-400">
+            {isZh ? '香港持牌放債人查冊' : 'HK Licensed Money Lenders Registry'}
+          </p>
+          <h1 className="mb-4 text-5xl font-bold leading-tight text-white sm:text-6xl">
+            {isZh ? (
+              <>核實牌照<span className="text-amber-400">，</span><br />保障自己</>
+            ) : (
+              <>Verify licences,<br /><span className="text-amber-400">protect yourself.</span></>
+)}
+          </h1>
+          <p className="mb-8 mx-auto max-w-sm text-sm leading-relaxed text-white/50">
+            {isZh
+              ? '免費查核HKMA持牌放債人名冊，避免接觸無牌放債人'
+              : 'Free checks from the HKMA official money lenders register'}
+          </p>
+          <Suspense fallback={null}>
+            <HeroSearch locale={lang} targetPath={`/${lang}/lenders`} />
+          </Suspense>
+        </div>
+
+        {/* Stats strip — dark background, white text */}
+        <div className="border-t border-white/10">
+          <div className="mx-auto flex max-w-4xl divide-x divide-white/10 px-4 sm:px-6">
+            {[
+              { value: totalAll.toLocaleString(), label: isZh ? '間持牌放債人' : 'licensed lenders' },
+              { value: isZh ? '每日更新' : 'Daily updates', label: isZh ? '資料來源：HKMA' : 'Source: HKMA' },
+              { value: isZh ? '完全免費' : 'Completely free', label: isZh ? '無需登記' : 'No registration' },
+            ].map(stat => (
+              <div key={stat.label} className="flex-1 py-4 px-4 text-center">
+                <p className="text-sm font-semibold text-white">{stat.value}</p>
+                <p className="text-xs text-white/40">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
-      {/* ── Stats strip ── */}
-      <div className="border-b border-gray-200 bg-white">
-        <div className="mx-auto flex max-w-4xl divide-x divide-gray-200 px-4 sm:px-6">
-          {[
-            { value: totalAll.toLocaleString(), label: isZh ? '間持牌放債人' : 'licensed lenders' },
-            { value: isZh ? '每日更新' : 'Daily updates', label: isZh ? '資料來源：HKMA' : 'Source: HKMA' },
-            { value: isZh ? '完全免費' : 'Completely free', label: isZh ? '無需登記' : 'No registration' },
-          ].map(stat => (
-            <div key={stat.label} className="flex-1 py-5 px-4 text-center">
-              <p className="text-base font-semibold text-[#264a58]">{stat.value}</p>
-              <p className="text-xs text-gray-500">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* ── How it works ── */}
-      <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
-        <h2 className="mb-8 text-center text-xl font-semibold text-[#264a58]">
+      <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
+        <h2 className="mb-10 text-center text-xl font-semibold text-[#264a58]">
           {isZh ? '點解要查牌？' : 'Why verify a licence?'}
         </h2>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
@@ -97,7 +99,7 @@ export default async function HomePage({
               bodyEn: 'Check licence status, address, and community ratings to make a more informed decision.',
             },
           ].map(item => (
-            <div key={item.titleZh} className="rounded-xl border border-gray-100 bg-white p-6 text-center shadow-sm">
+            <div key={item.titleZh} className="rounded-xl bg-gray-50 p-6 text-center">
               <div className="mb-4 flex justify-center">{item.icon}</div>
               <h3 className="mb-2 font-semibold text-[#264a58]">
                 {isZh ? item.titleZh : item.titleEn}
@@ -110,7 +112,7 @@ export default async function HomePage({
         </div>
 
         {/* ── 3-step guide ── */}
-        <div className="mt-16">
+        <div className="mt-20">
           <h2 className="mb-8 text-center text-xl font-semibold text-[#264a58]">
             {isZh ? '三步找到合適貸款' : '3 steps to find the right lender'}
           </h2>
