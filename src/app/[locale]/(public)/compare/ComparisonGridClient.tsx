@@ -126,14 +126,15 @@ export function ComparisonGridClient({ locale }: ComparisonGridClientProps) {
   }
 
   // ── Row labels ──
+  // rowLabels[0] ('放債人名稱') was removed — the lender name is rendered in
+  // the table <thead>, not as a body row, so the label was never used.
   const rowLabels = [
-    isZh ? '放債人名稱' : 'Lender Name',
-    isZh ? '牌照狀態' : 'Licence Status',
-    isZh ? '地區' : 'District',
-    isZh ? '貸款類型' : 'Loan Types',
-    isZh ? '月息範圍' : 'Rate Range',
-    isZh ? '預計年利率 (APR)' : 'Estimated APR',
-    isZh ? '操作' : 'Actions',
+    isZh ? '牌照狀態' : 'Licence Status',   // [0]
+    isZh ? '地區' : 'District',             // [1]
+    isZh ? '貸款類型' : 'Loan Types',       // [2]
+    isZh ? '月息範圍' : 'Rate Range',       // [3]
+    isZh ? '預計年利率 (APR)' : 'Estimated APR', // [4]
+    isZh ? '操作' : 'Actions',             // [5]
   ]
 
   return (
@@ -201,7 +202,7 @@ export function ComparisonGridClient({ locale }: ComparisonGridClientProps) {
 
           <tbody>
             {/* Row: Licence Status */}
-            <CompareRow label={rowLabels[1]} isZh={isZh}>
+            <CompareRow label={rowLabels[0]} isZh={isZh}>
               {lenders.map(l => (
                 <td key={l.slug} className="px-4 py-3">
                   <LicenceBadge licenceStatus={l.licenceStatus} locale={locale} size="sm" />
@@ -210,7 +211,7 @@ export function ComparisonGridClient({ locale }: ComparisonGridClientProps) {
             </CompareRow>
 
             {/* Row: District */}
-            <CompareRow label={rowLabels[2]} isZh={isZh}>
+            <CompareRow label={rowLabels[1]} isZh={isZh}>
               {lenders.map(l => {
                 const district = isZh
                   ? l.districtZh
@@ -224,7 +225,7 @@ export function ComparisonGridClient({ locale }: ComparisonGridClientProps) {
             </CompareRow>
 
             {/* Row: Loan Types */}
-            <CompareRow label={rowLabels[3]} isZh={isZh}>
+            <CompareRow label={rowLabels[2]} isZh={isZh}>
               {lenders.map(l => (
                 <td key={l.slug} className="px-4 py-3">
                   {l.loanTypeTags.length > 0 ? (
@@ -246,7 +247,7 @@ export function ComparisonGridClient({ locale }: ComparisonGridClientProps) {
             </CompareRow>
 
             {/* Row: Rate Range */}
-            <CompareRow label={rowLabels[4]} isZh={isZh}>
+            <CompareRow label={rowLabels[3]} isZh={isZh}>
               {lenders.map(l => {
                 const hasRate = l.interestRateMin != null || l.interestRateMax != null
                 return (
@@ -266,7 +267,7 @@ export function ComparisonGridClient({ locale }: ComparisonGridClientProps) {
             </CompareRow>
 
             {/* Row: APR (live calculation) */}
-            <CompareRow label={rowLabels[5]} isZh={isZh} highlighted>
+            <CompareRow label={rowLabels[4]} isZh={isZh} highlighted>
               {lenders.map(l => {
                 let aprDisplay = '—'
                 if (l.interestRateMin != null) {
@@ -290,7 +291,7 @@ export function ComparisonGridClient({ locale }: ComparisonGridClientProps) {
             </CompareRow>
 
             {/* Row: Remove actions */}
-            <CompareRow label={rowLabels[6]} isZh={isZh}>
+            <CompareRow label={rowLabels[5]} isZh={isZh}>
               {lenders.map(l => (
                 <td key={l.slug} className="px-4 py-3">
                   <button
