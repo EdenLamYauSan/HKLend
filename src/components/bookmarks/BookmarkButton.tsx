@@ -66,8 +66,8 @@ export function BookmarkButton({
       aria-pressed={bookmarked}
       className={`
         inline-flex h-11 w-11 items-center justify-center rounded-lg
-        text-xl text-amber-500 transition-colors
-        hover:bg-amber-50 focus-visible:outline-2 focus-visible:outline-offset-2
+        text-xl text-[#c0392b] transition-colors
+        hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2
         focus-visible:outline-primary
         ${className}
       `}

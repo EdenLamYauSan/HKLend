@@ -67,7 +67,7 @@ export function ProfileActions({ lender, locale, onOpenCalc }: ProfileActionsPro
       <button
         type="button"
         onClick={onOpenCalc}
-        className="md:hidden min-h-[44px] rounded-lg bg-[#e8a219] px-4 py-2 text-sm font-semibold text-white hover:bg-amber-500 transition-colors"
+        className="md:hidden min-h-[44px] rounded-lg bg-[#264a58] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a3a46] transition-colors"
       >
         {isZh ? '計算利率' : 'Calculate APR'}
       </button>

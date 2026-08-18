@@ -154,7 +154,7 @@ export function BookmarksClient({ locale, t }: BookmarksClientProps) {
                   type="button"
                   onClick={() => removeBookmark(lender.slug)}
                   aria-label={bm.removeAriaLabel.replace('{name}', name)}
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-xl text-amber-500 hover:bg-amber-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-xl text-[#c0392b] hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                 >
                   ★
                 </button>

@@ -21,7 +21,7 @@
  * AC: "使用此放債人最低利率" chip resets the rate to defaultRate.
  * AC: focus trap on mobile sheet open.
  *
- * UX ref: uho.com.tw — dark navy + amber accent.
+ * UX ref: uho.com.tw — dark navy + crimson accent.
  */
 
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
@@ -264,7 +264,7 @@ export function CalculatorSheet({
               type="button"
               onClick={() => setRateStr(String(defaultRate))}
               disabled={!useDefaultRateChip}
-              className="shrink-0 rounded-full bg-amber-50 border border-amber-300 px-2 py-1 text-xs text-amber-700 hover:bg-amber-100 disabled:opacity-40 disabled:cursor-default transition-colors"
+              className="shrink-0 rounded-full bg-white/10 border border-white/30 px-2 py-1 text-xs text-white/80 hover:bg-white/20 disabled:opacity-40 disabled:cursor-default transition-colors"
               title={isZh ? '使用此放債人最低利率' : "Use lender's lowest rate"}
             >
               {isZh ? '最低利率' : 'Min rate'}
@@ -287,7 +287,7 @@ export function CalculatorSheet({
 
       {/* Results panel */}
       <div className="rounded-xl bg-[#1a3244] p-4 space-y-3">
-        <h3 className="text-xs font-semibold text-amber-400 uppercase tracking-wider">
+        <h3 className="text-xs font-semibold text-white/60 uppercase tracking-wider">
           {isZh ? '計算結果' : 'Results'}
         </h3>
         <div className="grid grid-cols-3 gap-2">
@@ -311,7 +311,7 @@ export function CalculatorSheet({
             <p className="text-xs text-gray-400 mb-1">
               APR
             </p>
-            <p className="text-base font-bold text-amber-400">
+            <p className="text-base font-bold text-[#e87070]">
               {result ? `${result.apr}%` : '—'}
             </p>
           </div>

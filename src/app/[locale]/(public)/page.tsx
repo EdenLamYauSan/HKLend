@@ -87,9 +87,9 @@ export default async function HomePage({
               { value: isZh ? '每日更新' : 'Daily updates', label: isZh ? '資料來源：HKMA' : 'Source: HKMA' },
               { value: isZh ? '完全免費' : 'Completely free', label: isZh ? '無需登記' : 'No registration' },
             ].map(stat => (
-              <div key={stat.label} className="flex-1 py-4 px-4 text-center">
-                <p className="text-sm font-semibold text-brand-amber">{stat.value}</p>
-                <p className="text-xs text-white/50">{stat.label}</p>
+              <div key={stat.label} className="flex-1 py-5 px-4 text-center">
+                <p className="text-2xl font-bold tabular-nums tracking-tight text-white">{stat.value}</p>
+                <p className="mt-0.5 text-xs text-white/50">{stat.label}</p>
               </div>
             ))}
           </div>

@@ -42,8 +42,8 @@
   --color-brand-card:  #eae8e6;
   /* Coral for text — ONLY this value is WCAG AA safe on white (5.2:1) */
   --color-brand-coral-text: #B8390E;
-  /* Amber-gold — CTA accents, focus rings on dark surfaces, hot chips */
-  --color-brand-amber: #f59e0b;
+  /* Crimson — active nav underline, CTA buttons, key data highlights (use sparingly) */
+  --color-brand-crimson: #c0392b;
 
   /* Sidebar (admin) */
   --color-sidebar-ring:               var(--sidebar-ring);

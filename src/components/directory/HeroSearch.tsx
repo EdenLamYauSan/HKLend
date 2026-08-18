@@ -81,7 +81,7 @@ export function HeroSearch({ locale, targetPath }: HeroSearchProps) {
           defaultValue={currentSearch}
           key={currentSearch}
           placeholder={isZh ? '搜尋牌照號碼或公司名稱…' : 'Search licence number or company name…'}
-          className="h-14 w-full rounded-xl border-0 bg-white pl-12 pr-4 text-base text-gray-900 placeholder:text-gray-400 shadow-lg focus:outline-none focus:ring-2 focus:ring-amber-400"
+          className="h-14 w-full rounded-xl border border-white/20 bg-white pl-12 pr-4 text-base text-gray-900 placeholder:text-gray-400 shadow-xl focus:outline-none focus:ring-2 focus:ring-[#c0392b]"
           onChange={e => setSearch(e.target.value)}
           aria-label={isZh ? '搜尋放債人' : 'Search lenders'}
         />
@@ -100,8 +100,8 @@ export function HeroSearch({ locale, targetPath }: HeroSearchProps) {
             onClick={() => setSearch(chip)}
             className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
               currentSearch === chip
-                ? 'bg-amber-400 text-[#264a58]'
-                : 'bg-white/20 text-white hover:bg-white/30 border border-white/30'
+                ? 'bg-white text-[#264a58] font-semibold'
+                : 'bg-white/15 text-white hover:bg-white/25 border border-white/30'
             }`}
           >
             {chip}

@@ -133,7 +133,7 @@ export function CompareTray({ locale }: CompareTrayProps) {
               <button
                 type="button"
                 onClick={() => router.push(`/${locale}/compare`)}
-                className="rounded-lg bg-[#e8a219] px-4 py-2 text-sm font-semibold text-white hover:bg-amber-500 transition-colors min-h-[44px]"
+                className="rounded-lg bg-[#264a58] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a3a46] transition-colors min-h-[44px]"
               >
                 {isZh ? `比較 (${items.length})` : `Compare (${items.length})`}
               </button>

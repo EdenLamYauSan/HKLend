@@ -27,7 +27,7 @@ export function Footer({ locale }: FooterProps) {
           <div className="min-w-0">
             <p className="text-sm font-bold text-primary">
               <span>HK</span>
-              <span className="text-brand-amber">Lend</span>
+              <span className="text-brand-crimson">Lend</span>
             </p>
             <p className="mt-1 max-w-xs text-xs text-muted-foreground leading-relaxed">
               {isZh

@@ -44,7 +44,7 @@ export function Header({ locale }: HeaderProps) {
         >
           {/* Two-tone wordmark — no image dependency for v1 */}
           <span aria-hidden="true" className="text-white">HK</span>
-          <span aria-hidden="true" className="text-brand-amber">Lend</span>
+          <span aria-hidden="true" className="text-brand-crimson">Lend</span>
         </a>
 
         {/* Language toggle */}
