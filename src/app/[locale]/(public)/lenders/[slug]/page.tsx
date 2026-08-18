@@ -24,6 +24,12 @@ import { unstable_cache } from 'next/cache'
 import type { Metadata } from 'next'
 import { db } from '@/lib/db'
 import { isLocale } from '@/locales'
+import { getLocalizedField } from '@/lib/utils/get-localized-field'
+import { LicenceBadge } from '@/components/directory/LicenceBadge'
+import { LicencePanel } from '@/components/profile/LicencePanel'
+import { LoanTypeTags } from '@/components/profile/LoanTypeTags'
+import { LenderPulse } from '@/components/profile/LenderPulse'
+import { EligibilityChips } from '@/components/profile/EligibilityChips'
 
 // ─── Site config ──────────────────────────────────────────────────────────────
 
@@ -46,6 +52,13 @@ type LenderData = {
   districtEn: string | null
   phone: string | null
   websiteUrl: string | null
+  loanTypeTags: string[]
+  eligibilityTags: string[]
+  adminNote: string | null
+  activityEvents: Array<{
+    descriptionZh: string
+    descriptionEn: string | null
+  }>
 }
 
 // ─── Cached DB lookup ─────────────────────────────────────────────────────────
@@ -77,6 +90,17 @@ function getLenderBySlug(slug: string): Promise<LenderData | null> {
           districtEn: true,
           phone: true,
           websiteUrl: true,
+          loanTypeTags: true,
+          eligibilityTags: true,
+          adminNote: true,
+          activityEvents: {
+            orderBy: { detectedAt: 'desc' },
+            take: 1,
+            select: {
+              descriptionZh: true,
+              descriptionEn: true,
+            },
+          },
         },
       }),
     [`lender-${slug}`],
@@ -217,15 +241,39 @@ export default async function LenderProfilePage({
   const jsonLd = buildJsonLd(lender, isZh)
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+    <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 space-y-6">
       {/* JSON-LD structured data — hoisted to <head> by Next.js */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <h1 className="text-2xl font-semibold text-[#264a58]">
-        {lender.companyNameZh}
-      </h1>
+
+      {/* Header: name + licence status badge */}
+      <div className="flex flex-wrap items-start gap-3">
+        <h1 className="text-2xl font-semibold text-[#264a58]">
+          {getLocalizedField(lender, 'companyName', locale)}
+        </h1>
+        <LicenceBadge licenceStatus={lender.licenceStatus} locale={locale} size="lg" />
+      </div>
+
+      {/* Licence details panel */}
+      <LicencePanel lender={lender} locale={locale} />
+
+      {/* Eligibility chips */}
+      <EligibilityChips tags={lender.eligibilityTags} locale={locale} />
+
+      {/* Loan type tags — each links to filtered directory */}
+      <LoanTypeTags tags={lender.loanTypeTags} locale={locale} />
+
+      {/* Lender Pulse — most recent activity event; absent when none */}
+      <LenderPulse events={lender.activityEvents} locale={locale} />
+
+      {/* Admin note callout box (brand-card background) */}
+      {lender.adminNote && (
+        <div className="rounded-xl bg-brand-card p-4">
+          <p className="text-sm text-[#264a58]">{lender.adminNote}</p>
+        </div>
+      )}
     </main>
   )
 }
