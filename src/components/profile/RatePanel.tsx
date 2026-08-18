@@ -12,7 +12,7 @@
  * Pure Server Component.
  */
 
-import type { Decimal } from '../../generated/prisma/client/runtime/library'
+import type { Decimal } from '@prisma/client/runtime/client'
 
 interface RatePanelProps {
   interestRateMin: Decimal | number | null

@@ -397,7 +397,7 @@ export function FlagForm({ lenderSlug, locale }: Props) {
                   {/* Cloudflare Turnstile (invisible mode) */}
                   <Turnstile
                     ref={turnstileRef}
-                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? ""}
                     options={{ execution: 'execute', appearance: 'interaction-only' }}
                     onSuccess={setTurnstileToken}
                     onExpire={() => setTurnstileToken(null)}

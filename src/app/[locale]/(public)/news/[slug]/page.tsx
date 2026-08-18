@@ -50,7 +50,7 @@ interface LinkedLender {
   slug: string
   companyNameZh: string
   companyNameEn: string | null
-  districtZh: string
+  districtZh: string | null
   districtEn: string | null
   licenceStatus: string
 }

@@ -30,8 +30,8 @@ export interface Lender {
   websiteUrl: string | null
   loanTypeTags: string[]
   eligibilityTags: string[]
-  interestRateMin: string | null
-  interestRateMax: string | null
+  interestRateMin: number | null
+  interestRateMax: number | null
   createdAt: string
 }
 
@@ -161,8 +161,8 @@ export async function searchLenders(params: {
 
   const data: Lender[] = rows.map(r => ({
     ...r,
-    interestRateMin: r.interestRateMin?.toString() ?? null,
-    interestRateMax: r.interestRateMax?.toString() ?? null,
+    interestRateMin: r.interestRateMin != null ? Number(r.interestRateMin) : null,
+    interestRateMax: r.interestRateMax != null ? Number(r.interestRateMax) : null,
     createdAt: r.createdAt.toISOString(),
   }))
 

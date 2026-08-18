@@ -15,7 +15,7 @@
  *   status: 'PUBLISHED' | 'REJECTED'
  * }
  *
- * On PUBLISHED: revalidateTag('news:list') + revalidateTag('news:{slug}')
+ * On PUBLISHED: revalidateTag('news:list', 'max') + revalidateTag('news:{slug}')
  * On REJECTED: no revalidation needed (was DRAFT, nothing public)
  *
  * runtime = 'nodejs': required for getSession() + revalidateTag()
@@ -89,12 +89,12 @@ export async function PUT(request: Request, { params }: RouteContext) {
   })
 
   if (status === 'PUBLISHED') {
-    revalidateTag('news:list')
-    revalidateTag(`news:${updated.slug}`)
+    revalidateTag('news:list', 'max')
+    revalidateTag(`news:${updated.slug}`, 'max')
 
     // Revalidate each linked lender profile so the news association appears
     for (const lenderSlug of updated.linkedLenderSlugs) {
-      revalidateTag(`lender:${lenderSlug}`)
+      revalidateTag(`lender:${lenderSlug}`, 'max')
     }
   }
 

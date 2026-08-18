@@ -31,13 +31,14 @@ const envSchema = z.object({
   ADMIN_PASSWORD: z.string().min(1, 'ADMIN_PASSWORD is required'),
 
   // Cloudflare Turnstile (community submission protection)
-  TURNSTILE_SECRET_KEY: z.string().min(1, 'TURNSTILE_SECRET_KEY is required'),
-  // Public site key — used in client components (passed via Server Component props, not direct env access)
-  NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().min(1, 'NEXT_PUBLIC_TURNSTILE_SITE_KEY is required'),
+  // Optional until Turnstile is provisioned — submission forms skip the check when absent
+  TURNSTILE_SECRET_KEY: z.string().min(1).optional(),
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().min(1).optional(),
 
   // Upstash Redis — rate limiting (provisioned via Vercel Marketplace)
-  KV_REST_API_URL: z.string().url('KV_REST_API_URL must be a valid URL'),
-  KV_REST_API_TOKEN: z.string().min(1, 'KV_REST_API_TOKEN is required'),
+  // Optional in development: submission-guard skips rate limiting when absent
+  KV_REST_API_URL: z.string().url('KV_REST_API_URL must be a valid URL').optional(),
+  KV_REST_API_TOKEN: z.string().min(1).optional(),
 
   // ISR revalidation webhook secret
   REVALIDATION_SECRET: z.string().min(1, 'REVALIDATION_SECRET is required'),

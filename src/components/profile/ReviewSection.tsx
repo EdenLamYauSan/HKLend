@@ -144,7 +144,7 @@ export async function ReviewSection({ lenderSlug, lenderId, locale }: Props) {
         initialReviews={reviews}
         initialTotal={total}
         pageSize={PAGE_SIZE}
-        turnstileSiteKey={env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+        turnstileSiteKey={env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? ''}
       />
     </section>
   )

@@ -127,7 +127,7 @@ const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/sit
  */
 async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
   const body = new URLSearchParams()
-  body.append('secret', env.TURNSTILE_SECRET_KEY)
+  body.append('secret', env.TURNSTILE_SECRET_KEY ?? '')
   body.append('response', token)
   body.append('remoteip', ip)
 
@@ -181,8 +181,11 @@ export async function submissionGuard(
   // ── Step 1: Turnstile verification ──────────────────────────────────────────
   // Must run BEFORE rate-limit INCR: a CAPTCHA glitch or network timeout must
   // never burn the user's submission quota.
+  // Skip when TURNSTILE_SECRET_KEY is absent (pre-Cloudflare setup).
   let turnstilePassed: boolean
-  try {
+  if (!env.TURNSTILE_SECRET_KEY) {
+    turnstilePassed = true
+  } else try {
     turnstilePassed = await verifyTurnstile(turnstileToken, ip)
   } catch {
     // AbortSignal.timeout(3000) throws DOMException on timeout.

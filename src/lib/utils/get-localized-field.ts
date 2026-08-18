@@ -28,15 +28,16 @@ type LocalizedValue = string | null | undefined
  * @throws       - If neither the Zh nor the En field exists on the record.
  */
 export function getLocalizedField(
-  record: Record<string, unknown>,
+  record: object,
   field: string,
   locale: Locale
 ): string {
+  const r = record as Record<string, unknown>
   const zhKey = `${field}Zh`
   const enKey = `${field}En`
 
-  const zhValue = record[zhKey] as LocalizedValue
-  const enValue = record[enKey] as LocalizedValue
+  const zhValue = r[zhKey] as LocalizedValue
+  const enValue = r[enKey] as LocalizedValue
 
   if (!zhValue && !enValue) {
     throw new Error(
