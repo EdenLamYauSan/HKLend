@@ -199,8 +199,8 @@ describe('AC-4: Header component', () => {
     expect(header).toContain('<nav')
   })
 
-  it('has HK Lend wordmark/logo link', () => {
-    expect(header).toContain('HK Lend')
+  it('has hklend wordmark/logo link', () => {
+    expect(header).toContain('hklend')
   })
 
   it('uses sticky positioning', () => {

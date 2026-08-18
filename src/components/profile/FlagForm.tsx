@@ -97,6 +97,10 @@ export function FlagForm({ lenderSlug, locale }: Props) {
     return () => window.removeEventListener('storage', syncFromStorage)
   }, [lenderSlug])
 
+  const handleClose = useCallback(() => {
+    setOpen(false)
+  }, [])
+
   // Trap focus and close on Escape
   useEffect(() => {
     if (!open) return
@@ -133,10 +137,6 @@ export function FlagForm({ lenderSlug, locale }: Props) {
     setError(null)
     setSubmitted(false)
   }
-
-  const handleClose = useCallback(() => {
-    setOpen(false)
-  }, [])
 
   const canSubmit = hasScrolledDisclaimer && category !== '' && !busy
 
