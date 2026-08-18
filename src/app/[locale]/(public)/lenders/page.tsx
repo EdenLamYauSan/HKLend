@@ -67,7 +67,6 @@ export default async function LendersPage({
   const sortBy = ['createdAt', 'name'].includes(sp.sortBy as string) ? sp.sortBy as string : 'recommended'
   const sortOrder = sp.sortOrder === 'desc' ? 'desc' : 'asc'
   const page = parseIntParam(typeof sp.page === 'string' ? sp.page : undefined, 1)
-  const skip = (page - 1) * PAGE_SIZE
 
   const isZh = locale === 'zh'
 
