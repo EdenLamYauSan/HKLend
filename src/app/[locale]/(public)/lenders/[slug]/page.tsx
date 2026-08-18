@@ -259,6 +259,8 @@ function buildJsonLd(lender: LenderData, isZh: boolean) {
     ...(lender.phone ? { telephone: lender.phone } : {}),
     // sameAs: lender's own website (distinct from page canonical url above)
     ...(lender.websiteUrl ? { sameAs: lender.websiteUrl } : {}),
+    // aggregateRating: deferred until Epic 3's Review table is available.
+    // Once merged, add: aggregateRating: { '@type': 'AggregateRating', ... }
   }
 }
 

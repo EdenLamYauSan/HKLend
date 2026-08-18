@@ -75,51 +75,59 @@ type RankedLender = LenderCardData & { rank?: number; ratingAvg?: number; review
 function getTopRated(): Promise<RankedLender[]> {
   return unstable_cache(
     async () => {
-      // Aggregate: avg of the four dimension averages, across approved reviews
-      const rows = await db.$queryRaw<
-        Array<{ slug: string; avg_rating: number; review_count: number }>
-      >`
-        SELECT
-          l.slug,
-          (
-            AVG("ratingApprovalSpeed") +
-            AVG("ratingRateAccuracy") +
-            AVG("ratingStaffAttitude") +
-            AVG("ratingTransparency")
-          ) / 4.0 AS avg_rating,
-          COUNT(*)::int AS review_count
-        FROM "Review" r
-        JOIN "Lender" l ON l.id = r."lenderId"
-        WHERE r.status = 'APPROVED'
-          AND l."licenceStatus" = 'ACTIVE'
-        GROUP BY l.slug
-        HAVING COUNT(*) >= 3
-        ORDER BY avg_rating DESC
-        LIMIT 20
-      `
+      // S1 guard: Review table does not exist until Epic 3 is merged.
+      // Catch the "relation does not exist" error at runtime so a cold deploy
+      // doesn't crash the page; returns [] until the table is available.
+      try {
+        // Aggregate: avg of the four dimension averages, across approved reviews
+        const rows = await db.$queryRaw<
+          Array<{ slug: string; avg_rating: number; review_count: number }>
+        >`
+          SELECT
+            l.slug,
+            (
+              AVG("ratingApprovalSpeed") +
+              AVG("ratingRateAccuracy") +
+              AVG("ratingStaffAttitude") +
+              AVG("ratingTransparency")
+            ) / 4.0 AS avg_rating,
+            COUNT(*)::int AS review_count
+          FROM "Review" r
+          JOIN "Lender" l ON l.id = r."lenderId"
+          WHERE r.status = 'APPROVED'
+            AND l."licenceStatus" = 'ACTIVE'
+          GROUP BY l.slug
+          HAVING COUNT(*) >= 3
+          ORDER BY avg_rating DESC
+          LIMIT 20
+        `
 
-      if (rows.length === 0) return []
+        if (rows.length === 0) return []
 
-      const slugs = rows.map((r) => r.slug)
-      const lenders = await db.lender.findMany({
-        where: { slug: { in: slugs } },
-        select: {
-          id: true, slug: true, licenceNumber: true, licenceStatus: true,
-          companyNameZh: true, companyNameEn: true,
-          districtZh: true, districtEn: true,
-          loanTypeTags: true, eligibilityTags: true,
-        },
-      })
-
-      // Merge rating data and preserve order
-      const ratingMap = new Map(rows.map((r) => [r.slug, { ratingAvg: r.avg_rating, reviewCount: r.review_count }]))
-      return slugs
-        .map((slug) => {
-          const lender = lenders.find((l) => l.slug === slug)
-          if (!lender) return null
-          return { ...lender, ...ratingMap.get(slug) }
+        const slugs = rows.map((r) => r.slug)
+        const lenders = await db.lender.findMany({
+          where: { slug: { in: slugs } },
+          select: {
+            id: true, slug: true, licenceNumber: true, licenceStatus: true,
+            companyNameZh: true, companyNameEn: true,
+            districtZh: true, districtEn: true,
+            loanTypeTags: true, eligibilityTags: true,
+          },
         })
-        .filter((l): l is RankedLender => l !== null)
+
+        // Merge rating data and preserve order
+        const ratingMap = new Map(rows.map((r) => [r.slug, { ratingAvg: r.avg_rating, reviewCount: r.review_count }]))
+        return slugs
+          .map((slug) => {
+            const lender = lenders.find((l) => l.slug === slug)
+            if (!lender) return null
+            return { ...lender, ...ratingMap.get(slug) }
+          })
+          .filter((l): l is RankedLender => l !== null)
+      } catch (err) {
+        console.log('[best/top-rated] Review table not available yet (Epic 3 pending):', err)
+        return []
+      }
     },
     ['best-top-rated'],
     { tags: ['lenders:list'], revalidate: REVALIDATE_SECONDS }
@@ -129,41 +137,49 @@ function getTopRated(): Promise<RankedLender[]> {
 function getMostReviewed(): Promise<RankedLender[]> {
   return unstable_cache(
     async () => {
-      const rows = await db.$queryRaw<
-        Array<{ slug: string; review_count: number }>
-      >`
-        SELECT l.slug, COUNT(*)::int AS review_count
-        FROM "Review" r
-        JOIN "Lender" l ON l.id = r."lenderId"
-        WHERE r.status = 'APPROVED'
-          AND l."licenceStatus" = 'ACTIVE'
-        GROUP BY l.slug
-        HAVING COUNT(*) >= 1
-        ORDER BY review_count DESC
-        LIMIT 20
-      `
+      // S1 guard: Review table does not exist until Epic 3 is merged.
+      // Catch the "relation does not exist" error at runtime so a cold deploy
+      // doesn't crash the page; returns [] until the table is available.
+      try {
+        const rows = await db.$queryRaw<
+          Array<{ slug: string; review_count: number }>
+        >`
+          SELECT l.slug, COUNT(*)::int AS review_count
+          FROM "Review" r
+          JOIN "Lender" l ON l.id = r."lenderId"
+          WHERE r.status = 'APPROVED'
+            AND l."licenceStatus" = 'ACTIVE'
+          GROUP BY l.slug
+          HAVING COUNT(*) >= 1
+          ORDER BY review_count DESC
+          LIMIT 20
+        `
 
-      if (rows.length === 0) return []
+        if (rows.length === 0) return []
 
-      const slugs = rows.map((r) => r.slug)
-      const lenders = await db.lender.findMany({
-        where: { slug: { in: slugs } },
-        select: {
-          id: true, slug: true, licenceNumber: true, licenceStatus: true,
-          companyNameZh: true, companyNameEn: true,
-          districtZh: true, districtEn: true,
-          loanTypeTags: true, eligibilityTags: true,
-        },
-      })
-
-      const countMap = new Map(rows.map((r) => [r.slug, { reviewCount: r.review_count }]))
-      return slugs
-        .map((slug) => {
-          const lender = lenders.find((l) => l.slug === slug)
-          if (!lender) return null
-          return { ...lender, ...countMap.get(slug) }
+        const slugs = rows.map((r) => r.slug)
+        const lenders = await db.lender.findMany({
+          where: { slug: { in: slugs } },
+          select: {
+            id: true, slug: true, licenceNumber: true, licenceStatus: true,
+            companyNameZh: true, companyNameEn: true,
+            districtZh: true, districtEn: true,
+            loanTypeTags: true, eligibilityTags: true,
+          },
         })
-        .filter((l): l is RankedLender => l !== null)
+
+        const countMap = new Map(rows.map((r) => [r.slug, { reviewCount: r.review_count }]))
+        return slugs
+          .map((slug) => {
+            const lender = lenders.find((l) => l.slug === slug)
+            if (!lender) return null
+            return { ...lender, ...countMap.get(slug) }
+          })
+          .filter((l): l is RankedLender => l !== null)
+      } catch (err) {
+        console.log('[best/most-reviewed] Review table not available yet (Epic 3 pending):', err)
+        return []
+      }
     },
     ['best-most-reviewed'],
     { tags: ['lenders:list'], revalidate: REVALIDATE_SECONDS }
@@ -206,7 +222,10 @@ async function getLendersForCriterion(criterion: Criterion): Promise<RankedLende
 
 export function generateStaticParams() {
   const locales: Locale[] = ['zh', 'en']
-  return locales.flatMap((locale) => CRITERIA.map((criterion) => ({ locale, criterion })))
+  // S1: 'top-rated' and 'most-reviewed' are excluded from static pre-rendering
+  // until Epic 3's Review table is merged. Re-add them to STATIC_CRITERIA then.
+  const STATIC_CRITERIA = ['recently-active'] as const
+  return locales.flatMap((locale) => STATIC_CRITERIA.map((criterion) => ({ locale, criterion })))
 }
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
