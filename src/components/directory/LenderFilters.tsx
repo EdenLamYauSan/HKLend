@@ -63,12 +63,26 @@ export function LenderFilters({
         <label htmlFor="lender-search" className="sr-only">
           {isZh ? '搜尋牌照號碼或公司名稱' : 'Search by licence number or company name'}
         </label>
+        {/* Search icon */}
+        <svg
+          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            fillRule="evenodd"
+            d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
+            clipRule="evenodd"
+          />
+        </svg>
         <input
           id="lender-search"
           type="search"
           defaultValue={currentSearch}
           placeholder={isZh ? '搜尋牌照號碼或公司名稱' : 'Search by licence number or company name'}
-          className="h-10 w-full rounded-lg border border-gray-300 bg-white px-4 text-sm text-gray-900 placeholder:text-gray-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#264a58]"
+          className="h-10 w-full rounded-lg border border-border bg-white pl-9 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           onChange={e => updateParams({ search: e.target.value || null })}
           aria-label={isZh ? '搜尋放債人' : 'Search lenders'}
         />
@@ -86,8 +100,8 @@ export function LenderFilters({
               onClick={() => updateParams({ districtZh: null })}
               className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                 currentDistrict === ''
-                  ? 'bg-[#264a58] text-white'
-                  : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                  ? 'bg-primary text-white'
+                  : 'border border-border bg-white text-foreground hover:bg-secondary/50'
               }`}
             >
               {isZh ? '全部' : 'All'}
@@ -99,8 +113,8 @@ export function LenderFilters({
                 onClick={() => updateParams({ districtZh: district })}
                 className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                   currentDistrict === district
-                    ? 'bg-[#264a58] text-white'
-                    : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                    ? 'bg-primary text-white'
+                    : 'border border-border bg-white text-foreground hover:bg-secondary/50'
                 }`}
                 aria-pressed={currentDistrict === district}
               >
@@ -123,8 +137,8 @@ export function LenderFilters({
               onClick={() => updateParams({ loanType: null })}
               className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                 currentLoanType === ''
-                  ? 'bg-[#264a58] text-white'
-                  : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                  ? 'bg-primary text-white'
+                  : 'border border-border bg-white text-foreground hover:bg-secondary/50'
               }`}
             >
               {isZh ? '全部' : 'All'}
@@ -136,8 +150,8 @@ export function LenderFilters({
                 onClick={() => updateParams({ loanType: type })}
                 className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                   currentLoanType === type
-                    ? 'bg-[#264a58] text-white'
-                    : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                    ? 'bg-primary text-white'
+                    : 'border border-border bg-white text-foreground hover:bg-secondary/50'
                 }`}
                 aria-pressed={currentLoanType === type}
               >
@@ -157,7 +171,7 @@ export function LenderFilters({
           id="sort-select"
           value={currentSort}
           onChange={e => updateParams({ sortBy: e.target.value })}
-          className="rounded-md border border-gray-300 bg-white px-2 py-1 text-xs text-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#264a58]"
+          className="rounded-md border border-border bg-white px-2 py-1 text-xs text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           <option value="recommended">{isZh ? '推薦排序' : 'Recommended'}</option>
           <option value="name">{isZh ? '公司名稱 A→Z' : 'Name A→Z'}</option>

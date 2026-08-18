@@ -59,17 +59,17 @@ export function LenderCard({ lender, locale }: LenderCardProps) {
     lender.licenceStatus === 'SUSPENDED' || lender.licenceStatus === 'REVOKED'
 
   return (
-    <li className={`rounded-xl border border-gray-200 bg-white shadow-sm transition-opacity ${isWarning ? 'opacity-80' : ''}`}>
+    <li className={`rounded-xl border border-border bg-white shadow-sm transition-all hover:border-primary/30 hover:shadow-md ${isWarning ? 'opacity-75' : ''}`}>
       <a
         href={`/${locale}/lenders/${lender.slug}`}
-        className="flex min-h-[44px] flex-col gap-2 p-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#264a58]"
+        className="flex min-h-[44px] flex-col gap-2 p-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       >
         {/* Header row: name + badge */}
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <p className="truncate font-medium text-[#264a58]">{primaryName}</p>
+            <p className="truncate font-semibold text-primary">{primaryName}</p>
             {hasValue(secondaryName) && (
-              <p className="truncate text-sm text-gray-500">{secondaryName}</p>
+              <p className="truncate text-sm text-muted-foreground">{secondaryName}</p>
             )}
           </div>
           <LicenceBadge
@@ -80,7 +80,7 @@ export function LenderCard({ lender, locale }: LenderCardProps) {
         </div>
 
         {/* Meta row: licence number + district */}
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-muted-foreground/70">
           {lender.licenceNumber}
           {hasValue(district) && <> · {district}</>}
         </p>
@@ -91,22 +91,22 @@ export function LenderCard({ lender, locale }: LenderCardProps) {
             {visibleTags.map(tag => (
               <span
                 key={tag}
-                className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600"
+                className="rounded-full bg-secondary px-2 py-0.5 text-xs text-primary"
               >
                 {tag}
               </span>
             ))}
             {overflowCount > 0 && (
-              <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-400">
+              <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">
                 +{overflowCount} {isZh ? '更多' : 'more'}
               </span>
             )}
           </div>
         )}
 
-        {/* Eligibility warning — only shown when eligibilityTags is empty */}
+        {/* Eligibility note — only shown when eligibilityTags is empty */}
         {lender.eligibilityTags.length === 0 && (
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-muted-foreground">
             {isZh
               ? '資格待確認，請直接查詢'
               : 'Eligibility unconfirmed — check with lender'}

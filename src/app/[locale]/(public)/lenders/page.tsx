@@ -136,10 +136,10 @@ export default async function LendersPage({
       {/* ── Directory ── */}
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
         <div className="mb-4 flex items-baseline justify-between">
-          <h1 className="text-lg font-semibold text-[#264a58]">
+          <h1 className="text-lg font-semibold text-primary">
             {isZh ? '持牌放債人名冊' : 'Licensed Money Lenders Registry'}
           </h1>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-muted-foreground">
             {search || districtZh || loanType
               ? (isZh ? `${total.toLocaleString()} 個結果` : `${total.toLocaleString()} results`)
               : (isZh ? `共 ${total.toLocaleString()} 間` : `${total.toLocaleString()} total`)}
@@ -191,12 +191,12 @@ export default async function LendersPage({
                       sortOrder,
                       page: String(page - 1),
                     })}`}
-                    className="rounded-md border border-gray-300 px-3 py-1 text-sm text-[#264a58] hover:bg-gray-50"
+                    className="rounded-md border border-border bg-white px-3 py-1.5 text-sm font-medium text-primary hover:bg-secondary/50 transition-colors"
                   >
                     {isZh ? '上一頁' : 'Previous'}
                   </a>
                 )}
-                <span className="px-3 py-1 text-sm text-gray-500">
+                <span className="px-3 py-1.5 text-sm text-muted-foreground">
                   {isZh
                     ? `第 ${page} 頁，共 ${totalPages} 頁`
                     : `Page ${page} of ${totalPages}`}
@@ -211,7 +211,7 @@ export default async function LendersPage({
                       sortOrder,
                       page: String(page + 1),
                     })}`}
-                    className="rounded-md border border-gray-300 px-3 py-1 text-sm text-[#264a58] hover:bg-gray-50"
+                    className="rounded-md border border-border bg-white px-3 py-1.5 text-sm font-medium text-primary hover:bg-secondary/50 transition-colors"
                   >
                     {isZh ? '下一頁' : 'Next'}
                   </a>
