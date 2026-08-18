@@ -20,8 +20,26 @@
 
 import { getScraperDb } from './env'
 import { generateSlug } from './slug'
-import { fetchHkmaRecords } from './hkma-source'
+import { fetchHkmaRecords, loadHkmaRecordsFromXlsx } from './hkma-source'
+import { loadHkmaRecordsFromCrPdf } from './cr-source'
 import type { HkmaRecord } from './hkma-source'
+
+// HKMA_XLSX_PATH env var or --xlsx <path> CLI flag → local XLSX fallback
+function resolveXlsxPath(): string | null {
+  const envPath = process.env.HKMA_XLSX_PATH
+  if (envPath) return envPath
+  const flagIndex = process.argv.indexOf('--xlsx')
+  if (flagIndex !== -1 && process.argv[flagIndex + 1]) return process.argv[flagIndex + 1]
+  return null
+}
+
+// --cr flag → CR PDF source; HKMA_CR_PDF_PATH → use local file instead of downloading
+function useCrSource(): boolean {
+  return process.argv.includes('--cr') || !!process.env.HKMA_CR_PDF_PATH
+}
+function resolveCrPdfPath(): string | undefined {
+  return process.env.HKMA_CR_PDF_PATH ?? undefined
+}
 
 // ─── Types duplicated from app (ARCH-3) ──────────────────────────────────────
 
@@ -36,8 +54,8 @@ interface LenderRow {
   licenceStatus: string
   companyNameZh: string
   companyNameEn: string | null
-  addressZh: string
-  districtZh: string
+  addressZh: string | null
+  districtZh: string | null
 }
 
 // ─── Normalisation ────────────────────────────────────────────────────────────
@@ -81,8 +99,8 @@ function detectChanges(
     licenceStatus: LicenceStatus
     companyNameZh: string
     companyNameEn: string | null
-    addressZh: string
-    districtZh: string
+    addressZh: string | null
+    districtZh: string | null
   }
 ): ChangeSummary[] {
   const changes: ChangeSummary[] = []
@@ -102,7 +120,7 @@ function detectChanges(
     })
   }
 
-  if (existing.addressZh !== scraped.addressZh) {
+  if (scraped.addressZh && existing.addressZh !== scraped.addressZh) {
     changes.push({
       type: 'ADDRESS_CHANGE',
       descriptionZh: `登記地址更新為：${scraped.addressZh}`,
@@ -143,9 +161,17 @@ async function runScraper() {
   const slugsInRun = new Set<string>()
   const lendersWithEvents: string[] = [] // slugs with new ActivityEvents
 
+  const xlsxPath = resolveXlsxPath()
+  const crMode = useCrSource()
   let records: HkmaRecord[] = []
   try {
-    records = await fetchHkmaRecords()
+    if (crMode) {
+      records = await loadHkmaRecordsFromCrPdf(resolveCrPdfPath())
+    } else if (xlsxPath) {
+      records = await loadHkmaRecordsFromXlsx(xlsxPath)
+    } else {
+      records = await fetchHkmaRecords()
+    }
     console.log(`[scrape-hkma] Fetched ${records.length} records from HKMA source`)
   } catch (err) {
     console.error('[scrape-hkma] Fatal: failed to fetch HKMA records', err)
@@ -169,8 +195,9 @@ async function runScraper() {
       const licenceStatus = normaliseLicenceStatus(record.licenceStatus)
       const companyNameZh = record.companyNameZh.trim()
       const companyNameEn = record.companyNameEn?.trim() || null
-      const addressZh = record.addressZh.trim()
-      const districtZh = normaliseDistrict(record.districtZh)
+      const addressZh = record.addressZh?.trim() || null
+      const districtZh = record.districtZh ? normaliseDistrict(record.districtZh) : null
+      const licenceExpiryDate = record.licenceExpiryDate ?? null
 
       // Generate collision-safe slug
       const slug = generateSlug(companyNameZh, slugsInRun)
@@ -204,17 +231,16 @@ async function runScraper() {
             companyNameEn,
             addressZh,
             districtZh,
+            licenceExpiryDate,
             lastScrapedAt: now,
             scrapeStatus: 'SUCCESS',
-            // ARCH-12: admin-owned fields (adminNote, loanTypeTags admin overrides)
-            // are NOT set here — they start as defaults
           },
         })
         lendersInserted++
       } else {
         // Existing lender — detect changes and update
         // ARCH-12: only update the fields in the scraper's ownership allowlist
-        const changes = detectChanges(existing, { licenceStatus, companyNameZh, companyNameEn, addressZh, districtZh })
+        const changes = detectChanges(existing, { licenceStatus, companyNameZh, companyNameEn: companyNameEn ?? null, addressZh, districtZh })
 
         // ARCH-12 field allowlist: update ONLY scraper-owned fields.
         // Admin-owned fields (note, tags, eligibility, slug) are never in this object.
@@ -226,6 +252,7 @@ async function runScraper() {
             companyNameEn,
             addressZh,
             districtZh,
+            licenceExpiryDate,
             lastScrapedAt: now,
             scrapeStatus: 'SUCCESS',
           },
@@ -294,7 +321,7 @@ async function runScraper() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.REVALIDATION_SECRET}`,
+            'x-revalidation-secret': process.env.REVALIDATION_SECRET,
           },
           body: JSON.stringify({ tag: `lender:${slug}` }),
         })

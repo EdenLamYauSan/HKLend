@@ -1,4 +1,4 @@
-name: Scrape HKMA Money Lender Registry
+name: Scrape CR Money Lender Registry
 
 on:
   # Every Monday at 03:00 UTC
@@ -9,7 +9,7 @@ on:
 
 jobs:
   scrape:
-    name: Fetch & upsert HKMA records
+    name: Fetch & upsert CR licensee records
     runs-on: ubuntu-latest
 
     steps:
@@ -27,23 +27,21 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
 
+      - name: Install Python dependencies
+        run: pip install pypdf
+
       - name: Install root dependencies
         run: pnpm install --frozen-lockfile
 
-      # ── Install scraper dependencies separately (isolated package.json) ────────
-      # The scraper lives in scripts/scraper/ with its own package.json (ARCH-3).
       - name: Install scraper dependencies
         working-directory: scripts/scraper
-        run: pnpm install --frozen-lockfile
+        run: npm install
 
-      # ── Run the scraper ────────────────────────────────────────────────────────
-      # DATABASE_URL, NEXT_PUBLIC_APP_URL, and REVALIDATION_SECRET come from
-      # GitHub Actions secrets. The scraper exits 1 when ScrapeRun.status === 'FAILED'.
-      - name: Run HKMA scraper
+      - name: Run CR scraper
         working-directory: scripts/scraper
-        run: pnpm run scrape
+        run: npx tsx src/scrape-hkma.ts --cr
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
+          SCRAPER_DATABASE_URL: ${{ secrets.SCRAPER_DATABASE_URL }}
           REVALIDATION_SECRET: ${{ secrets.REVALIDATION_SECRET }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
           NODE_ENV: production
