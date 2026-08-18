@@ -67,6 +67,7 @@ export default async function LendersPage({
   const sortBy = ['createdAt', 'name'].includes(sp.sortBy as string) ? sp.sortBy as string : 'recommended'
   const sortOrder = sp.sortOrder === 'desc' ? 'desc' : 'asc'
   const page = parseIntParam(typeof sp.page === 'string' ? sp.page : undefined, 1)
+  const skip = (page - 1) * PAGE_SIZE
 
   const isZh = locale === 'zh'
 
@@ -97,47 +98,15 @@ export default async function LendersPage({
   const loanTypeOptions = allLoanTypes.map(r => r.tag)
 
   // ── Fetch results ─────────────────────────────────────────────────────────
-  const where: Record<string, unknown> = {}
-  if (districtZh) where.districtZh = districtZh
-  if (loanType) where.loanTypeTags = { has: loanType }
-  if (search) {
-    where.OR = [
-      { companyNameZh: { contains: search, mode: 'insensitive' } },
-      { companyNameEn: { contains: search, mode: 'insensitive' } },
-      { licenceNumber: { startsWith: search, mode: 'insensitive' } },
-    ]
-  }
-
-  // Recommended: ACTIVE licences first, then alphabetical.
-  // When reviews + ad rank exist, swap this for a weighted score column.
-  const orderBy =
-    sortBy === 'createdAt'
-      ? [{ createdAt: sortOrder as 'asc' | 'desc' }]
-      : sortBy === 'name'
-      ? [{ companyNameZh: sortOrder as 'asc' | 'desc' }]
-      : [{ licenceStatus: 'asc' as const }, { companyNameZh: 'asc' as const }]
-
-  const [total, lenders] = await Promise.all([
-    db.lender.count({ where }),
-    db.lender.findMany({
-      where,
-      orderBy,
-      skip,
-      take: PAGE_SIZE,
-      select: {
-        id: true,
-        slug: true,
-        licenceNumber: true,
-        licenceStatus: true,
-        companyNameZh: true,
-        companyNameEn: true,
-        districtZh: true,
-        districtEn: true,
-        loanTypeTags: true,
-        eligibilityTags: true,
-      },
-    }),
-  ])
+  const { data: lenders, total } = await searchLenders({
+    search,
+    districtZh,
+    loanType,
+    sortBy,
+    sortOrder,
+    page,
+    pageSize: PAGE_SIZE,
+  })
 
   const totalPages = Math.ceil(total / PAGE_SIZE)
 
