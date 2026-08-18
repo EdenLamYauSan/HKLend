@@ -81,7 +81,7 @@ export function HeroSearch({ locale, targetPath }: HeroSearchProps) {
           defaultValue={currentSearch}
           key={currentSearch}
           placeholder={isZh ? '搜尋牌照號碼或公司名稱…' : 'Search licence number or company name…'}
-          className="h-14 w-full rounded-xl border border-white/20 bg-white pl-12 pr-4 text-base text-gray-900 placeholder:text-gray-400 shadow-xl focus:outline-none focus:ring-2 focus:ring-[#c0392b]"
+          className="h-14 w-full rounded-xl border border-white/20 bg-white pl-12 pr-4 text-base text-gray-900 placeholder:text-gray-400 shadow-xl focus:outline-none focus:ring-2 focus:ring-[#264a58]/40"
           onChange={e => setSearch(e.target.value)}
           aria-label={isZh ? '搜尋放債人' : 'Search lenders'}
         />

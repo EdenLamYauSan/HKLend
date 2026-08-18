@@ -32,7 +32,7 @@ export function DirectoryTabNav({ locale }: DirectoryTabNavProps) {
                   relative px-4 py-3 text-sm font-medium transition-colors
                   ${isHome
                     ? isActive
-                      ? 'text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-brand-crimson'
+                      ? 'text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[#264a58]'
                       : 'text-white/60 hover:text-white/90'
                     : isActive
                       ? 'text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary'
