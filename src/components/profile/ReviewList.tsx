@@ -15,7 +15,7 @@
  * NFR-6: review body rendered as <p> plain text — never dangerouslySetInnerHTML.
  */
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import type { ReviewItem } from './ReviewSection'
 import { ReviewForm } from './ReviewForm'
 import { StarDisplay } from './StarPicker'
@@ -116,17 +116,34 @@ function ReviewCard({
   const copy = COPY[locale]
   const avg = overallAvg(review)
 
-  // Vote state — initialised from localStorage on first render
-  const [votes, setVotes] = useState(() => ({
+  // Vote state — starts null to avoid SSR/hydration mismatch; populated after
+  // mount so localStorage is only read on the client.
+  const [votes, setVotes] = useState<{
+    helpful: number
+    notHelpful: number
+    cast: VoteState
+  } | null>(null)
+
+  useEffect(() => {
+    setVotes({
+      helpful: review.helpfulCount,
+      notHelpful: review.notHelpfulCount,
+      cast: getStoredVote(review.id),
+    })
+  }, [review.id, review.helpfulCount, review.notHelpfulCount])
+
+  // Resolved counts for render — fall back to server props while not yet mounted.
+  const resolvedVotes = votes ?? {
     helpful: review.helpfulCount,
     notHelpful: review.notHelpfulCount,
-    cast: getStoredVote(review.id),
-  }))
+    cast: null as VoteState,
+  }
+
   const [voting, setVoting] = useState(false)
 
   const castVote = useCallback(
     async (vote: 'helpful' | 'not-helpful') => {
-      if (votes.cast || voting) return
+      if (resolvedVotes.cast || voting) return
       setVoting(true)
       try {
         const res = await fetch(`/api/reviews/${review.id}/vote`, {
@@ -136,19 +153,26 @@ function ReviewCard({
         })
         if (res.ok) {
           storeVote(review.id, vote)
-          setVotes(prev => ({
-            ...prev,
-            helpful: vote === 'helpful' ? prev.helpful + 1 : prev.helpful,
-            notHelpful:
-              vote === 'not-helpful' ? prev.notHelpful + 1 : prev.notHelpful,
-            cast: vote,
-          }))
+          setVotes(prev => {
+            const base = prev ?? {
+              helpful: review.helpfulCount,
+              notHelpful: review.notHelpfulCount,
+              cast: null as VoteState,
+            }
+            return {
+              ...base,
+              helpful: vote === 'helpful' ? base.helpful + 1 : base.helpful,
+              notHelpful:
+                vote === 'not-helpful' ? base.notHelpful + 1 : base.notHelpful,
+              cast: vote,
+            }
+          })
         }
       } finally {
         setVoting(false)
       }
     },
-    [review.id, votes.cast, voting]
+    [review.id, review.helpfulCount, review.notHelpfulCount, resolvedVotes.cast, voting]
   )
 
   const dims = [
@@ -200,28 +224,28 @@ function ReviewCard({
         <button
           type="button"
           onClick={() => castVote('helpful')}
-          disabled={!!votes.cast || voting}
-          aria-pressed={votes.cast === 'helpful'}
+          disabled={!!resolvedVotes.cast || voting}
+          aria-pressed={resolvedVotes.cast === 'helpful'}
           className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
-            votes.cast === 'helpful'
+            resolvedVotes.cast === 'helpful'
               ? 'bg-green-100 border-green-400 text-green-700 font-semibold'
               : 'border-gray-300 text-gray-500 hover:border-gray-400 disabled:opacity-50'
           }`}
         >
-          {copy.helpful} ({votes.helpful})
+          {copy.helpful} ({resolvedVotes.helpful})
         </button>
         <button
           type="button"
           onClick={() => castVote('not-helpful')}
-          disabled={!!votes.cast || voting}
-          aria-pressed={votes.cast === 'not-helpful'}
+          disabled={!!resolvedVotes.cast || voting}
+          aria-pressed={resolvedVotes.cast === 'not-helpful'}
           className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
-            votes.cast === 'not-helpful'
+            resolvedVotes.cast === 'not-helpful'
               ? 'bg-red-100 border-red-400 text-red-700 font-semibold'
               : 'border-gray-300 text-gray-500 hover:border-gray-400 disabled:opacity-50'
           }`}
         >
-          {copy.notHelpful} ({votes.notHelpful})
+          {copy.notHelpful} ({resolvedVotes.notHelpful})
         </button>
       </div>
     </article>
