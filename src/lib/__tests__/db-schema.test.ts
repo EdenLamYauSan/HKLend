@@ -127,8 +127,9 @@ describe('DB singleton separation (AC-5)', () => {
   )
 
   it('db.ts reads DATABASE_URL (not SCRAPER_DATABASE_URL) for its connection', () => {
-    // The actual connection line uses DATABASE_URL
-    expect(DB_TS).toContain("process.env.DATABASE_URL")
+    // The connection now goes through the validated env singleton (env.DATABASE_URL),
+    // not process.env directly.
+    expect(DB_TS).toContain("env.DATABASE_URL")
     // SCRAPER_DATABASE_URL must not appear in an actual assignment (only in comments is OK)
     const codeLines = DB_TS.split('\n').filter(l => !l.trimStart().startsWith('//') && !l.trimStart().startsWith('*'))
     expect(codeLines.join('\n')).not.toContain('SCRAPER_DATABASE_URL')
