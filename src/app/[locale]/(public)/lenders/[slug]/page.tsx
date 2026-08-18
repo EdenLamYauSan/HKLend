@@ -173,7 +173,14 @@ export async function generateMetadata({
     ? lender.companyNameZh
     : (lender.companyNameEn ?? lender.companyNameZh)
 
-  const title = `${displayName} — HK Lend`
+  // Title must be ≤60 chars (AC 6.7). Suffix " — HK Lend" = 10 chars → name ≤50.
+  const SUFFIX = ' — HK Lend'
+  const MAX_NAME = 60 - SUFFIX.length // 50
+  const titleName = displayName.length > MAX_NAME
+    ? `${displayName.slice(0, MAX_NAME - 1)}…`
+    : displayName
+  const title = `${titleName}${SUFFIX}`
+
   const description = isZh
     ? `查看 ${lender.companyNameZh} 的牌照狀態、地址及聯絡資料。持牌放債人資料由香港公司登記冊提供。`
     : `View licence status, address, and contact details for ${displayName}. Licensed money lender data from the Hong Kong Money Lenders Register.`
@@ -195,8 +202,13 @@ export async function generateMetadata({
   return {
     title,
     description,
+    // ARCH-9: TC is canonical; EN declares hreflang alternate (AC 6.7).
     alternates: {
       canonical: canonicalUrl,
+      languages: {
+        'zh-HK': `${SITE_URL}/zh/lenders/${slug}`,
+        en: `${SITE_URL}/en/lenders/${slug}`,
+      },
     },
     openGraph: {
       title,
@@ -227,11 +239,17 @@ function buildJsonLd(lender: LenderData, isZh: boolean) {
     ? lender.districtZh
     : (lender.districtEn ?? lender.districtZh)
 
+  // AC 6.7: url = canonical page URL (not the lender's own website).
+  // TC (/zh/) is always the canonical — same regardless of which locale page
+  // is being rendered, so the JSON-LD is consistent for dedup by crawlers.
+  const canonicalPageUrl = `${SITE_URL}/zh/lenders/${lender.slug}`
+
   return {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     name,
     identifier: lender.licenceNumber,
+    url: canonicalPageUrl,
     address: {
       '@type': 'PostalAddress',
       streetAddress,
@@ -239,7 +257,8 @@ function buildJsonLd(lender: LenderData, isZh: boolean) {
       addressCountry: 'HK',
     },
     ...(lender.phone ? { telephone: lender.phone } : {}),
-    ...(lender.websiteUrl ? { url: lender.websiteUrl } : {}),
+    // sameAs: lender's own website (distinct from page canonical url above)
+    ...(lender.websiteUrl ? { sameAs: lender.websiteUrl } : {}),
   }
 }
 
