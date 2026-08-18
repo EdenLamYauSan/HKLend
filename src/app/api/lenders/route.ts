@@ -49,6 +49,12 @@ export async function GET(request: NextRequest): Promise<Response> {
   // GET /api/lenders?slugs=slug1,slug2,...
   // Returns an array of lender objects (no pagination wrapper).
   if (raw.slugs) {
+    if (raw.slugs.length > 200) {
+      return Response.json(
+        apiError('VALIDATION_ERROR', 'slugs parameter too long'),
+        { status: 400 },
+      )
+    }
     const slugList = raw.slugs
       .split(',')
       .map((s: string) => s.trim())
