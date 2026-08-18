@@ -59,7 +59,7 @@ export async function GET(request: NextRequest): Promise<Response> {
       .split(',')
       .map((s: string) => s.trim())
       .filter(Boolean)
-      .slice(0, 4) // cap at 4 (compare tray max)
+      .slice(0, 100)
 
     const rows = await db.lender.findMany({
       where: { slug: { in: slugList } },
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest): Promise<Response> {
       interestRateMax: r.interestRateMax ? Number(r.interestRateMax) : null,
     }))
 
-    return Response.json(data)
+    return Response.json({ data, meta: { total: data.length, page: 1, pageSize: data.length, totalPages: 1 } })
   }
 
   const parsed = querySchema.safeParse(raw)

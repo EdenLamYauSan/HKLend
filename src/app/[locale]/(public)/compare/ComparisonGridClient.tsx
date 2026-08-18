@@ -82,10 +82,9 @@ export function ComparisonGridClient({ locale }: ComparisonGridClientProps) {
 
     fetch(`/api/lenders?slugs=${encodeURIComponent(slugs)}`)
       .then(r => r.json())
-      .then((data: LenderDetail[]) => {
-        // Preserve the order from the compare store
+      .then((json: { data: LenderDetail[] }) => {
         const ordered = items
-          .map(item => data.find(d => d.slug === item.slug))
+          .map(item => json.data.find(d => d.slug === item.slug))
           .filter((d): d is LenderDetail => d !== undefined)
         setLenders(ordered)
       })
