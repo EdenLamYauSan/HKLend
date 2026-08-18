@@ -216,3 +216,27 @@ model ScamReport {
   @@index([status, createdAt(sort: Desc)])
   @@map("ScamReport")
 }
+
+// ─── NewsItem ─────────────────────────────────────────────────────────────────
+// Regulatory/industry news items scraped from HKMA/SFC RSS feeds.
+// Created with status DRAFT; admin reviews and publishes or rejects.
+// Story 6.1: News Scraper, Draft Queue & Admin Publishing (FR-35, FR-36, FR-59)
+
+model NewsItem {
+  id                 String   @id @default(cuid())
+  slug               String   @unique
+  titleZh            String
+  titleEn            String?
+  bodyZh             String   @db.Text
+  bodyEn             String?  @db.Text
+  source             String   @unique // original URL (used as dedup key)
+  publishedAt        DateTime
+  status             String   @default("DRAFT") // DRAFT | PUBLISHED | REJECTED
+  linkedLenderSlugs  String[] @default([])
+  category           String   @default("general")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([status, publishedAt(sort: Desc)])
+  @@map("NewsItem")
+}

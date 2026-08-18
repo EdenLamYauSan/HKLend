@@ -28,11 +28,38 @@ import type { Locale } from '@/locales'
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 
-export const metadata: Metadata = {
-  title: {
-    zh: '持牌放債人名冊 — HK Lend',
-    en: 'Licensed Money Lenders Register — HK Lend',
-  } as unknown as string,
+const SITE_URL = 'https://hklend.hk'
+
+// AC 6.7: locale-aware title, description, canonical & hreflang alternates.
+// Using generateMetadata (not static export) because the canonical URL is locale-specific.
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
+  const isZh = locale === 'zh'
+
+  const title = isZh
+    ? '持牌放債人名冊 — HK Lend'
+    : 'Licensed Money Lenders Register — HK Lend'
+
+  const description = isZh
+    ? '免費搜尋香港持牌放債人名冊，核實牌照狀態，按地區及貸款類型篩選。'
+    : 'Search the Hong Kong licensed money lenders register. Verify licence status and filter by district and loan type.'
+
+  return {
+    title,
+    description,
+    // ARCH-9: TC is canonical; EN has hreflang alternate.
+    alternates: {
+      canonical: `${SITE_URL}/zh/lenders`,
+      languages: {
+        'zh-HK': `${SITE_URL}/zh/lenders`,
+        en: `${SITE_URL}/en/lenders`,
+      },
+    },
+  }
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────

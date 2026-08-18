@@ -252,6 +252,21 @@ export const en: Translation = {
     failed: 'Human verification failed. Please try again.',
   },
 
+  // ── News feed ─────────────────────────────────────────────────────────────
+  news: {
+    pageTitle: 'Regulatory Updates',
+    pageDescription: 'Latest Hong Kong money lending regulatory news and industry updates',
+    empty: 'No news yet. Check back later.',
+    translationUnavailable: 'English translation not available — showing Chinese original.',
+    relatedLenders: 'Related Lenders',
+    categories: {
+      regulatory: 'Regulatory',
+      industry: 'Industry',
+      enforcement: 'Enforcement',
+      general: 'General',
+    },
+  },
+
   // ── Admin (TC mirrors EN for admin — admin UI is TC-only per spec) ─────────
   admin: {
     loginTitle: 'Admin Login',

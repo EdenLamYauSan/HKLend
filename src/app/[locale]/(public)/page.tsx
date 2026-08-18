@@ -4,6 +4,44 @@ import { db } from '@/lib/db'
 import { Suspense } from 'react'
 import { HeroSearch } from '@/components/directory/HeroSearch'
 import type { Locale } from '@/locales'
+import type { Metadata } from 'next'
+
+// ─── Site config ──────────────────────────────────────────────────────────────
+
+const SITE_URL = 'https://hklend.hk'
+
+// ─── Metadata ─────────────────────────────────────────────────────────────────
+
+// AC 6.7: homepage needs a unique title, description, canonical & hreflang.
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await params
+  const isZh = locale === 'zh'
+
+  const title = isZh
+    ? '核實牌照，保障自己 — HK Lend'
+    : 'Verify Licences, Protect Yourself — HK Lend'
+
+  const description = isZh
+    ? '免費查核香港持牌放債人牌照狀態，按地區及貸款類型搜尋，避免接觸無牌放債人。'
+    : 'Free checks on Hong Kong licensed money lenders. Verify licence status, filter by district and loan type, avoid unlicensed lenders.'
+
+  return {
+    title,
+    description,
+    // ARCH-9: TC (/zh/) is canonical; EN has hreflang alternate.
+    alternates: {
+      canonical: `${SITE_URL}/zh`,
+      languages: {
+        'zh-HK': `${SITE_URL}/zh`,
+        en: `${SITE_URL}/en`,
+      },
+    },
+  }
+}
 
 export default async function HomePage({
   params,

@@ -248,6 +248,21 @@ export const zh: Translation = {
     failed: '人機驗證失敗，請重試。',
   },
 
+  // ── News feed ─────────────────────────────────────────────────────────────
+  news: {
+    pageTitle: '牌照動態',
+    pageDescription: '最新香港放債人監管消息及行業動態',
+    empty: '暫時未有消息。請稍後再查。',
+    translationUnavailable: '英文版本暫未提供，以下為中文原文。',
+    relatedLenders: '相關放債人',
+    categories: {
+      regulatory: '監管消息',
+      industry: '行業動態',
+      enforcement: '執法行動',
+      general: '一般消息',
+    },
+  },
+
   // ── Admin ─────────────────────────────────────────────────────────────────
   admin: {
     loginTitle: '管理員登入',

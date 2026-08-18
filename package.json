@@ -12,7 +12,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "scrape": "pnpm --filter hklend-scraper run scrape"
+    "scrape": "pnpm --filter hklend-scraper run scrape",
+    "scrape:news": "pnpm --filter hklend-scraper run scrape:news"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
