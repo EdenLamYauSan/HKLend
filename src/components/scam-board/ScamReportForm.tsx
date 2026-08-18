@@ -12,7 +12,7 @@
  * NFR-6: all fields rendered/stored as plain text.
  */
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import type { Locale } from '@/locales'
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -43,9 +43,19 @@ export function ScamReportForm({ locale }: Props) {
     setSubmitted(false)
   }
 
-  function handleClose() {
+  const handleClose = useCallback(() => {
     setOpen(false)
-  }
+  }, [])
+
+  // Close on Escape key (focus trap)
+  useEffect(() => {
+    if (!open) return
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') handleClose()
+    }
+    document.addEventListener('keydown', handleKey)
+    return () => document.removeEventListener('keydown', handleKey)
+  }, [open, handleClose])
 
   const canSubmit =
     companyName.trim().length > 0 &&
