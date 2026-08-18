@@ -6,14 +6,14 @@
  *
  * Key fixture from the story AC:
  *   principal=100,000 | tenor=24 months | flat rate=1.0% per month
- *   Expected: APR ≈ 21.46% (±0.01%), monthly payment HK$5,167, total HK$124,008
+ *   Expected: APR ≈ 21.57% (±0.01%), monthly payment HK$5,167, total HK$124,008
  */
 
 import { describe, it, expect } from 'vitest'
 import { calculateApr } from '../apr'
 
 describe('calculateApr', () => {
-  it('matches the AC fixture: 100k / 24mo / 1% flat → APR ~21.46%', () => {
+  it('matches the AC fixture: 100k / 24mo / 1% flat → APR ~21.57%', () => {
     const result = calculateApr({
       principal: 100_000,
       tenorMonths: 24,

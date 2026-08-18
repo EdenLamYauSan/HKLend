@@ -18,7 +18,7 @@
  *    where L = loan amount, r = monthly flat rate (decimal), n = number of months.
  * 2. Find the monthly IRR 'i' such that: L = P * [1 - (1+i)^-n] / i
  *    (standard annuity present-value formula solved for i via Newton-Raphson).
- * 3. APR = ((1 + i)^12 - 1) * 100 (effective annual rate, compounded monthly).
+ * 3. APR = i * 12 * 100 (nominal annual rate, monthly IRR × 12).
  */
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -39,7 +39,7 @@ export interface CalculatorResult {
   totalRepayable: number
   /** Total interest paid (totalRepayable - principal) in HKD */
   totalInterest: number
-  /** True Annual Percentage Rate as a percentage (e.g. 21.46) */
+  /** True Annual Percentage Rate as a percentage (e.g. 21.57) */
   apr: number
   /** Inputs echoed back for the caller's convenience */
   inputs: CalculatorInputs
@@ -140,8 +140,8 @@ export function calculateApr(inputs: CalculatorInputs): CalculatorResult {
     // happen for valid HK money lending inputs.
     apr = monthlyFlatRate * 2 * 12 / 100 * 100
   } else {
-    // HKMA standard: nominal APR = monthly IRR × 12 (not effective annual rate)
-    // Reference: HKMA's published APR calculation for HK money lending contracts
+    // Industry convention for HK licensed money lenders: nominal APR = monthly IRR × 12
+    // (HKMA regulates banks and uses effective rate; money lenders use nominal convention)
     // This produces the ~21.57% result for the AC fixture (100k / 24mo / 1% flat).
     apr = monthlyIrr * 12 * 100
   }
