@@ -58,6 +58,8 @@ const LENDER_SELECT = {
   districtEn: true,
   loanTypeTags: true,
   eligibilityTags: true,
+  interestRateMin: true,
+  interestRateMax: true,
 } as const
 
 // ─── Route handler ────────────────────────────────────────────────────────────
@@ -133,11 +135,17 @@ export async function GET(request: NextRequest): Promise<Response> {
       return Response.json({ data: [], meta: { total: 0, page: 1, pageSize: 0, totalPages: 0 } })
     }
 
-    const data = await db.lender.findMany({
+    const rows = await db.lender.findMany({
       where: { slug: { in: slugList } },
       select: LENDER_SELECT,
       orderBy: { companyNameZh: 'asc' },
     })
+
+    const data = rows.map(r => ({
+      ...r,
+      interestRateMin: r.interestRateMin ? Number(r.interestRateMin) : null,
+      interestRateMax: r.interestRateMax ? Number(r.interestRateMax) : null,
+    }))
 
     return Response.json({ data, meta: { total: data.length, page: 1, pageSize: data.length, totalPages: 1 } })
   }
