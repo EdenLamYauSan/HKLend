@@ -24,6 +24,7 @@ import { ScopeBanner } from '@/components/layout/ScopeBanner'
 import { Header } from '@/components/layout/Header'
 import { DirectoryTabNav } from '@/components/layout/DirectoryTabNav'
 import { Footer } from '@/components/layout/Footer'
+import { CompareTray } from '@/components/CompareTray'
 
 /**
  * Saira: geometric sans with excellent Latin numeral rendering.
@@ -100,6 +101,9 @@ export default async function LocaleLayout({
          * AC-4 (Story 1.8).
          */}
         <Analytics />
+
+        {/* Floating comparison tray — fixed at bottom; hidden when <2 lenders selected */}
+        <CompareTray locale={lang} />
       </body>
     </html>
   )

@@ -36,6 +36,9 @@ import { EligibilityChips } from '@/components/profile/EligibilityChips'
 import { ReviewSection } from '@/components/profile/ReviewSection'
 import { ActivityFeed } from '@/components/profile/ActivityFeed'
 import { FlagsSection } from '@/components/profile/FlagsSection'
+import { RatePanel } from '@/components/profile/RatePanel'
+import { ProfilePageClient } from '@/components/profile/ProfilePageClient'
+import type { Decimal } from '@/generated/prisma/client/runtime/library'
 
 // ─── Site config ──────────────────────────────────────────────────────────────
 
@@ -61,8 +64,10 @@ type LenderData = {
   licenceIssuedDate: Date | null
   loanTypeTags: string[]
   eligibilityTags: string[]
-  adminNote: string | null
+  interestRateMin: Decimal | null
+  interestRateMax: Decimal | null
   lastScrapedAt: Date | null
+  adminNote: string | null
   id: string
   activityEvents: Array<{
     id: string
@@ -106,6 +111,8 @@ function getLenderBySlug(slug: string): Promise<LenderData | null> {
           licenceIssuedDate: true,
           loanTypeTags: true,
           eligibilityTags: true,
+          interestRateMin: true,
+          interestRateMax: true,
           adminNote: true,
           lastScrapedAt: true,
           activityEvents: {
@@ -296,12 +303,26 @@ export default async function LenderProfilePage({
         ? lender.companyNameZh
         : null)
 
+  // Convert Decimal to plain number — Decimal is not serialisable to client components
+  const rateMinNum = lender.interestRateMin ? Number(lender.interestRateMin) : null
+
+  // Compare-store shape (client-safe — no Decimal types)
+  const compareLender = {
+    slug: lender.slug,
+    companyNameZh: lender.companyNameZh,
+    companyNameEn: lender.companyNameEn,
+    licenceStatus: lender.licenceStatus,
+    districtZh: lender.districtZh,
+    interestRateMin: rateMinNum,
+  }
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 space-y-5">
       {/* S-11: Share recipient banner — shown when ?ref=share is present */}
       <Suspense fallback={null}>
         <ShareRecipientBanner locale={locale as 'zh' | 'en'} />
       </Suspense>
+
 
       {/* JSON-LD structured data — hoisted to <head> by Next.js */}
       {/* eslint-disable-next-line react/no-danger -- safe: __html is JSON.stringify output, not user input */}
@@ -330,33 +351,47 @@ export default async function LenderProfilePage({
         locale={locale}
       />
 
-      {/* Licence details panel */}
-      <LicencePanel lender={lender} locale={locale} />
+      {/*
+       * ProfilePageClient owns the two-column layout (left content + right sidebar)
+       * and the calculator open/close state. Server-rendered sections are passed as
+       * children and rendered inside the left column.
+       */}
+      <ProfilePageClient lender={compareLender} locale={locale as 'zh' | 'en'}>
+        {/* Licence details panel */}
+        <LicencePanel lender={lender} locale={locale} />
 
-      {/* Eligibility chips */}
-      <EligibilityChips tags={lender.eligibilityTags} locale={locale} />
+        {/* Eligibility chips */}
+        <EligibilityChips tags={lender.eligibilityTags} locale={locale} />
 
-      {/* Loan type tags — each links to filtered directory */}
-      <LoanTypeTags tags={lender.loanTypeTags} locale={locale} />
+        {/* Loan type tags — each links to filtered directory */}
+        <LoanTypeTags tags={lender.loanTypeTags} locale={locale} />
 
-      {/* Lender Pulse — most recent activity event + rating trend signal */}
-      <LenderPulse
-        events={lender.activityEvents.slice(0, 1)}
-        lenderId={lender.id}
-        lenderSlug={lender.slug}
-        locale={locale}
-      />
+        {/* Lender Pulse — most recent activity event + rating trend signal */}
+        <LenderPulse
+          events={lender.activityEvents.slice(0, 1)}
+          lenderId={lender.id}
+          lenderSlug={lender.slug}
+          locale={locale}
+        />
 
-      {/* Admin note callout box */}
-      {lender.adminNote && (
-        <div className="rounded-xl border border-border bg-brand-card p-4">
-          <p className="text-sm text-primary">{lender.adminNote}</p>
-        </div>
-      )}
+        {/* Advertised rates panel — shows "pending" when no rate scraped yet (Story 5.1) */}
+        <RatePanel
+          interestRateMin={lender.interestRateMin}
+          interestRateMax={lender.interestRateMax}
+          lastScrapedAt={lender.lastScrapedAt}
+          locale={locale}
+        />
+
+        {/* Admin note callout box */}
+        {lender.adminNote && (
+          <div className="rounded-xl border border-border bg-brand-card p-4">
+            <p className="text-sm text-primary">{lender.adminNote}</p>
+          </div>
+        )}
+      </ProfilePageClient>
 
       {/* S-10: Data source attribution */}
       <DataSourceAttribution lastChecked={lender.lastScrapedAt} locale={locale as 'zh' | 'en'} />
-
 
       {/* Community reviews (Stories 3.1–3.5) */}
       <ReviewSection
