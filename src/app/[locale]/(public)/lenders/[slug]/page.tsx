@@ -302,7 +302,14 @@ export default async function LenderProfilePage({
         )}
       </div>
 
-      {/* Licence details panel (no badge — already in verdict card above) */}
+      {/* Community flags — warning banner + list (Stories 4.1–4.3, AC-2: above licence panel) */}
+      <FlagsSection
+        lenderId={lender.id}
+        lenderSlug={lender.slug}
+        locale={locale}
+      />
+
+      {/* Licence details panel */}
       <LicencePanel lender={lender} locale={locale} />
 
       {/* Eligibility chips */}
@@ -329,12 +336,6 @@ export default async function LenderProfilePage({
       {/* S-10: Data source attribution */}
       <DataSourceAttribution lastChecked={lender.lastScrapedAt} locale={locale as 'zh' | 'en'} />
 
-      {/* Community flags — warning banner + list (Stories 4.1–4.3) */}
-      <FlagsSection
-        lenderId={lender.id}
-        lenderSlug={lender.slug}
-        locale={locale}
-      />
 
       {/* Community reviews (Stories 3.1–3.5) */}
       <ReviewSection

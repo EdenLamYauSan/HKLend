@@ -107,6 +107,9 @@ export async function generateMetadata({
     description,
     alternates: {
       canonical: canonicalUrl,
+      languages: {
+        en: `${SITE_URL}/en/scam-board`,
+      },
     },
     openGraph: {
       title,

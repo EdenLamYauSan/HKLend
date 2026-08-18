@@ -40,11 +40,7 @@ export default async function AdminFlagsPage() {
         </p>
       </div>
 
-      {pending.length === 0 ? (
-        <p className="text-sm text-gray-500">No pending flags</p>
-      ) : (
-        <FlagModerationList flags={pending} />
-      )}
+      <FlagModerationList flags={pending} />
     </div>
   )
 }
