@@ -161,22 +161,25 @@ export function CalculatorSheet({
 
   const useDefaultRateChip = defaultRate != null && rate !== defaultRate
 
-  const labelId = useId()
-  const sheetLabelId = `calc-sheet-${labelId}`
+  // Two separate ID bases so the desktop sidebar and mobile sheet each get
+  // unique form-element IDs — rendering both in the same DOM would otherwise
+  // produce duplicate id attributes, which is invalid HTML.
+  const desktopId = useId()
+  const mobileId = useId()
 
-  // ── Shared form content ──
-  const formContent = (
+  // ── Shared form content (parametrised by ID base) ──
+  const makeFormContent = (idBase: string) => (
     <div className="space-y-5">
       {/* Loan amount */}
       <div>
         <label
-          htmlFor={`principal-${labelId}`}
+          htmlFor={`principal-${idBase}`}
           className="block text-xs font-medium text-gray-500 mb-1"
         >
           {isZh ? '貸款金額 (HKD)' : 'Loan Amount (HKD)'}
         </label>
         <input
-          id={`principal-${labelId}`}
+          id={`principal-${idBase}`}
           type="number"
           inputMode="numeric"
           min={1000}
@@ -187,10 +190,10 @@ export function CalculatorSheet({
           className={`w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#e8a219] ${
             errors.principal ? 'border-red-400' : 'border-gray-300'
           }`}
-          aria-describedby={errors.principal ? `principal-err-${labelId}` : undefined}
+          aria-describedby={errors.principal ? `principal-err-${idBase}` : undefined}
         />
         {errors.principal && (
-          <p id={`principal-err-${labelId}`} className="mt-1 text-xs text-red-500">
+          <p id={`principal-err-${idBase}`} className="mt-1 text-xs text-red-500">
             {errors.principal}
           </p>
         )}
@@ -200,7 +203,7 @@ export function CalculatorSheet({
       <div>
         <div className="flex items-center justify-between mb-1">
           <label
-            htmlFor={`tenor-${labelId}`}
+            htmlFor={`tenor-${idBase}`}
             className="text-xs font-medium text-gray-500"
           >
             {isZh ? '還款期' : 'Loan Term'}
@@ -210,7 +213,7 @@ export function CalculatorSheet({
           </span>
         </div>
         <input
-          id={`tenor-${labelId}`}
+          id={`tenor-${idBase}`}
           type="range"
           min={1}
           max={360}
@@ -235,14 +238,14 @@ export function CalculatorSheet({
       {/* Monthly flat rate */}
       <div>
         <label
-          htmlFor={`rate-${labelId}`}
+          htmlFor={`rate-${idBase}`}
           className="block text-xs font-medium text-gray-500 mb-1"
         >
           {isZh ? '月息 (%)' : 'Monthly Flat Rate (%)'}
         </label>
         <div className="flex gap-2 items-center">
           <input
-            id={`rate-${labelId}`}
+            id={`rate-${idBase}`}
             type="number"
             inputMode="decimal"
             min={0.1}
@@ -253,7 +256,7 @@ export function CalculatorSheet({
             className={`flex-1 rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#e8a219] ${
               errors.monthlyFlatRate ? 'border-red-400' : 'border-gray-300'
             }`}
-            aria-describedby={errors.monthlyFlatRate ? `rate-err-${labelId}` : undefined}
+            aria-describedby={errors.monthlyFlatRate ? `rate-err-${idBase}` : undefined}
           />
           {/* "Use lender's rate" chip — only shown when defaultRate is set */}
           {defaultRate != null && (
@@ -269,7 +272,7 @@ export function CalculatorSheet({
           )}
         </div>
         {errors.monthlyFlatRate && (
-          <p id={`rate-err-${labelId}`} className="mt-1 text-xs text-red-500">
+          <p id={`rate-err-${idBase}`} className="mt-1 text-xs text-red-500">
             {errors.monthlyFlatRate}
           </p>
         )}
@@ -328,13 +331,13 @@ export function CalculatorSheet({
   const desktopWidget = (
     <aside
       className="hidden md:block sticky top-6 w-80 shrink-0"
-      aria-labelledby={sheetLabelId}
+      aria-labelledby={`calc-sheet-${desktopId}`}
     >
       <div className="rounded-2xl border border-gray-200 bg-white shadow-md p-5">
-        <h2 id={sheetLabelId} className="text-base font-semibold text-[#264a58] mb-4">
+        <h2 id={`calc-sheet-${desktopId}`} className="text-base font-semibold text-[#264a58] mb-4">
           {isZh ? '利率計算機' : 'APR Calculator'}
         </h2>
-        {formContent}
+        {makeFormContent(desktopId)}
       </div>
     </aside>
   )
@@ -356,7 +359,7 @@ export function CalculatorSheet({
         ref={sheetRef}
         role="dialog"
         aria-modal="true"
-        aria-labelledby={`mobile-${sheetLabelId}`}
+        aria-labelledby={`calc-mob-${mobileId}`}
         onKeyDown={handleKeyDown}
         className={`fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl bg-white shadow-2xl transition-transform duration-300 ${
           open ? 'translate-y-0' : 'translate-y-full'
@@ -372,7 +375,7 @@ export function CalculatorSheet({
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
             <h2
-              id={`mobile-${sheetLabelId}`}
+              id={`calc-mob-${mobileId}`}
               className="text-base font-semibold text-[#264a58]"
             >
               {isZh ? '利率計算機' : 'APR Calculator'}
@@ -388,7 +391,7 @@ export function CalculatorSheet({
             </button>
           </div>
 
-          {formContent}
+          {makeFormContent(mobileId)}
         </div>
       </div>
     </div>
