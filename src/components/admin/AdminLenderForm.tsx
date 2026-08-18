@@ -1,13 +1,15 @@
 'use client'
 
 /**
- * AdminLenderForm — client component for editing adminNote and eligibilityTags.
+ * AdminLenderForm — client component for editing admin-owned lender fields.
  *
  * Story 2.8 AC-2/AC-3:
  * - adminNote textarea (editable)
  * - eligibilityTags checkbox group (6 values)
  * - PUT /api/admin/lenders/{id} on submit
  * - Success toast shown on completion
+ *
+ * S-15: add editable fields for loanTypeTags, websiteUrl, phone.
  */
 
 import { useState } from 'react'
@@ -21,19 +23,48 @@ const ELIGIBILITY_OPTIONS = [
   { value: 'no-hkid',         label: '非香港居民' },
 ] as const
 
+const LOAN_TYPE_OPTIONS = [
+  { value: '私人貸款',   label: '私人貸款' },
+  { value: '業主貸款',   label: '業主貸款' },
+  { value: '業務貸款',   label: '業務貸款' },
+  { value: '免TU貸款',   label: '免TU貸款' },
+  { value: '即日批核',   label: '即日批核' },
+  { value: '中小企貸款', label: '中小企貸款' },
+] as const
+
 interface Props {
   lenderId: string
   adminNote: string | null
   eligibilityTags: string[]
+  /** S-15: additional editable fields */
+  loanTypeTags: string[]
+  websiteUrl: string | null
+  phone: string | null
 }
 
-export function AdminLenderForm({ lenderId, adminNote, eligibilityTags }: Props) {
+export function AdminLenderForm({
+  lenderId,
+  adminNote,
+  eligibilityTags,
+  loanTypeTags,
+  websiteUrl,
+  phone,
+}: Props) {
   const [note, setNote] = useState(adminNote ?? '')
   const [tags, setTags] = useState<string[]>(eligibilityTags)
+  const [loanTags, setLoanTags] = useState<string[]>(loanTypeTags)
+  const [website, setWebsite] = useState(websiteUrl ?? '')
+  const [phoneVal, setPhoneVal] = useState(phone ?? '')
   const [status, setStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle')
 
   function toggleTag(value: string) {
     setTags((prev) =>
+      prev.includes(value) ? prev.filter((t) => t !== value) : [...prev, value]
+    )
+  }
+
+  function toggleLoanTag(value: string) {
+    setLoanTags((prev) =>
       prev.includes(value) ? prev.filter((t) => t !== value) : [...prev, value]
     )
   }
@@ -46,7 +77,13 @@ export function AdminLenderForm({ lenderId, adminNote, eligibilityTags }: Props)
       const res = await fetch(`/api/admin/lenders/${lenderId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ adminNote: note || null, eligibilityTags: tags }),
+        body: JSON.stringify({
+          adminNote: note || null,
+          eligibilityTags: tags,
+          loanTypeTags: loanTags,
+          websiteUrl: website.trim() || null,
+          phone: phoneVal.trim() || null,
+        }),
       })
 
       if (!res.ok) {
@@ -81,6 +118,69 @@ export function AdminLenderForm({ lenderId, adminNote, eligibilityTags }: Props)
           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#264a58] focus:outline-none focus:ring-1 focus:ring-[#264a58]"
         />
       </div>
+
+      {/* S-15: Website URL */}
+      <div>
+        <label
+          htmlFor="websiteUrl"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          官方網站
+        </label>
+        <input
+          id="websiteUrl"
+          name="websiteUrl"
+          type="url"
+          value={website}
+          onChange={(e) => setWebsite(e.target.value)}
+          placeholder="https://example.com"
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#264a58] focus:outline-none focus:ring-1 focus:ring-[#264a58]"
+        />
+      </div>
+
+      {/* S-15: Phone */}
+      <div>
+        <label
+          htmlFor="phone"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          電話
+        </label>
+        <input
+          id="phone"
+          name="phone"
+          type="tel"
+          value={phoneVal}
+          onChange={(e) => setPhoneVal(e.target.value)}
+          placeholder="2345 6789"
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#264a58] focus:outline-none focus:ring-1 focus:ring-[#264a58]"
+        />
+      </div>
+
+      {/* S-15: Loan type tags */}
+      <fieldset>
+        <legend className="text-sm font-medium text-gray-700 mb-2">
+          貸款類型標籤
+        </legend>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {LOAN_TYPE_OPTIONS.map(({ value, label }) => (
+            <label
+              key={value}
+              className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm cursor-pointer hover:bg-gray-50"
+            >
+              <input
+                type="checkbox"
+                name="loanTypeTags"
+                value={value}
+                checked={loanTags.includes(value)}
+                onChange={() => toggleLoanTag(value)}
+                className="h-4 w-4 rounded border-gray-300 text-[#264a58] focus:ring-[#264a58]"
+              />
+              <span className="text-gray-700">{label}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
 
       {/* Eligibility tags */}
       <fieldset>

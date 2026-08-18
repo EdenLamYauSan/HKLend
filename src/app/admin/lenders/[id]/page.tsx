@@ -179,6 +179,9 @@ export default async function AdminLenderDetailPage({ params }: PageProps) {
           lenderId={lender.id}
           adminNote={lender.adminNote}
           eligibilityTags={lender.eligibilityTags}
+          loanTypeTags={lender.loanTypeTags}
+          websiteUrl={lender.websiteUrl}
+          phone={lender.phone}
         />
       </section>
     </div>
