@@ -44,6 +44,7 @@ export default async function AdminLoginPage({ searchParams }: LoginPageProps) {
             {/* Error message (set via ?error= searchParam on failed login) */}
             {error && (
               <div
+                id="login-error"
                 role="alert"
                 className="rounded-md bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700"
               >

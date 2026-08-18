@@ -36,10 +36,7 @@ export async function POST(request: Request) {
     // Constant-time comparison would be ideal; for a single-admin tool,
     // simple equality is acceptable. The password is hashed in env — not in DB.
     if (password !== env.ADMIN_PASSWORD) {
-      return Response.json(
-        { error: 'UNAUTHORIZED', message: 'Invalid password' },
-        { status: 401 }
-      )
+      return Response.redirect(new URL('/admin/login?error=1', request.url), 302)
     }
 
     // Correct credentials — create the iron-session cookie
