@@ -229,7 +229,7 @@ model NewsItem {
   titleEn            String?
   bodyZh             String   @db.Text
   bodyEn             String?  @db.Text
-  source             String   // original URL (used as dedup key)
+  source             String   @unique // original URL (used as dedup key)
   publishedAt        DateTime
   status             String   @default("DRAFT") // DRAFT | PUBLISHED | REJECTED
   linkedLenderSlugs  String[] @default([])

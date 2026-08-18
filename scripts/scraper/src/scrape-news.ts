@@ -42,13 +42,6 @@ interface FeedConfig {
 
 const FEEDS: FeedConfig[] = [
   {
-    url: 'https://www.hkma.gov.hk/eng/news-and-media/press-releases.shtml',
-    source: 'hkma',
-    category: 'regulatory',
-    labelZh: '金管局',
-    labelEn: 'HKMA',
-  },
-  {
     url: 'https://www.hkma.gov.hk/eng/news-and-media/rss/press-releases-rss.xml',
     source: 'hkma',
     category: 'regulatory',
@@ -143,7 +136,7 @@ async function resolveUniqueSlug(db: ReturnType<typeof getScraperDb>, baseSlug: 
   let suffix = 2
   // eslint-disable-next-line no-constant-condition
   while (true) {
-    const existing = await (db.newsItem as unknown as { findUnique: (args: { where: { slug: string } }) => Promise<null | unknown> }).findUnique({ where: { slug } })
+    const existing = await db.newsItem.findUnique({ where: { slug } })
     if (!existing) return slug
     slug = `${baseSlug}-${suffix}`
     suffix++
@@ -158,9 +151,9 @@ async function main(): Promise<void> {
   console.log('[scrape-news] Starting news scraper run')
 
   // Load existing source URLs for O(1) dedup
-  const existingRows = await (db.newsItem as unknown as { findMany: (args: { select: { source: boolean } }) => Promise<NewsRow[]> }).findMany({
-    select: { id: false as unknown as boolean, source: true },
-  }) as { source: string }[]
+  const existingRows = await db.newsItem.findMany({
+    select: { source: true },
+  })
   const existingSources = new Set(existingRows.map((r) => r.source))
 
   let totalInserted = 0
@@ -189,21 +182,7 @@ async function main(): Promise<void> {
         const baseSlug = generateNewsSlug(item.title, item.pubDate)
         const slug = await resolveUniqueSlug(db, baseSlug)
 
-        await (db.newsItem as unknown as {
-          create: (args: {
-            data: {
-              slug: string
-              titleZh: string
-              titleEn: string
-              bodyZh: string
-              bodyEn: string
-              source: string
-              publishedAt: Date
-              status: string
-              category: string
-            }
-          }) => Promise<unknown>
-        }).create({
+        await db.newsItem.create({
           data: {
             slug,
             titleZh: item.title,
