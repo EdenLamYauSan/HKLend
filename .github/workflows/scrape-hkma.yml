@@ -1,0 +1,49 @@
+name: Scrape HKMA Money Lender Registry
+
+on:
+  # Every Monday at 03:00 UTC
+  schedule:
+    - cron: '0 3 * * 1'
+  # Allow manual trigger from the GitHub Actions UI
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    name: Fetch & upsert HKMA records
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install root dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ── Install scraper dependencies separately (isolated package.json) ────────
+      # The scraper lives in scripts/scraper/ with its own package.json (ARCH-3).
+      - name: Install scraper dependencies
+        working-directory: scripts/scraper
+        run: pnpm install --frozen-lockfile
+
+      # ── Run the scraper ────────────────────────────────────────────────────────
+      # DATABASE_URL, NEXT_PUBLIC_APP_URL, and REVALIDATION_SECRET come from
+      # GitHub Actions secrets. The scraper exits 1 when ScrapeRun.status === 'FAILED'.
+      - name: Run HKMA scraper
+        working-directory: scripts/scraper
+        run: pnpm run scrape
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
+          REVALIDATION_SECRET: ${{ secrets.REVALIDATION_SECRET }}
+          NODE_ENV: production

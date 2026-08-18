@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  quality:
+    name: Quality Gates
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm exec prisma generate
+
+      # ── Gate 1: TypeScript — zero errors required ─────────────────────────────
+      - name: TypeScript check
+        run: pnpm exec tsc --noEmit
+
+      # ── Gate 2: ESLint — all rules enforced ──────────────────────────────────
+      # Includes:
+      #   - react/no-danger (bans dangerouslySetInnerHTML) — NFR-6
+      #   - no-restricted-imports for schema file purity — ARCH-14
+      #   - no-restricted-syntax for coral text — UX-DR12
+      #   - jsx-a11y rules — UX-DR19
+      - name: ESLint
+        run: pnpm exec eslint .
+
+      # ── Gate 3: Tests — vitest run ────────────────────────────────────────────
+      - name: Tests
+        run: pnpm test
+
+      # ── Gate 4: Submission guard coverage check ───────────────────────────────
+      # Fails if any community POST route handler is missing the submissionGuard
+      # import. See ARCH-8 / Story 1.7.
+      - name: Submission guard coverage
+        run: bash .github/scripts/check-submission-guard.sh
