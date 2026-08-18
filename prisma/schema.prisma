@@ -1,0 +1,101 @@
+// This is your Prisma schema file.
+// Migration workflow: ALWAYS use --create-only and hand-edit. NEVER run bare prisma migrate dev or prisma db push.
+// See prisma/migrations/README.md for the full workflow.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Lender ─────────────────────────────────────────────────────────────────
+
+model Lender {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  licenceNumber   String   @unique
+  licenceStatus   String   // ACTIVE | SUSPENDED | REVOKED
+  companyNameZh   String
+  companyNameEn   String?
+  addressZh       String
+  addressEn       String?
+  districtZh      String
+  districtEn      String?
+  phone           String?
+  websiteUrl      String?
+
+  // JSONB column — array of alternative name strings for trigram search.
+  // aliases_text generated column and GIN index are defined in the raw migration SQL.
+  searchAliases   Json     @default("[]")
+
+  loanTypeTags    String[] @default([])
+
+  // Valid values: employed | self-employed | freelancer | part-time | unemployed | no-hkid
+  eligibilityTags String[] @default([])
+
+  interestRateMin Decimal?
+  interestRateMax Decimal?
+
+  lastScrapedAt   DateTime?
+  scrapeStatus    String?   // SUCCESS | PARTIAL | FAILED
+
+  adminNote       String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  activityEvents  ActivityEvent[]
+
+  @@map("Lender")
+}
+
+// ─── ActivityEvent ───────────────────────────────────────────────────────────
+// Chronological log of registry-detected changes on a lender.
+// Written by the HKMA scraper when a diff is detected.
+// Displayed in the Lender Activity Feed and Lender Pulse widget.
+
+model ActivityEvent {
+  id            String   @id @default(cuid())
+  lenderId      String
+  lender        Lender   @relation(fields: [lenderId], references: [id], onDelete: Cascade)
+
+  // eventType closed set: STATUS_CHANGE | ADDRESS_CHANGE | NAME_CHANGE
+  eventType     String
+
+  // Human-readable descriptions (TC required, EN optional)
+  descriptionZh String
+  descriptionEn String?
+
+  // Timestamp when the scraper detected this change
+  detectedAt    DateTime
+
+  createdAt     DateTime @default(now())
+
+  // Index on (lenderId, detectedAt DESC) for profile feed queries
+  @@index([lenderId, detectedAt(sort: Desc)])
+  @@map("ActivityEvent")
+}
+
+// ─── ScrapeRun ───────────────────────────────────────────────────────────────
+// Audit log of each scraper run. Admin dashboard queries the last 20 runs.
+// ARCH-15: admin dashboard shows a warning when last successful run is >8 days old.
+
+model ScrapeRun {
+  id               String   @id @default(cuid())
+  source           String   // 'hkma' | 'rate-scraper'
+  startedAt        DateTime
+  completedAt      DateTime?
+  lendersInserted  Int      @default(0)
+  lendersUpdated   Int      @default(0)
+  errorCount       Int      @default(0)
+  status           String   // SUCCESS | PARTIAL | FAILED
+  notes            String?
+
+  createdAt        DateTime @default(now())
+
+  @@map("ScrapeRun")
+}

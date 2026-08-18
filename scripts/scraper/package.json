@@ -7,11 +7,16 @@
   },
   "description": "Isolated scraper workspace — Playwright and Chromium binaries live here, never in the app dependency tree.",
   "scripts": {
+    "scrape": "tsx src/scrape-hkma.ts",
     "install-browsers": "playwright install chromium"
   },
-  "dependencies": {},
+  "dependencies": {
+    "pinyin-pro": "3.28.1"
+  },
   "devDependencies": {
-    "playwright": "1.52.0"
+    "playwright": "1.52.0",
+    "tsx": "4.19.4",
+    "typescript": "5.9.3"
   },
   "notes": "ARCH-3: This package is physically isolated from src/. Any shared type must be duplicated here — never import from ../../src."
 }
