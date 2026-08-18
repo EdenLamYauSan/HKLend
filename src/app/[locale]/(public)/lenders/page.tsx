@@ -134,6 +134,7 @@ export default async function LendersPage({
             districtOptions={districtOptions}
             loanTypeOptions={loanTypeOptions}
             locale={locale}
+            resultCount={total}
           />
         </Suspense>
 

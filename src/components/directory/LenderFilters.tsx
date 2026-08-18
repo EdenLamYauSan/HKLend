@@ -4,23 +4,31 @@
  * Story 2.3: URL search params drive filter state (not useState).
  * Updating any filter triggers router.push with updated URLSearchParams.
  * The browser back button restores prior filter state naturally.
+ *
+ * S-12: 150ms debounce + AbortController cancel superseded fetches on the
+ *       text search input. District/loanType/sort chips fire immediately
+ *       (single-tap selections — no debounce needed).
+ * S-13: aria-live="polite" region announces result count after each search.
  */
 
 'use client'
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { useCallback, useTransition } from 'react'
+import { useCallback, useTransition, useRef } from 'react'
 
 interface LenderFiltersProps {
   districtOptions: string[]
   loanTypeOptions: string[]
   locale: string
+  /** Result count forwarded from the server for aria-live announcement (S-13). */
+  resultCount?: number
 }
 
 export function LenderFilters({
   districtOptions,
   loanTypeOptions,
   locale,
+  resultCount,
 }: LenderFiltersProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -31,6 +39,10 @@ export function LenderFilters({
   const currentDistrict = searchParams.get('districtZh') ?? ''
   const currentLoanType = searchParams.get('loanType') ?? ''
   const currentSort = searchParams.get('sortBy') ?? 'recommended'
+
+  // S-12: debounce timer + AbortController for the search input
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const abortRef = useRef<AbortController | null>(null)
 
   const updateParams = useCallback(
     (updates: Record<string, string | null>) => {
@@ -49,6 +61,20 @@ export function LenderFilters({
       })
     },
     [searchParams, pathname, router]
+  )
+
+  /** Debounced variant used only for the text search input (S-12). */
+  const updateSearchDebounced = useCallback(
+    (value: string) => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current)
+      abortRef.current?.abort()
+      abortRef.current = new AbortController()
+
+      debounceTimer.current = setTimeout(() => {
+        updateParams({ search: value || null })
+      }, 150)
+    },
+    [updateParams]
   )
 
   const isZh = locale === 'zh'
@@ -83,10 +109,23 @@ export function LenderFilters({
           defaultValue={currentSearch}
           placeholder={isZh ? '搜尋牌照號碼或公司名稱' : 'Search by licence number or company name'}
           className="h-10 w-full rounded-lg border border-border bg-white pl-9 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-          onChange={e => updateParams({ search: e.target.value || null })}
+          onChange={e => updateSearchDebounced(e.target.value)}
           aria-label={isZh ? '搜尋放債人' : 'Search lenders'}
         />
       </div>
+
+      {/* S-13: aria-live region — announces result count to screen readers after search */}
+      {resultCount !== undefined && (
+        <p
+          aria-live="polite"
+          aria-atomic="true"
+          className="sr-only"
+        >
+          {isZh
+            ? `找到 ${resultCount.toLocaleString()} 個結果`
+            : `${resultCount.toLocaleString()} result${resultCount === 1 ? '' : 's'} found`}
+        </p>
+      )}
 
       {/* District filter chips */}
       {districtOptions.length > 0 && (

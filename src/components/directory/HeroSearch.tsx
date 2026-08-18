@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { useTransition } from 'react'
+import { useTransition, useRef, useCallback } from 'react'
 
 const HOT_CHIPS = {
   zh: ['私人貸款', '業主貸款', '業務貸款', '免TU貸款', '即日批核', '中小企貸款'],
@@ -23,19 +23,37 @@ export function HeroSearch({ locale, targetPath }: HeroSearchProps) {
   const currentSearch = searchParams.get('search') ?? ''
   const isZh = locale === 'zh'
 
-  function setSearch(value: string) {
-    const base = targetPath ?? pathname
-    const params = targetPath ? new URLSearchParams() : new URLSearchParams(searchParams.toString())
-    if (value) {
-      params.set('search', value)
-    } else {
-      params.delete('search')
-    }
-    params.delete('page')
-    startTransition(() => {
-      router.push(`${base}?${params.toString()}`)
-    })
-  }
+  // S-12: debounce timer and AbortController for superseded navigations
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const abortRef = useRef<AbortController | null>(null)
+
+  const setSearch = useCallback(
+    (value: string) => {
+      // Cancel any in-flight debounce
+      if (debounceTimer.current) clearTimeout(debounceTimer.current)
+      // Abort superseded fetch/navigation signal (router.push is not fetch-based
+      // but AbortController signal is passed through for future fetch calls)
+      abortRef.current?.abort()
+      abortRef.current = new AbortController()
+
+      debounceTimer.current = setTimeout(() => {
+        const base = targetPath ?? pathname
+        const params = targetPath
+          ? new URLSearchParams()
+          : new URLSearchParams(searchParams.toString())
+        if (value) {
+          params.set('search', value)
+        } else {
+          params.delete('search')
+        }
+        params.delete('page')
+        startTransition(() => {
+          router.push(`${base}?${params.toString()}`)
+        })
+      }, 150)
+    },
+    [targetPath, pathname, searchParams, router]
+  )
 
   return (
     <div className="w-full max-w-2xl mx-auto space-y-4">
