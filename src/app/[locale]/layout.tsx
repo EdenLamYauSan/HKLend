@@ -13,7 +13,7 @@
  * Next.js 16: params is a Promise and must be awaited.
  */
 
-import { Plus_Jakarta_Sans } from 'next/font/google'
+import { Saira } from 'next/font/google'
 import { notFound } from 'next/navigation'
 import { isLocale } from '@/locales'
 import type { Locale } from '@/locales'
@@ -23,12 +23,12 @@ import { DirectoryTabNav } from '@/components/layout/DirectoryTabNav'
 import { Footer } from '@/components/layout/Footer'
 
 /**
- * Plus Jakarta Sans: clean geometric sans with excellent Latin numeral rendering.
- * variable: '--font-sans' wires into globals.css @theme.
+ * Saira: geometric sans with excellent Latin numeral rendering.
+ * variable: '--font-saira' wires into globals.css @theme (AC-3).
  */
-const plusJakartaSans = Plus_Jakarta_Sans({
+const saira = Saira({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '500', '600'],
   variable: '--font-saira',
   display: 'swap',
 })
@@ -51,7 +51,7 @@ export default async function LocaleLayout({
   const lang = locale as Locale
 
   return (
-    <html lang={lang} className={`h-full ${plusJakartaSans.variable}`}>
+    <html lang={lang} className={`h-full ${saira.variable}`}>
       <body className="min-h-full flex flex-col antialiased">
         {/*
          * Skip-to-content: first focusable element, visually hidden until
