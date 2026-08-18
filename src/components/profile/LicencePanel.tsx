@@ -33,15 +33,26 @@ interface Props {
 export function LicencePanel({ lender, locale }: Props) {
   const isZh = locale === 'zh'
 
-  function localize(zh: string | null, en: string | null): string | null {
-    const zhVal = zh || null
-    const enVal = en || null
-    if (locale === 'zh') return zhVal
-    return enVal ?? zhVal
-  }
+  // getLocalizedField requires at least one non-empty value (ARCH-10).
+  // Address and district may be absent for some scraped lenders — guard
+  // before calling so we never trigger the "both null" throw.
+  const address =
+    lender.addressZh || lender.addressEn
+      ? getLocalizedField(
+          lender as unknown as Record<string, unknown>,
+          'address',
+          locale
+        )
+      : null
 
-  const address = localize(lender.addressZh, lender.addressEn)
-  const district = localize(lender.districtZh, lender.districtEn)
+  const district =
+    lender.districtZh || lender.districtEn
+      ? getLocalizedField(
+          lender as unknown as Record<string, unknown>,
+          'district',
+          locale
+        )
+      : null
 
   return (
     <section
