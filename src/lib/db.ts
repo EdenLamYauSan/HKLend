@@ -15,16 +15,13 @@
 import { Pool } from 'pg'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '../generated/prisma/client'
+import { env } from './env'
 
 function createPrismaClient(): PrismaClient {
-  const url = process.env.DATABASE_URL
-  if (!url) {
-    throw new Error(
-      '[db.ts] DATABASE_URL is not set. All env vars must be sourced from env.ts.'
-    )
-  }
+  const url = env.DATABASE_URL
 
-  // max: 1 → equivalent to ?connection_limit=1 per ARCH-2
+  // env.DATABASE_URL is already validated by env.ts (non-empty, required).
+  // max: 1 → equivalent to ?connection_limit=1 per ARCH-2.
   // Next.js web worker is single-threaded; one connection is sufficient and
   // prevents exhausting the DB's connection slots.
   const pool = new Pool({ connectionString: url, max: 1 })
