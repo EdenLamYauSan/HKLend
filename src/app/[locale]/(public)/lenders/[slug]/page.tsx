@@ -33,6 +33,8 @@ import { LicencePanel } from '@/components/profile/LicencePanel'
 import { LoanTypeTags } from '@/components/profile/LoanTypeTags'
 import { LenderPulse } from '@/components/profile/LenderPulse'
 import { EligibilityChips } from '@/components/profile/EligibilityChips'
+import { ReviewSection } from '@/components/profile/ReviewSection'
+import { ActivityFeed } from '@/components/profile/ActivityFeed'
 
 // ─── Site config ──────────────────────────────────────────────────────────────
 
@@ -60,9 +62,13 @@ type LenderData = {
   eligibilityTags: string[]
   adminNote: string | null
   lastScrapedAt: Date | null
+  id: string
   activityEvents: Array<{
+    id: string
+    eventType: string
     descriptionZh: string
     descriptionEn: string | null
+    detectedAt: Date
   }>
 }
 
@@ -84,6 +90,7 @@ function getLenderBySlug(slug: string): Promise<LenderData | null> {
       db.lender.findUnique({
         where: { slug },
         select: {
+          id: true,
           slug: true,
           licenceNumber: true,
           licenceStatus: true,
@@ -102,10 +109,12 @@ function getLenderBySlug(slug: string): Promise<LenderData | null> {
           lastScrapedAt: true,
           activityEvents: {
             orderBy: { detectedAt: 'desc' },
-            take: 1,
             select: {
+              id: true,
+              eventType: true,
               descriptionZh: true,
               descriptionEn: true,
+              detectedAt: true,
             },
           },
         },
@@ -300,8 +309,13 @@ export default async function LenderProfilePage({
       {/* Loan type tags — each links to filtered directory */}
       <LoanTypeTags tags={lender.loanTypeTags} locale={locale} />
 
-      {/* Lender Pulse — most recent activity event; absent when none */}
-      <LenderPulse events={lender.activityEvents} locale={locale} />
+      {/* Lender Pulse — most recent activity event + rating trend signal */}
+      <LenderPulse
+        events={lender.activityEvents.slice(0, 1)}
+        lenderId={lender.id}
+        lenderSlug={lender.slug}
+        locale={locale}
+      />
 
       {/* Admin note callout box */}
       {lender.adminNote && (
@@ -312,6 +326,19 @@ export default async function LenderProfilePage({
 
       {/* S-10: Data source attribution */}
       <DataSourceAttribution lastChecked={lender.lastScrapedAt} locale={locale as 'zh' | 'en'} />
+
+      {/* Community reviews (Stories 3.1–3.5) */}
+      <ReviewSection
+        lenderSlug={lender.slug}
+        lenderId={lender.id}
+        locale={locale}
+      />
+
+      {/* Activity feed (Story 3.7) */}
+      <ActivityFeed
+        events={lender.activityEvents}
+        locale={locale}
+      />
     </div>
   )
 }
