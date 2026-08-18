@@ -19,7 +19,7 @@ export function DirectoryTabNav({ locale }: DirectoryTabNavProps) {
   const isHome = pathname === `/${locale}`
 
   return (
-    <div className={isHome ? 'bg-[#264a58]' : 'border-b border-gray-200 bg-white'}>
+    <div className={isHome ? 'bg-brand-navy' : 'border-b border-border bg-white'}>
       <div className="mx-auto max-w-4xl px-4 sm:px-6">
         <nav className="flex" aria-label={isZh ? '頁面導航' : 'Page navigation'}>
           {tabs.map(tab => {
@@ -32,11 +32,11 @@ export function DirectoryTabNav({ locale }: DirectoryTabNavProps) {
                   relative px-4 py-3 text-sm font-medium transition-colors
                   ${isHome
                     ? isActive
-                      ? 'text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-white'
+                      ? 'text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-brand-amber'
                       : 'text-white/60 hover:text-white/90'
                     : isActive
-                      ? 'text-[#264a58] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[#264a58]'
-                      : 'text-gray-500 hover:text-[#264a58]'
+                      ? 'text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary'
+                      : 'text-muted-foreground hover:text-primary'
                   }
                 `}
                 aria-current={isActive ? 'page' : undefined}

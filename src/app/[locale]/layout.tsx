@@ -20,6 +20,7 @@ import type { Locale } from '@/locales'
 import { ScopeBanner } from '@/components/layout/ScopeBanner'
 import { Header } from '@/components/layout/Header'
 import { DirectoryTabNav } from '@/components/layout/DirectoryTabNav'
+import { Footer } from '@/components/layout/Footer'
 
 /**
  * Plus Jakarta Sans: clean geometric sans with excellent Latin numeral rendering.
@@ -80,6 +81,9 @@ export default async function LocaleLayout({
           <main id="main-content" className="flex-1">
             {children}
           </main>
+
+          {/* Site-wide footer */}
+          <Footer locale={lang} />
         </div>
       </body>
     </html>

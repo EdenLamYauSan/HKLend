@@ -58,11 +58,12 @@ export function LanguageToggle({ currentLocale }: LanguageToggleProps) {
       aria-label={ariaLabel}
       className="
         inline-flex items-center justify-center
-        h-8 min-w-8 px-2
+        h-8 min-w-[52px] px-3
         rounded-md
         text-sm font-medium
-        text-primary hover:bg-primary/10
-        focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2
+        text-white/80 hover:text-white hover:bg-white/10
+        border border-white/20
+        focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2
         transition-colors
       "
     >

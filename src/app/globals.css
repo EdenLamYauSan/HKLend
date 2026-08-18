@@ -42,6 +42,8 @@
   --color-brand-card:  #eae8e6;
   /* Coral for text — ONLY this value is WCAG AA safe on white (5.2:1) */
   --color-brand-coral-text: #B8390E;
+  /* Amber-gold — CTA accents, focus rings on dark surfaces, hot chips */
+  --color-brand-amber: #f59e0b;
 
   /* Sidebar (admin) */
   --color-sidebar-ring:               var(--sidebar-ring);
@@ -198,8 +200,8 @@
   }
 
   /* Text scale (UX-DR13) */
-  h1 { @apply text-3xl font-semibold; }   /* page titles */
-  h2 { @apply text-xl font-semibold; }    /* section headings */
+  h1 { @apply text-3xl font-semibold text-primary; }   /* page titles */
+  h2 { @apply text-xl font-semibold text-primary; }    /* section headings */
   /* body: text-base/400 — Tailwind default */
   /* secondary info: text-sm/400 */
   /* badges: text-xs/500 */

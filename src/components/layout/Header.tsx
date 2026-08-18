@@ -23,8 +23,8 @@ export function Header({ locale }: HeaderProps) {
         sticky top-8
         z-20
         w-full
-        border-b border-border
-        bg-background/95 backdrop-blur-sm
+        bg-brand-navy
+        border-b border-white/10
       "
     >
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
@@ -32,15 +32,16 @@ export function Header({ locale }: HeaderProps) {
         <a
           href={`/${locale}`}
           className="
-            flex items-center gap-2
-            text-lg font-semibold text-primary
-            focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2
+            flex items-center gap-1.5
+            text-lg font-bold tracking-tight text-white
+            focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2
             rounded-sm
           "
           aria-label="HK Lend — back to homepage"
         >
-          {/* Text wordmark — no image dependency for v1 */}
-          <span aria-hidden="true">HK Lend</span>
+          {/* Two-tone wordmark — no image dependency for v1 */}
+          <span aria-hidden="true" className="text-white">HK</span>
+          <span aria-hidden="true" className="text-brand-amber">Lend</span>
         </a>
 
         {/* Language toggle */}
