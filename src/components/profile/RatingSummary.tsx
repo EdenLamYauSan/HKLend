@@ -61,8 +61,8 @@ export function RatingSummary({ aggregate, locale }: Props) {
         </div>
       </div>
 
-      {/* Per-dimension breakdown */}
-      <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-700">
+      {/* Per-dimension breakdown — format: 審批速度 4.1 · 利率準確性 3.8 · … */}
+      <div className="flex flex-wrap gap-y-1 text-sm text-gray-700">
         {(
           [
             ['ratingApprovalSpeed', avgApprovalSpeed],
@@ -70,8 +70,9 @@ export function RatingSummary({ aggregate, locale }: Props) {
             ['ratingStaffAttitude', avgStaffAttitude],
             ['ratingTransparency', avgTransparency],
           ] as [string, number][]
-        ).map(([field, avg]) => (
+        ).map(([field, avg], i) => (
           <span key={field}>
+            {i > 0 && <span aria-hidden="true"> · </span>}
             {labels[field]}{' '}
             <span className="font-semibold text-[#264a58]">{avg.toFixed(1)}</span>
           </span>

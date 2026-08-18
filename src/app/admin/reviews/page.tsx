@@ -44,11 +44,7 @@ export default async function AdminReviewsPage() {
         </p>
       </div>
 
-      {pending.length === 0 ? (
-        <p className="text-sm text-gray-500">No pending reviews</p>
-      ) : (
-        <ReviewModerationList reviews={pending} />
-      )}
+      {pending.length > 0 && <ReviewModerationList reviews={pending} />}
     </div>
   )
 }
