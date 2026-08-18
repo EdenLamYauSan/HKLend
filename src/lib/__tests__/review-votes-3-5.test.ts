@@ -67,7 +67,9 @@ describe('AC-3: localStorage voted:{reviewId} guards against double-vote', () =>
   })
 
   it('vote buttons are disabled after casting a vote (cast truthy check)', () => {
-    expect(reviewList).toContain('votes.cast')
+    // F2 fix renamed the state variable to resolvedVotes (avoids hydration mismatch);
+    // the cast field is accessed as resolvedVotes.cast throughout the component.
+    expect(reviewList).toContain('resolvedVotes.cast')
     expect(reviewList).toContain('disabled')
   })
 

@@ -179,6 +179,64 @@ export type Translation = {
     platformClarification: string // UX-DR10 share recipient
   }
 
+  // ── Flags (UX-DR8, FR-39) ────────────────────────────────────────────────────
+  flags: {
+    sectionTitle: string
+    submitButton: string
+    modalTitle: string
+    legalDisclaimer: string   // must scroll past before form is accessible
+    categoryLabel: string
+    detailsLabel: string      // optional details textarea
+    detailsPlaceholder: string
+    detailsCharCount: string  // "{n}/500 字"
+    successMessage: string
+    warningBanner: string     // ≥5 flags in 90 days
+    risingComplaints: string  // Lender Pulse velocity label (≥3 in 30d)
+    // Categories
+    categories: {
+      HARASSMENT: string
+      ILLEGAL_TERMS: string
+      FAKE_IDENTITY: string
+      OVERCHARGING: string
+      OTHER: string
+    }
+  }
+
+  // ── Scam board (FR-31–FR-34) ─────────────────────────────────────────────────
+  scamBoard: {
+    pageTitle: string
+    pageDescription: string
+    hkpfLink: string          // link text to HKPF anti-scam page
+    submitButton: string      // "舉報詐騙"
+    searchPlaceholder: string
+    legalDisclaimer: string   // UX-DR23
+    emptyState: string
+    reportCount: string       // "{n} 宗已核實舉報"
+    // Report form
+    form: {
+      companyNameLabel: string
+      companyNamePlaceholder: string
+      licenceLabel: string
+      licencePlaceholder: string
+      incidentDateLabel: string
+      lossAmountLabel: string
+      evidenceLabel: string
+      evidencePlaceholder: string
+      evidenceCharCount: string  // "{n}/2000 字"
+      successMessage: string
+      legalDisclaimer: string
+    }
+    // Report card
+    card: {
+      verifiedLabel: string   // "已核實"
+      licenceClaimed: string
+      incidentDate: string
+      estimatedLoss: string
+      readMore: string
+      showLess: string
+    }
+  }
+
   // ── Turnstile ────────────────────────────────────────────────────────────────
   captcha: {
     verifying: string

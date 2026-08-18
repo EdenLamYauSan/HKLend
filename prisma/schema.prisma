@@ -52,6 +52,7 @@ model Lender {
   // Relations
   activityEvents  ActivityEvent[]
   reviews         Review[]
+  flags           Flag[]
 
   @@map("Lender")
 }
@@ -143,4 +144,75 @@ model Review {
   // Index for paginated approved-reviews-by-lender queries (newest first)
   @@index([lenderId, status, createdAt(sort: Desc)])
   @@map("Review")
+}
+
+// ─── Flag ─────────────────────────────────────────────────────────────────────
+// Community red-flag submission for a licensed money lender.
+//
+// Status lifecycle: PENDING → APPROVED (public) | REJECTED
+//
+// Categories are stored as text constants (NOT Prisma enum) so adding a
+// category requires only a code change, not a DB migration (FR-39, UX-DR8).
+//
+// Valid categories: HARASSMENT | ILLEGAL_TERMS | FAKE_IDENTITY | OVERCHARGING | OTHER
+//
+// Flag velocity (Story 4.4): rolling 30-day approved flag count displayed in
+// Lender Pulse. Warning banner (Story 4.3): ≥5 approved flags in 90 days.
+//
+// Rate limit: 1 flag per (fingerprint+IP) per lender per 30 days (FR-43).
+
+model Flag {
+  id        String   @id @default(cuid())
+  lenderId  String
+  lender    Lender   @relation(fields: [lenderId], references: [id], onDelete: Cascade)
+
+  // Category from the fixed constant set — stored as text (not enum)
+  category  String   // HARASSMENT | ILLEGAL_TERMS | FAKE_IDENTITY | OVERCHARGING | OTHER
+
+  // Optional free-text description (max 500 chars)
+  details   String?
+
+  // Moderation lifecycle
+  status    String   @default("PENDING") // PENDING | APPROVED | REJECTED
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Index for approved-flags-by-lender-by-date queries (velocity, warning banner)
+  @@index([lenderId, status, createdAt(sort: Desc)])
+  @@map("Flag")
+}
+
+// ─── ScamReport ───────────────────────────────────────────────────────────────
+// User-submitted report of a suspected fraudulent lending entity.
+//
+// Status lifecycle: PENDING → VERIFIED (public) | REJECTED
+//
+// Verified reports appear on the public Scam Board (/zh/scam-board).
+// Admin note is internal-only and never publicly displayed.
+//
+// Rate limit: 2 reports per (fingerprint+IP) per 24h.
+
+model ScamReport {
+  id                    String    @id @default(cuid())
+
+  // Reported entity details
+  companyName           String
+  licenceNumberClaimed  String?   // claimed licence number (may be fake)
+  incidentDate          DateTime? // approximate incident date
+  lossAmountHkd         Int?      // estimated financial loss in HKD
+
+  // Required evidence text (100–2000 chars)
+  evidenceText          String
+
+  // Moderation lifecycle
+  status                String    @default("PENDING") // PENDING | VERIFIED | REJECTED
+  adminNote             String?   // internal only, never public
+
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  // Index for public scam board listing (newest verified first)
+  @@index([status, createdAt(sort: Desc)])
+  @@map("ScamReport")
 }

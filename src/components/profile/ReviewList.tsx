@@ -139,6 +139,7 @@ function ReviewCard({
     cast: null as VoteState,
   }
 
+
   const [voting, setVoting] = useState(false)
 
   const castVote = useCallback(
