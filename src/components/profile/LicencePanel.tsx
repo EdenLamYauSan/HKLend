@@ -22,6 +22,7 @@ interface LenderPanelData {
   districtEn: string | null
   phone: string | null
   websiteUrl: string | null
+  licenceIssuedDate: Date | null
 }
 
 interface Props {
@@ -100,6 +101,19 @@ export function LicencePanel({ lender, locale }: Props) {
                 {lender.websiteUrl}
                 <span className="sr-only"> (opens in new tab)</span>
               </a>
+            </dd>
+          </div>
+        )}
+
+        {lender.licenceIssuedDate && (
+          <div>
+            <dt className="text-muted-foreground">{isZh ? '發牌日期' : 'Licence Issued'}</dt>
+            <dd className="mt-0.5 font-medium text-primary">
+              {lender.licenceIssuedDate.toLocaleDateString(isZh ? 'zh-HK' : 'en-HK', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+              })}
             </dd>
           </div>
         )}

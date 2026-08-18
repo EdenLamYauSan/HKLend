@@ -55,6 +55,7 @@ type LenderData = {
   districtEn: string | null
   phone: string | null
   websiteUrl: string | null
+  licenceIssuedDate: Date | null
   loanTypeTags: string[]
   eligibilityTags: string[]
   adminNote: string | null
@@ -94,6 +95,7 @@ function getLenderBySlug(slug: string): Promise<LenderData | null> {
           districtEn: true,
           phone: true,
           websiteUrl: true,
+          licenceIssuedDate: true,
           loanTypeTags: true,
           eligibilityTags: true,
           adminNote: true,
