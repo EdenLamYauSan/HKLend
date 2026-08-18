@@ -108,6 +108,7 @@ function getLenderBySlug(slug: string): Promise<LenderData | null> {
           adminNote: true,
           lastScrapedAt: true,
           activityEvents: {
+            take: 100,
             orderBy: { detectedAt: 'desc' },
             select: {
               id: true,
