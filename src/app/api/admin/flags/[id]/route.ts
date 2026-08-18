@@ -22,6 +22,7 @@ import { NextRequest } from 'next/server'
 import { revalidateTag } from 'next/cache'
 import { z } from 'zod'
 import { db } from '@/lib/db'
+import { getSession } from '@/lib/session'
 import { apiError } from '@/types/api-error'
 
 const bodySchema = z.object({
@@ -32,6 +33,11 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const session = await getSession()
+  if (!session.isAdmin) {
+    return Response.json(apiError('UNAUTHORIZED', '未授權'), { status: 401 })
+  }
+
   const { id } = await params
 
   const body = await request.json().catch(() => null)
