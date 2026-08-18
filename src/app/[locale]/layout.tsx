@@ -21,10 +21,12 @@ import { notFound } from 'next/navigation'
 import { isLocale } from '@/locales'
 import type { Locale } from '@/locales'
 import { ScopeBanner } from '@/components/layout/ScopeBanner'
+import { SeasonAlertBanner } from '@/components/layout/SeasonAlertBanner'
 import { Header } from '@/components/layout/Header'
 import { DirectoryTabNav } from '@/components/layout/DirectoryTabNav'
 import { Footer } from '@/components/layout/Footer'
 import { CompareTray } from '@/components/CompareTray'
+import { getTranslations } from '@/locales'
 
 /**
  * Saira: geometric sans with excellent Latin numeral rendering.
@@ -58,6 +60,7 @@ export default async function LocaleLayout({
   }
 
   const lang = locale as Locale
+  const t = getTranslations(lang)
 
   return (
     <html lang={lang} className={`h-full ${saira.variable}`}>
@@ -80,6 +83,16 @@ export default async function LocaleLayout({
          * use flex-1 inside main.
          */}
         <div className="flex flex-col flex-1 pt-8">
+          {/*
+           * Story 7.5: Season Alert Banner — sits below ScopeBanner (fixed)
+           * and above the Header. Fetched server-side via unstable_cache;
+           * client handles sessionStorage dismiss. Rendered in a Suspense
+           * boundary so a slow DB read does not block the rest of the layout.
+           */}
+          <SeasonAlertBanner
+            locale={lang}
+            dismissAriaLabel={t.seasonAlert.dismissAriaLabel}
+          />
           {/* Sticky header below banner */}
           <Header locale={lang} />
 

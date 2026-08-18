@@ -39,6 +39,9 @@ import { FlagsSection } from '@/components/profile/FlagsSection'
 import { RatePanel } from '@/components/profile/RatePanel'
 import { ProfilePageClient } from '@/components/profile/ProfilePageClient'
 import type { Decimal } from '@/generated/prisma/client/runtime/library'
+import { WhatsAppShareButton } from '@/components/profile/WhatsAppShareButton'
+import { BookmarkButton } from '@/components/bookmarks/BookmarkButton'
+import { getTranslations } from '@/locales'
 
 // ─── Site config ──────────────────────────────────────────────────────────────
 
@@ -294,6 +297,11 @@ export default async function LenderProfilePage({
 
   const isZh = locale === 'zh'
   const jsonLd = buildJsonLd(lender, isZh)
+  const t = getTranslations(locale)
+  const canonicalUrl = `${SITE_URL}/zh/lenders/${lender.slug}`
+  const displayName = isZh
+    ? lender.companyNameZh
+    : (lender.companyNameEn ?? lender.companyNameZh)
 
   // Secondary name: EN when viewing in ZH, ZH when there's no EN
   const primaryName = getLocalizedField(lender, 'companyName', locale)
@@ -333,8 +341,15 @@ export default async function LenderProfilePage({
 
       {/* Verdict Card — UX-DR: badge hero, name, secondary name */}
       <div className="rounded-xl border border-border bg-white p-5 shadow-sm">
-        <div className="mb-3 flex items-center gap-3 flex-wrap">
+        <div className="mb-3 flex items-center justify-between gap-3 flex-wrap">
           <LicenceBadge licenceStatus={lender.licenceStatus} locale={locale} size="lg" />
+          {/* Story 7.2: Bookmark toggle */}
+          <BookmarkButton
+            slug={lender.slug}
+            name={displayName}
+            addAriaLabel={t.bookmarks.addAriaLabel}
+            removeAriaLabel={t.bookmarks.removeAriaLabel}
+          />
         </div>
         <h1 className="text-2xl font-bold text-primary leading-snug">
           {primaryName}
@@ -389,6 +404,19 @@ export default async function LenderProfilePage({
           </div>
         )}
       </ProfilePageClient>
+
+      {/* Story 7.3: WhatsApp share button */}
+      <div className="flex flex-wrap gap-3">
+        <WhatsAppShareButton
+          companyNameZh={lender.companyNameZh}
+          companyNameEn={lender.companyNameEn}
+          canonicalUrl={canonicalUrl}
+          locale={locale as 'zh' | 'en'}
+          shareButton={t.whatsapp.shareButton}
+          shareAriaLabel={t.whatsapp.shareAriaLabel}
+          shareText={t.whatsapp.shareText}
+        />
+      </div>
 
       {/* S-10: Data source attribution */}
       <DataSourceAttribution lastChecked={lender.lastScrapedAt} locale={locale as 'zh' | 'en'} />

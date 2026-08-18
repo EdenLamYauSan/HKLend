@@ -328,4 +328,99 @@ export const zh: Translation = {
     logoutButton: '登出',
     noPermission: '你沒有權限查閱此頁面。',
   },
+
+  // ── Quiz (Story 7.1) ────────────────────────────────────────────────────────
+  quiz: {
+    title: '適合我的放債人',
+    description: '回答 5 條問題，幫你篩選最適合的持牌放債人。',
+    progressLabel: '第 {current} 題，共 {total} 題',
+    nextButton: '下一題',
+    backButton: '上一題',
+    submitButton: '查看結果',
+    resultTitle: '配對結果',
+    resultCount: '為你找到 {N} 間符合條件的持牌放債人',
+    confirmedBadge: '符合條件',
+    unconfirmedBadge: '資格待確認，請直接查詢',
+    noResultMessage: '暫時找不到完全符合條件的放債人。建議直接瀏覽名冊。',
+    noResultAction: '瀏覽全部放債人',
+    questions: {
+      employment: {
+        label: '你目前的就業狀況？',
+        salaried: '受薪僱員',
+        selfEmployed: '自僱 / 自由工作者',
+        unemployed: '待業 / 無業',
+      },
+      income: {
+        label: '你的每月收入大約是？',
+        below10k: '少於 $10,000',
+        from10kTo20k: '$10,000 – $20,000',
+        from20kTo50k: '$20,000 – $50,000',
+        above50k: '多於 $50,000',
+      },
+      loanAmount: {
+        label: '你需要借取的金額大約是？',
+        below50k: '少於 $50,000',
+        from50kTo200k: '$50,000 – $200,000',
+        from200kTo1m: '$200,000 – $1,000,000',
+        above1m: '多於 $1,000,000',
+      },
+      purpose: {
+        label: '貸款用途是？',
+        personal: '個人貸款',
+        business: '商業貸款',
+        mortgage: '物業按揭',
+        other: '其他',
+      },
+      existingLoans: {
+        label: '你目前有其他未還清的貸款嗎？',
+        yes: '有',
+        no: '沒有',
+      },
+    },
+  },
+
+  // ── Bookmarks (Story 7.2) ───────────────────────────────────────────────────
+  bookmarks: {
+    pageTitle: '我的收藏',
+    addAriaLabel: '收藏 {name}',
+    removeAriaLabel: '移除收藏 {name}',
+    removeButton: '移除收藏',
+    addAllToCompare: '全部加入比較',
+    emptyTitle: '未有儲存的放債人',
+    emptyDescription: '你未有儲存任何放債人。在名冊中點擊 ☆ 儲存。',
+    emptyAction: '瀏覽放債人名冊',
+  },
+
+  // ── WhatsApp Share (Story 7.3) ──────────────────────────────────────────────
+  whatsapp: {
+    shareButton: '分享 WhatsApp',
+    shareAriaLabel: '透過WhatsApp分享{name}',
+    shareText: '{name} — hklend 持牌放債人名冊\n{url}',
+  },
+
+  // ── Season Alert (Stories 7.4 / 7.5) ───────────────────────────────────────
+  seasonAlert: {
+    dismissAriaLabel: '關閉通知',
+    adminPageTitle: '季節性通告',
+    adminNewButton: '新增通告',
+    adminEditTitle: '編輯通告',
+    adminCreateTitle: '新增通告',
+    adminTableTitleCol: '標題（中文）',
+    adminTableDateRangeCol: '日期範圍',
+    adminTableActiveCol: '啟用',
+    adminTableActionsCol: '操作',
+    adminDeleteConfirm: '確定刪除此通告？',
+    adminSaveSuccess: '通告已儲存。',
+    adminDeleteSuccess: '通告已刪除。',
+    formTitleZhLabel: '標題（中文，必填）',
+    formTitleEnLabel: '標題（英文，選填）',
+    formBodyZhLabel: '內文（中文，必填）',
+    formBodyEnLabel: '內文（英文，選填）',
+    formCtaLabelZhLabel: 'CTA 按鈕文字（中文，必填）',
+    formCtaLabelEnLabel: 'CTA 按鈕文字（英文，選填）',
+    formCtaUrlLabel: 'CTA 連結（內部路徑，如 /zh/lenders）',
+    formStartDateLabel: '開始日期',
+    formEndDateLabel: '結束日期',
+    formIsActiveLabel: '立即啟用',
+  },
 }

@@ -332,4 +332,99 @@ export const en: Translation = {
     logoutButton: 'Sign out',
     noPermission: 'You do not have permission to view this page.',
   },
+
+  // ── Quiz (Story 7.1) ────────────────────────────────────────────────────────
+  quiz: {
+    title: 'Find Your Match',
+    description: 'Answer 5 quick questions to see lenders likely to suit your profile.',
+    progressLabel: 'Question {current} of {total}',
+    nextButton: 'Next',
+    backButton: 'Back',
+    submitButton: 'See Results',
+    resultTitle: 'Your Matches',
+    resultCount: '{N} licensed lenders matched your profile',
+    confirmedBadge: 'Eligible',
+    unconfirmedBadge: 'Eligibility unconfirmed — confirm with lender',
+    noResultMessage: 'No lenders matched your profile exactly. Try browsing the full directory.',
+    noResultAction: 'Browse all lenders',
+    questions: {
+      employment: {
+        label: 'What is your current employment status?',
+        salaried: 'Salaried employee',
+        selfEmployed: 'Self-employed / Freelancer',
+        unemployed: 'Unemployed',
+      },
+      income: {
+        label: 'What is your approximate monthly income?',
+        below10k: 'Below HK$10,000',
+        from10kTo20k: 'HK$10,000 – $20,000',
+        from20kTo50k: 'HK$20,000 – $50,000',
+        above50k: 'Above HK$50,000',
+      },
+      loanAmount: {
+        label: 'How much do you need to borrow?',
+        below50k: 'Below HK$50,000',
+        from50kTo200k: 'HK$50,000 – $200,000',
+        from200kTo1m: 'HK$200,000 – $1,000,000',
+        above1m: 'Above HK$1,000,000',
+      },
+      purpose: {
+        label: 'What is the loan for?',
+        personal: 'Personal loan',
+        business: 'Business loan',
+        mortgage: 'Mortgage',
+        other: 'Other',
+      },
+      existingLoans: {
+        label: 'Do you currently have any outstanding loans?',
+        yes: 'Yes',
+        no: 'No',
+      },
+    },
+  },
+
+  // ── Bookmarks (Story 7.2) ───────────────────────────────────────────────────
+  bookmarks: {
+    pageTitle: 'My Shortlist',
+    addAriaLabel: 'Bookmark {name}',
+    removeAriaLabel: 'Remove bookmark for {name}',
+    removeButton: 'Remove',
+    addAllToCompare: 'Add all to Compare',
+    emptyTitle: 'No saved lenders',
+    emptyDescription: 'You have not saved any lenders yet. Click ☆ on any lender to save.',
+    emptyAction: 'Browse lenders',
+  },
+
+  // ── WhatsApp Share (Story 7.3) ──────────────────────────────────────────────
+  whatsapp: {
+    shareButton: 'Share on WhatsApp',
+    shareAriaLabel: 'Share {name} via WhatsApp',
+    shareText: '{name} — hklend Licensed Money Lender Directory\n{url}',
+  },
+
+  // ── Season Alert (Stories 7.4 / 7.5) ───────────────────────────────────────
+  seasonAlert: {
+    dismissAriaLabel: 'Dismiss alert',
+    adminPageTitle: 'Season Alerts',
+    adminNewButton: 'New Alert',
+    adminEditTitle: 'Edit Alert',
+    adminCreateTitle: 'New Alert',
+    adminTableTitleCol: 'Title (TC)',
+    adminTableDateRangeCol: 'Date Range',
+    adminTableActiveCol: 'Active',
+    adminTableActionsCol: 'Actions',
+    adminDeleteConfirm: 'Delete this season alert?',
+    adminSaveSuccess: 'Alert saved.',
+    adminDeleteSuccess: 'Alert deleted.',
+    formTitleZhLabel: 'Title (TC, required)',
+    formTitleEnLabel: 'Title (EN, optional)',
+    formBodyZhLabel: 'Body (TC, required)',
+    formBodyEnLabel: 'Body (EN, optional)',
+    formCtaLabelZhLabel: 'CTA label (TC, required)',
+    formCtaLabelEnLabel: 'CTA label (EN, optional)',
+    formCtaUrlLabel: 'CTA URL (internal path, e.g. /zh/lenders)',
+    formStartDateLabel: 'Start date',
+    formEndDateLabel: 'End date',
+    formIsActiveLabel: 'Active',
+  },
 }

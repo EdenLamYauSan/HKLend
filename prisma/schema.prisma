@@ -84,6 +84,30 @@ model ActivityEvent {
   @@map("ActivityEvent")
 }
 
+// ─── SeasonAlert ─────────────────────────────────────────────────────────────
+// Admin-configured banners surfaced on public pages during high-demand periods.
+// Story 7.4 / 7.5: CRUD via /admin/season-alerts; displayed when
+// isActive = true AND current date falls within startDate–endDate.
+// Cache tag: 'season-alerts' — busted by admin save/toggle.
+
+model SeasonAlert {
+  id           String   @id @default(cuid())
+  titleZh      String
+  titleEn      String?
+  bodyZh       String
+  bodyEn       String?
+  ctaLabelZh   String
+  ctaLabelEn   String?
+  ctaUrl       String
+  startDate    DateTime @db.Date
+  endDate      DateTime @db.Date
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("SeasonAlert")
+}
+
 // ─── ScrapeRun ───────────────────────────────────────────────────────────────
 // Audit log of each scraper run. Admin dashboard queries the last 20 runs.
 // ARCH-15: admin dashboard shows a warning when last successful run is >8 days old.
