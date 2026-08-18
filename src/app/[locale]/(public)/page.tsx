@@ -21,14 +21,14 @@ export default async function HomePage({
       {/* ── Hero + Stats (unified dark section) ── */}
       <section className="bg-[#264a58] text-center">
         <div className="px-4 pt-12 pb-10 sm:pt-16 sm:pb-12">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-amber-400">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-white/50">
             {isZh ? '香港持牌放債人查冊' : 'HK Licensed Money Lenders Registry'}
           </p>
           <h1 className="mb-4 text-5xl font-bold leading-tight text-white sm:text-6xl">
             {isZh ? (
-              <>核實牌照<span className="text-amber-400">，</span><br />保障自己</>
+              <>核實牌照，<br />保障自己</>
             ) : (
-              <>Verify licences,<br /><span className="text-amber-400">protect yourself.</span></>
+              <>Verify licences,<br />protect yourself.</>
 )}
           </h1>
           <p className="mb-8 mx-auto max-w-sm text-sm leading-relaxed text-white/50">
