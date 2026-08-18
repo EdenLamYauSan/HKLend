@@ -6,9 +6,12 @@
  * `submissionGuard` — never implement Turnstile or rate limiting inline.
  *
  * Execution order (mandatory — do not reorder):
- *   1. Upstash Redis rate-limit check → 429 Response if exceeded
- *   2. Cloudflare Turnstile server-side verification → 400 Response if failed
+ *   1. Cloudflare Turnstile server-side verification → 400 Response if failed
+ *   2. Upstash Redis rate-limit INCR + check → 429 Response if exceeded
  *   3. Returns { ok: true } if both pass
+ *
+ * Turnstile is checked FIRST so that a CAPTCHA glitch or timeout never
+ * increments the rate-limit counter and locks a legitimate user out.
  *
  * The CI grep script `scripts/check-submission-guard.sh` enforces this
  * import in all community POST handler files.
@@ -82,17 +85,6 @@ export type SubmissionGuardResult =
 
 // ─── Rate limit ───────────────────────────────────────────────────────────────
 
-/**
- * Composite rate-limit key: fingerprint is the primary signal, IP is
- * the backstop. Both are required to prevent evasion via IP rotation
- * (fingerprint stays consistent) or fingerprint spoofing (IP backstop).
- *
- * Note: We check both keys and block if EITHER is exceeded.
- */
-function rateLimitKey(fingerprint: string, ip: string, namespace: string): string {
-  return `ratelimit:${namespace}:fp:${fingerprint}:ip:${ip}`
-}
-
 async function checkRateLimit(
   fingerprint: string,
   ip: string,
@@ -101,13 +93,26 @@ async function checkRateLimit(
   windowSeconds: number
 ): Promise<{ allowed: boolean }> {
   const redis = getRedis()
-  const key = rateLimitKey(fingerprint, ip, namespace)
+  const fpKey = `ratelimit:${namespace}:fp:${fingerprint}`
+  const ipKey = `ratelimit:${namespace}:ip:${ip}`
 
-  // INCR then EXPIRE in a pipeline — atomic enough for rate limiting.
-  // We do not use SETNX because we want to increment the counter each call.
-  const [[, count]] = await redis.pipeline().incr(key).expire(key, windowSeconds).exec() as [[null, number], [null, number]]
+  // Two independent keys — one per fingerprint, one per IP.
+  // Block if EITHER reaches the limit: IP rotation does not reset the
+  // fingerprint counter, and fingerprint spoofing does not reset the IP counter.
+  const [[, fpCount], , [, ipCount]] = await redis
+    .pipeline()
+    .incr(fpKey)
+    .expire(fpKey, windowSeconds)
+    .incr(ipKey)
+    .expire(ipKey, windowSeconds)
+    .exec() as [
+      [null, number],
+      [null, number],
+      [null, number],
+      [null, number],
+    ]
 
-  return { allowed: (count as number) <= limit }
+  return { allowed: (fpCount as number) <= limit && (ipCount as number) <= limit }
 }
 
 // ─── Turnstile verification ───────────────────────────────────────────────────
@@ -173,34 +178,16 @@ export async function submissionGuard(
     windowSeconds = 86400,
   } = options
 
-  // ── Step 1: Rate limit check ────────────────────────────────────────────────
-  const { allowed } = await checkRateLimit(fingerprint, ip, namespace, limit, windowSeconds)
-
-  if (!allowed) {
-    // Return 429 with X-RateLimit-Remaining: 0.
-    // Do NOT include the total limit — exposing it aids calibrated evasion.
-    return {
-      ok: false,
-      response: Response.json(
-        apiError('RATE_LIMITED', '提交次數已達上限，請稍後再試。'),
-        {
-          status: 429,
-          headers: {
-            'X-RateLimit-Remaining': '0',
-          },
-        }
-      ),
-    }
-  }
-
-  // ── Step 2: Turnstile verification ──────────────────────────────────────────
+  // ── Step 1: Turnstile verification ──────────────────────────────────────────
+  // Must run BEFORE rate-limit INCR: a CAPTCHA glitch or network timeout must
+  // never burn the user's submission quota.
   let turnstilePassed: boolean
   try {
     turnstilePassed = await verifyTurnstile(turnstileToken, ip)
   } catch {
     // AbortSignal.timeout(3000) throws DOMException on timeout.
     // Any other fetch error is also caught here.
-    // Fail-closed: reject the submission.
+    // Fail-closed: reject the submission without touching Redis.
     return {
       ok: false,
       response: Response.json(
@@ -222,6 +209,27 @@ export async function submissionGuard(
           '驗證失敗，請重新嘗試。如問題持續，請重新整理頁面。'
         ),
         { status: 400 }
+      ),
+    }
+  }
+
+  // ── Step 2: Rate limit INCR + check ─────────────────────────────────────────
+  // Only reached when Turnstile passes — so only genuine submissions count.
+  // Return 429 with X-RateLimit-Remaining: 0.
+  // Do NOT include the total limit — exposing it aids calibrated evasion.
+  const { allowed } = await checkRateLimit(fingerprint, ip, namespace, limit, windowSeconds)
+
+  if (!allowed) {
+    return {
+      ok: false,
+      response: Response.json(
+        apiError('RATE_LIMITED', '提交次數已達上限，請稍後再試。'),
+        {
+          status: 429,
+          headers: {
+            'X-RateLimit-Remaining': '0',
+          },
+        }
       ),
     }
   }

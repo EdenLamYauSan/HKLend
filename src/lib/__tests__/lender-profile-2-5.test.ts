@@ -110,9 +110,9 @@ describe('AC-4: Metadata — title, canonical, og:*, twitter:card', () => {
     expect(page).toContain('await params')
   })
 
-  it('zh title format: {companyNameZh} — hklend', () => {
+  it('zh title format: {companyNameZh} — HK Lend', () => {
     expect(page).toContain('companyNameZh')
-    expect(page).toContain('— hklend`')
+    expect(page).toContain('— HK Lend`')
   })
 
   it('en title uses companyNameEn ?? companyNameZh', () => {

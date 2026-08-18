@@ -101,8 +101,10 @@ describe('AC-3: LenderPulse — most recent event; absent when events empty', ()
     expect(page).toContain("from '@/components/profile/LenderPulse'")
   })
 
-  it('LenderPulse returns null when events is empty', () => {
-    expect(pulse).toContain('events.length === 0')
+  it('LenderPulse returns null when no signals have data', () => {
+    // Story 3.6 expanded LenderPulse: now absent when BOTH events AND trend are empty.
+    // The null-return guard uses hasEvent / hasTrend flags derived from events.length.
+    expect(pulse).toContain('events.length')
     expect(pulse).toContain('return null')
   })
 
@@ -211,9 +213,10 @@ describe('DB select: new fields included in the cached query', () => {
   })
 
   it('activityEvents nested query is present', () => {
+    // Story 3.7 expanded: profile page fetches ALL events (no take: 1) so
+    // ActivityFeed can display the full history; LenderPulse slices(0,1) itself.
     expect(page).toContain('activityEvents:')
     expect(page).toContain("orderBy: { detectedAt: 'desc' }")
-    expect(page).toContain('take: 1')
     expect(page).toContain('descriptionZh: true')
     expect(page).toContain('descriptionEn: true')
   })

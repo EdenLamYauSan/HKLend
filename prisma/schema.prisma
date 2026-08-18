@@ -51,6 +51,7 @@ model Lender {
 
   // Relations
   activityEvents  ActivityEvent[]
+  reviews         Review[]
 
   @@map("Lender")
 }
@@ -100,4 +101,46 @@ model ScrapeRun {
   createdAt        DateTime @default(now())
 
   @@map("ScrapeRun")
+}
+
+// ─── Review ──────────────────────────────────────────────────────────────────
+// Community review of a licensed money lender.
+//
+// Status lifecycle: PENDING → APPROVED (public) | REJECTED
+// The overall display rating is computed dynamically as:
+//   (ratingApprovalSpeed + ratingRateAccuracy + ratingStaffAttitude + ratingTransparency) / 4.0
+// It is NEVER stored as a column to prevent it going stale relative to the dimensions.
+//
+// Minimum 3 approved reviews are required before aggregate ratings are shown
+// publicly (FR-16 / Story 3.4).
+
+model Review {
+  id                    String   @id @default(cuid())
+  lenderId              String
+  lender                Lender   @relation(fields: [lenderId], references: [id], onDelete: Cascade)
+
+  // ── 4-dimension ratings (1–5, all required) ─────────────────────────────
+  ratingApprovalSpeed   Int
+  ratingRateAccuracy    Int
+  ratingStaffAttitude   Int
+  ratingTransparency    Int
+
+  // ── Content ─────────────────────────────────────────────────────────────
+  body                  String   // 50–500 chars; stored as plain text, never rendered as HTML
+  reviewerName          String?  // optional; max 20 chars; null displayed as "匿名"
+
+  // ── Moderation ──────────────────────────────────────────────────────────
+  status                String   @default("PENDING") // PENDING | APPROVED | REJECTED
+  rejectionReason       String?
+
+  // ── Community voting (Story 3.5) ─────────────────────────────────────────
+  helpfulCount          Int      @default(0)
+  notHelpfulCount       Int      @default(0)
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Index for paginated approved-reviews-by-lender queries (newest first)
+  @@index([lenderId, status, createdAt(sort: Desc)])
+  @@map("Review")
 }

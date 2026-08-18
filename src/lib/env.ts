@@ -32,6 +32,8 @@ const envSchema = z.object({
 
   // Cloudflare Turnstile (community submission protection)
   TURNSTILE_SECRET_KEY: z.string().min(1, 'TURNSTILE_SECRET_KEY is required'),
+  // Public site key — used in client components (passed via Server Component props, not direct env access)
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().min(1, 'NEXT_PUBLIC_TURNSTILE_SITE_KEY is required'),
 
   // Upstash Redis — rate limiting (provisioned via Vercel Marketplace)
   KV_REST_API_URL: z.string().url('KV_REST_API_URL must be a valid URL'),
