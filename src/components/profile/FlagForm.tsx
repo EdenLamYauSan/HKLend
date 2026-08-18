@@ -20,7 +20,7 @@
  * NFR-6: all text fields rendered as plain text — never via dangerouslySetInnerHTML.
  */
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { FLAG_CATEGORIES, type FlagCategory } from '@/types/flag.schema'
 import type { Locale } from '@/locales'
 
@@ -100,7 +100,7 @@ export function FlagForm({ lenderSlug, locale }: Props) {
     }
     document.addEventListener('keydown', handleKey)
     return () => document.removeEventListener('keydown', handleKey)
-  }, [open])
+  }, [open, handleClose])
 
   // Detect disclaimer scroll completion
   useEffect(() => {
@@ -129,9 +129,9 @@ export function FlagForm({ lenderSlug, locale }: Props) {
     setSubmitted(false)
   }
 
-  function handleClose() {
+  const handleClose = useCallback(() => {
     setOpen(false)
-  }
+  }, [])
 
   const canSubmit = hasScrolledDisclaimer && category !== '' && !busy
 
@@ -303,8 +303,8 @@ export function FlagForm({ lenderSlug, locale }: Props) {
                       </p>
                       <p>
                         {isZh
-                          ? '此舉報並非法律投訴，HK Lend 不提供法律建議。提交舉報僅供社區安全參考，所有舉報須經審核方可公開。如遇緊急情況或需要法律協助，請聯絡警方或尋求法律意見。虛假舉報可能承擔法律責任。'
-                          : 'This report is not a legal complaint. HK Lend does not provide legal advice. Submitted reports are for community safety reference only and are reviewed before publication. In emergencies or if you require legal assistance, contact the police or seek legal advice. False reports may result in legal liability.'}
+                          ? '此舉報並非法律投訴，hklend 不提供法律建議。如有緊急情況，請聯絡警方。'
+                          : 'This report is not a legal complaint. hklend does not provide legal advice. In an emergency, please contact the police.'}
                       </p>
                     </div>
                     {!hasScrolledDisclaimer && (
