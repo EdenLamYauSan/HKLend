@@ -1,15 +1,16 @@
 /**
  * LicencePanel — Profile page licence details section.
  *
- * Shows: LicenceBadge, copyable licence number, address (bilingual via
- * getLocalizedField), district, phone as tap-to-call, website as external link.
+ * Shows: copyable licence number, district, address (bilingual via
+ * localize helper), phone as tap-to-call, website as external link.
+ *
+ * Note: LicenceBadge is intentionally NOT rendered here — it lives in the
+ * Verdict Card above this panel on the profile page to avoid duplication.
  *
  * Story 2.6 AC-1.
  */
 
-import { LicenceBadge } from '@/components/directory/LicenceBadge'
 import { CopyLicenceNumber } from './CopyLicenceNumber'
-import { getLocalizedField } from '@/lib/utils/get-localized-field'
 import type { Locale } from '@/locales'
 
 interface LenderPanelData {
@@ -30,9 +31,7 @@ interface Props {
 
 export function LicencePanel({ lender, locale }: Props) {
   const isZh = locale === 'zh'
-  // getLocalizedField throws when both Zh and En are null/empty (ARCH-10).
-  // Address and district may be absent for some scraped records — use a safe
-  // helper that returns null instead of throwing.
+
   function localize(zh: string | null, en: string | null): string | null {
     const zhVal = zh || null
     const enVal = en || null
@@ -45,14 +44,16 @@ export function LicencePanel({ lender, locale }: Props) {
 
   return (
     <section
-      className="rounded-xl border border-gray-200 bg-white p-5 space-y-4"
+      className="rounded-xl border border-border bg-white p-5 space-y-4"
       aria-label={isZh ? '牌照資料' : 'Licence Details'}
     >
-      <LicenceBadge licenceStatus={lender.licenceStatus} locale={locale} size="lg" />
+      <h2 className="text-sm font-semibold text-primary uppercase tracking-wide">
+        {isZh ? '牌照資料' : 'Licence Details'}
+      </h2>
 
-      <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+      <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
         <div>
-          <dt className="text-gray-500">{isZh ? '牌照號碼' : 'Licence No.'}</dt>
+          <dt className="text-muted-foreground">{isZh ? '牌照號碼' : 'Licence No.'}</dt>
           <dd className="mt-0.5">
             <CopyLicenceNumber licenceNumber={lender.licenceNumber} />
           </dd>
@@ -60,25 +61,25 @@ export function LicencePanel({ lender, locale }: Props) {
 
         {district && (
           <div>
-            <dt className="text-gray-500">{isZh ? '地區' : 'District'}</dt>
-            <dd className="mt-0.5 font-medium text-[#264a58]">{district}</dd>
+            <dt className="text-muted-foreground">{isZh ? '地區' : 'District'}</dt>
+            <dd className="mt-0.5 font-medium text-primary">{district}</dd>
           </div>
         )}
 
         {address && (
           <div className="sm:col-span-2">
-            <dt className="text-gray-500">{isZh ? '地址' : 'Address'}</dt>
-            <dd className="mt-0.5 text-[#264a58]">{address}</dd>
+            <dt className="text-muted-foreground">{isZh ? '地址' : 'Address'}</dt>
+            <dd className="mt-0.5 text-foreground leading-relaxed">{address}</dd>
           </div>
         )}
 
         {lender.phone && (
           <div>
-            <dt className="text-gray-500">{isZh ? '電話' : 'Phone'}</dt>
+            <dt className="text-muted-foreground">{isZh ? '電話' : 'Phone'}</dt>
             <dd className="mt-0.5">
               <a
                 href={`tel:${lender.phone}`}
-                className="text-[#264a58] hover:underline"
+                className="font-medium text-primary hover:underline"
               >
                 {lender.phone}
               </a>
@@ -88,15 +89,16 @@ export function LicencePanel({ lender, locale }: Props) {
 
         {lender.websiteUrl && (
           <div>
-            <dt className="text-gray-500">{isZh ? '網站' : 'Website'}</dt>
+            <dt className="text-muted-foreground">{isZh ? '網站' : 'Website'}</dt>
             <dd className="mt-0.5">
               <a
                 href={lender.websiteUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[#264a58] hover:underline break-all"
+                className="text-primary hover:underline break-all"
               >
                 {lender.websiteUrl}
+                <span className="sr-only"> (opens in new tab)</span>
               </a>
             </dd>
           </div>

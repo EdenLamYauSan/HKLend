@@ -19,7 +19,7 @@ export function LoanTypeTags({ tags, locale }: Props) {
 
   return (
     <section>
-      <h2 className="text-sm font-medium text-gray-500 mb-2">
+      <h2 className="text-sm font-semibold text-primary uppercase tracking-wide mb-3">
         {locale === 'zh' ? '貸款類型' : 'Loan Types'}
       </h2>
       <div className="flex flex-wrap gap-2">
@@ -27,7 +27,7 @@ export function LoanTypeTags({ tags, locale }: Props) {
           <a
             key={tag}
             href={`/zh/lenders?loanType=${encodeURIComponent(tag)}`}
-            className="inline-flex items-center rounded-full bg-[#264a58]/10 px-3 py-1 text-sm text-[#264a58] hover:bg-[#264a58]/20 transition-colors"
+            className="inline-flex items-center rounded-full bg-secondary px-3 py-1 text-sm font-medium text-primary hover:bg-secondary/70 transition-colors"
           >
             {tag}
           </a>

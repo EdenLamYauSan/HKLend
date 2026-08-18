@@ -30,10 +30,10 @@ export function LenderPulse({ events, locale }: Props) {
       className="rounded-xl border border-amber-200 bg-amber-50 p-4"
       aria-label={locale === 'zh' ? '最新動態' : 'Lender Pulse'}
     >
-      <h2 className="text-xs font-semibold uppercase tracking-wide text-amber-600 mb-1">
+      <h2 className="text-xs font-semibold uppercase tracking-[0.1em] text-amber-700 mb-1.5">
         {locale === 'zh' ? '最新動態' : 'Lender Pulse'}
       </h2>
-      <p className="text-sm text-amber-900">{description}</p>
+      <p className="text-sm leading-relaxed text-amber-900">{description}</p>
     </section>
   )
 }

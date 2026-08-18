@@ -249,23 +249,38 @@ export default async function LenderProfilePage({
   const isZh = locale === 'zh'
   const jsonLd = buildJsonLd(lender, isZh)
 
+  const isZh = locale === 'zh'
+
+  // Secondary name: EN when viewing in ZH, ZH when there's no EN
+  const primaryName = getLocalizedField(lender, 'companyName', locale)
+  const secondaryName = isZh
+    ? lender.companyNameEn
+    : (lender.companyNameZh !== (lender.companyNameEn ?? lender.companyNameZh)
+        ? lender.companyNameZh
+        : null)
+
   return (
-    <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 space-y-6">
+    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 space-y-5">
       {/* JSON-LD structured data — hoisted to <head> by Next.js */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* Header: name + licence status badge */}
-      <div className="flex flex-wrap items-start gap-3">
-        <h1 className="text-2xl font-semibold text-[#264a58]">
-          {getLocalizedField(lender, 'companyName', locale)}
+      {/* Verdict Card — UX-DR: badge hero, name, secondary name */}
+      <div className="rounded-xl border border-border bg-white p-5 shadow-sm">
+        <div className="mb-3 flex items-center gap-3 flex-wrap">
+          <LicenceBadge licenceStatus={lender.licenceStatus} locale={locale} size="lg" />
+        </div>
+        <h1 className="text-2xl font-bold text-primary leading-snug">
+          {primaryName}
         </h1>
-        <LicenceBadge licenceStatus={lender.licenceStatus} locale={locale} size="lg" />
+        {secondaryName && (
+          <p className="mt-1 text-sm text-muted-foreground">{secondaryName}</p>
+        )}
       </div>
 
-      {/* Licence details panel */}
+      {/* Licence details panel (no badge — already in verdict card above) */}
       <LicencePanel lender={lender} locale={locale} />
 
       {/* Eligibility chips */}
@@ -277,12 +292,12 @@ export default async function LenderProfilePage({
       {/* Lender Pulse — most recent activity event; absent when none */}
       <LenderPulse events={lender.activityEvents} locale={locale} />
 
-      {/* Admin note callout box (brand-card background) */}
+      {/* Admin note callout box */}
       {lender.adminNote && (
-        <div className="rounded-xl bg-brand-card p-4">
-          <p className="text-sm text-[#264a58]">{lender.adminNote}</p>
+        <div className="rounded-xl border border-border bg-brand-card p-4">
+          <p className="text-sm text-primary">{lender.adminNote}</p>
         </div>
       )}
-    </main>
+    </div>
   )
 }
