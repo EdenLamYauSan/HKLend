@@ -44,7 +44,11 @@ const LOAN_TYPE_LABELS: Record<string, { zh: string; en: string }> = {
 }
 
 function loanTypeLabel(type: string, locale: Locale): string {
-  return LOAN_TYPE_LABELS[type]?.[locale] ?? type
+  const entry = LOAN_TYPE_LABELS[type]
+  if (!entry) {
+    console.warn(`[loan-types] Unknown loanTypeTag "${type}" — add it to LOAN_TYPE_LABELS`)
+  }
+  return entry?.[locale] ?? type
 }
 
 // ─── Cached data fetch ────────────────────────────────────────────────────────
@@ -109,8 +113,8 @@ export async function generateMetadata({
 
   const title =
     locale === 'zh'
-      ? `香港${labelZh}持牌放債人名冊 — HK Lend`
-      : `Hong Kong ${labelEn} Licensed Money Lenders — HK Lend`
+      ? `香港${labelZh}持牌放債人名冊 — hklend`
+      : `Hong Kong ${labelEn} Licensed Money Lenders — hklend`
 
   const description =
     locale === 'zh'
@@ -140,7 +144,7 @@ function buildJsonLd(lenders: LenderCardData[], type: string, locale: Locale) {
     itemListElement: lenders.slice(0, 20).map((l, idx) => ({
       '@type': 'ListItem',
       position: idx + 1,
-      url: `https://hklend.com/${locale}/lenders/${l.slug}`,
+      url: `https://hklend.hk/${locale}/lenders/${l.slug}`,
       name: getLocalizedField(l, 'companyName', locale),
     })),
   }
