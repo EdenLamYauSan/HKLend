@@ -26,10 +26,18 @@ const bodySchema = z.object({
   bodyEn: z.string().max(500).optional().nullable(),
   ctaLabelZh: z.string().min(1).max(50),
   ctaLabelEn: z.string().max(50).optional().nullable(),
-  ctaUrl: z.string().min(1).max(200),
+  ctaUrl: z.string().min(1).max(200).regex(/^\//, 'ctaUrl must be an internal path starting with /'),
   startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'startDate must be YYYY-MM-DD'),
   endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'endDate must be YYYY-MM-DD'),
   isActive: z.boolean().default(true),
+}).superRefine((data, ctx) => {
+  if (data.startDate && data.endDate && data.endDate < data.startDate) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'endDate must be on or after startDate',
+      path: ['endDate'],
+    })
+  }
 })
 
 // ─── Auth helper ──────────────────────────────────────────────────────────────

@@ -24,10 +24,18 @@ const bodySchema = z.object({
   bodyEn: z.string().max(500).optional().nullable(),
   ctaLabelZh: z.string().min(1).max(50).optional(),
   ctaLabelEn: z.string().max(50).optional().nullable(),
-  ctaUrl: z.string().min(1).max(200).optional(),
+  ctaUrl: z.string().min(1).max(200).regex(/^\//, 'ctaUrl must be an internal path starting with /').optional(),
   startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   isActive: z.boolean().optional(),
+}).superRefine((data, ctx) => {
+  if (data.startDate && data.endDate && data.endDate < data.startDate) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'endDate must be on or after startDate',
+      path: ['endDate'],
+    })
+  }
 })
 
 async function requireAdmin(): Promise<Response | null> {
