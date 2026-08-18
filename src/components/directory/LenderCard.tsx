@@ -37,6 +37,7 @@ export interface LenderCardData {
   loanTypeTags: string[]
   eligibilityTags: string[]
   interestRateMin?: number | null
+  interestRateMax?: number | null
 }
 
 interface LenderCardProps {
@@ -123,6 +124,26 @@ export function LenderCard({ lender, locale }: LenderCardProps) {
             )}
           </div>
         )}
+
+        {/* Rate range — mirrors ComparisonGridClient logic */}
+        {(() => {
+          const hasRate = lender.interestRateMin != null || lender.interestRateMax != null
+          const rateText = hasRate
+            ? [lender.interestRateMin, lender.interestRateMax]
+                .filter((r): r is number => r != null)
+                .map(r => `${r}%`)
+                .join('–')
+            : null
+          return (
+            <p className="text-xs font-medium text-[#264a58]">
+              {rateText ?? (
+                <span className="font-normal text-gray-400">
+                  {isZh ? '利率資料待更新' : 'Rate data pending'}
+                </span>
+              )}
+            </p>
+          )
+        })()}
 
         {/* Eligibility note — only shown when eligibilityTags is empty */}
         {lender.eligibilityTags.length === 0 && (

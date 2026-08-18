@@ -26,6 +26,7 @@ import Link from 'next/link'
 import { useCompareStore } from '@/store/compare.store'
 import { calculateApr } from '@/lib/calculators/apr'
 import { LicenceBadge } from '@/components/directory/LicenceBadge'
+import { getLoanTypeTagLabel } from '@/locales/loan-type-tags'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -233,7 +234,7 @@ export function ComparisonGridClient({ locale }: ComparisonGridClientProps) {
                           key={tag}
                           className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600"
                         >
-                          {tag}
+                          {getLoanTypeTagLabel(tag, locale)}
                         </span>
                       ))}
                     </div>
