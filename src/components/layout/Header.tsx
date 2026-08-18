@@ -37,10 +37,10 @@ export function Header({ locale }: HeaderProps) {
             focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2
             rounded-sm
           "
-          aria-label="hklend — back to homepage"
+          aria-label="HK Lend — back to homepage"
         >
           {/* Text wordmark — no image dependency for v1 */}
-          <span aria-hidden="true">hklend</span>
+          <span aria-hidden="true">HK Lend</span>
         </a>
 
         {/* Language toggle */}

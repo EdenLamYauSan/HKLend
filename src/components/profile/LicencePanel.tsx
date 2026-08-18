@@ -15,9 +15,9 @@ import type { Locale } from '@/locales'
 interface LenderPanelData {
   licenceNumber: string
   licenceStatus: string
-  addressZh: string
+  addressZh: string | null
   addressEn: string | null
-  districtZh: string
+  districtZh: string | null
   districtEn: string | null
   phone: string | null
   websiteUrl: string | null
@@ -30,9 +30,18 @@ interface Props {
 
 export function LicencePanel({ lender, locale }: Props) {
   const isZh = locale === 'zh'
-  const rec = lender as unknown as Record<string, unknown>
-  const address = getLocalizedField(rec, 'address', locale)
-  const district = getLocalizedField(rec, 'district', locale)
+  // getLocalizedField throws when both Zh and En are null/empty (ARCH-10).
+  // Address and district may be absent for some scraped records — use a safe
+  // helper that returns null instead of throwing.
+  function localize(zh: string | null, en: string | null): string | null {
+    const zhVal = zh || null
+    const enVal = en || null
+    if (locale === 'zh') return zhVal
+    return enVal ?? zhVal
+  }
+
+  const address = localize(lender.addressZh, lender.addressEn)
+  const district = localize(lender.districtZh, lender.districtEn)
 
   return (
     <section
@@ -49,15 +58,19 @@ export function LicencePanel({ lender, locale }: Props) {
           </dd>
         </div>
 
-        <div>
-          <dt className="text-gray-500">{isZh ? '地區' : 'District'}</dt>
-          <dd className="mt-0.5 font-medium text-[#264a58]">{district}</dd>
-        </div>
+        {district && (
+          <div>
+            <dt className="text-gray-500">{isZh ? '地區' : 'District'}</dt>
+            <dd className="mt-0.5 font-medium text-[#264a58]">{district}</dd>
+          </div>
+        )}
 
-        <div className="sm:col-span-2">
-          <dt className="text-gray-500">{isZh ? '地址' : 'Address'}</dt>
-          <dd className="mt-0.5 text-[#264a58]">{address}</dd>
-        </div>
+        {address && (
+          <div className="sm:col-span-2">
+            <dt className="text-gray-500">{isZh ? '地址' : 'Address'}</dt>
+            <dd className="mt-0.5 text-[#264a58]">{address}</dd>
+          </div>
+        )}
 
         {lender.phone && (
           <div>

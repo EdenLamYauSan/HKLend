@@ -15,7 +15,7 @@ export const runtime = 'nodejs'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: '儀表板 — hklend 管理',
+  title: '儀表板 — HK Lend 管理',
   robots: { index: false, follow: false },
 }
 
@@ -25,7 +25,7 @@ export default function AdminDashboardPage() {
       <div>
         <h1 className="text-2xl font-semibold text-[#264a58]">儀表板</h1>
         <p className="mt-1 text-sm text-gray-500">
-          hklend 管理員控制台
+          HK Lend 管理員控制台
         </p>
       </div>
 

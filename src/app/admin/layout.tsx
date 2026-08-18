@@ -60,7 +60,7 @@ export default async function AdminLayout({
         >
           {/* Wordmark */}
           <div className="px-4 py-5 border-b border-white/15">
-            <span className="text-base font-semibold">hklend</span>
+            <span className="text-base font-semibold">HK Lend</span>
             <p className="text-xs text-white/60 mt-0.5">管理員介面</p>
           </div>
 

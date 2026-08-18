@@ -14,7 +14,7 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: '管理員登入 — hklend',
+  title: '管理員登入 — HK Lend',
   robots: { index: false, follow: false },
 }
 
@@ -31,7 +31,7 @@ export default async function AdminLoginPage({ searchParams }: LoginPageProps) {
         <main className="w-full max-w-sm">
           {/* Wordmark */}
           <div className="mb-8 text-center">
-            <span className="text-2xl font-semibold text-[#264a58]">hklend</span>
+            <span className="text-2xl font-semibold text-[#264a58]">HK Lend</span>
             <p className="mt-1 text-sm text-gray-500">管理員登入</p>
           </div>
 

@@ -19,7 +19,7 @@ import { db } from '@/lib/db'
 import { LicenceBadge } from '@/components/directory/LicenceBadge'
 
 export const metadata: Metadata = {
-  title: '放債人管理 — hklend 管理',
+  title: '放債人管理 — HK Lend 管理',
   robots: { index: false, follow: false },
 }
 

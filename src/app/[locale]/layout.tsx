@@ -13,21 +13,21 @@
  * Next.js 16: params is a Promise and must be awaited.
  */
 
-import { Saira } from 'next/font/google'
+import { Plus_Jakarta_Sans } from 'next/font/google'
 import { notFound } from 'next/navigation'
 import { isLocale } from '@/locales'
 import type { Locale } from '@/locales'
 import { ScopeBanner } from '@/components/layout/ScopeBanner'
 import { Header } from '@/components/layout/Header'
+import { DirectoryTabNav } from '@/components/layout/DirectoryTabNav'
 
 /**
- * Saira: Latin weights for UI (CJK uses system stack — no web font).
- * variable: '--font-saira' wires into globals.css @theme --font-sans.
- * UX-DR13: weights 400 (body), 500 (labels), 600 (headings/CTA).
+ * Plus Jakarta Sans: clean geometric sans with excellent Latin numeral rendering.
+ * variable: '--font-sans' wires into globals.css @theme.
  */
-const saira = Saira({
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
-  weight: ['400', '500', '600'],
+  weight: ['400', '500', '600', '700'],
   variable: '--font-saira',
   display: 'swap',
 })
@@ -50,7 +50,7 @@ export default async function LocaleLayout({
   const lang = locale as Locale
 
   return (
-    <html lang={lang} className={`h-full ${saira.variable}`}>
+    <html lang={lang} className={`h-full ${plusJakartaSans.variable}`}>
       <body className="min-h-full flex flex-col antialiased">
         {/*
          * Skip-to-content: first focusable element, visually hidden until
@@ -72,6 +72,9 @@ export default async function LocaleLayout({
         <div className="flex flex-col flex-1 pt-8">
           {/* Sticky header below banner */}
           <Header locale={lang} />
+
+          {/* Tab nav — sits between header and page content */}
+          <DirectoryTabNav locale={lang} />
 
           {/* Main content — target of skip-to-content link */}
           <main id="main-content" className="flex-1">

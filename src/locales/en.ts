@@ -9,14 +9,14 @@ import type { Translation } from './types'
 
 export const en: Translation = {
   // ── Site meta ──────────────────────────────────────────────────────────────
-  siteName: 'hklend',
+  siteName: 'HK Lend',
   siteTagline: 'Verify licences. Completely free.',
   siteDescription:
     'Check the licence status of any Hong Kong money lender, read community ratings, and avoid unlicensed lenders.',
 
   // ── Scope banner ──────────────────────────────────────────────────────────
   scopeBanner: {
-    text: 'hklend verifies licences — we do not approve loans',
+    text: 'HK Lend verifies licences — we do not approve loans',
     hkmaLink: 'View HKMA official directory',
   },
 
@@ -92,7 +92,7 @@ export const en: Translation = {
       registrationNumber: 'Licence No.',
       visitWebsite: 'Visit website',
       applyEnquire: 'Apply / Enquire',
-      applyDisclaimer: "You are leaving hklend and going to the lender's website",
+      applyDisclaimer: "You are leaving HK Lend and going to the lender's website",
       moreTypes: '+ {n} more',
     },
     zeroResult: {
@@ -173,13 +173,13 @@ export const en: Translation = {
   // ── Legal ─────────────────────────────────────────────────────────────────
   legal: {
     disclaimer:
-      'hklend is for informational purposes only and does not constitute financial advice. Evaluate all loan decisions independently.',
+      'HK Lend is for informational purposes only and does not constitute financial advice. Evaluate all loan decisions independently.',
     scamBoardDisclaimer:
       'The following reports are submitted by users and reviewed by moderators. They are not verified by any judicial authority in Hong Kong.',
     leavingSiteWarning:
-      "You are leaving hklend and visiting the lender's website. hklend is not responsible for third-party content.",
+      "You are leaving HK Lend and visiting the lender's website. HK Lend is not responsible for third-party content.",
     platformClarification:
-      'You received a lender verification link — hklend is a free licence-checking tool, not a lending platform',
+      'You received a lender verification link — HK Lend is a free licence-checking tool, not a lending platform',
   },
 
   // ── Captcha ───────────────────────────────────────────────────────────────

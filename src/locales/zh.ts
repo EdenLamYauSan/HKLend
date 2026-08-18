@@ -10,13 +10,13 @@ import type { Translation } from './types'
 
 export const zh: Translation = {
   // ── Site meta ──────────────────────────────────────────────────────────────
-  siteName: 'hklend',
+  siteName: 'HK Lend',
   siteTagline: '核實牌照，免費查牌',
   siteDescription: '免費查核香港持牌放債人牌照狀態，睇用家評分，避免接觸無牌放債人。',
 
   // ── Scope banner ──────────────────────────────────────────────────────────
   scopeBanner: {
-    text: 'hklend 核實牌照，唔批貸款',
+    text: 'HK Lend 核實牌照，唔批貸款',
     hkmaLink: '查閱金管局官方名冊',
   },
 
@@ -92,7 +92,7 @@ export const zh: Translation = {
       registrationNumber: '牌照號碼',
       visitWebsite: '瀏覽網站',
       applyEnquire: '申請 / 查詢',
-      applyDisclaimer: '你將離開 hklend 前往放債人網站',
+      applyDisclaimer: '你將離開 HK Lend 前往放債人網站',
       moreTypes: '+ {n} 項',
     },
     zeroResult: {
@@ -173,12 +173,12 @@ export const zh: Translation = {
   // ── Legal ─────────────────────────────────────────────────────────────────
   legal: {
     disclaimer:
-      'hklend 僅供資訊參考，不構成財務建議。所有貸款決定請自行評估。',
+      'HK Lend 僅供資訊參考，不構成財務建議。所有貸款決定請自行評估。',
     scamBoardDisclaimer:
       '以下為用戶提交並經審核的檢舉，非由香港司法機構核實。',
-    leavingSiteWarning: '你將離開 hklend，前往放債人網站。hklend 對該網站內容概不負責。',
+    leavingSiteWarning: '你將離開 HK Lend，前往放債人網站。HK Lend 對該網站內容概不負責。',
     platformClarification:
-      '你收到一個放債人核實連結 — hklend 係免費查牌工具，唔係借貸平台',
+      '你收到一個放債人核實連結 — HK Lend 係免費查牌工具，唔係借貸平台',
   },
 
   // ── Captcha ───────────────────────────────────────────────────────────────

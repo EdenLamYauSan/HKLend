@@ -22,11 +22,11 @@ const HKMA_URL =
 
 const copy = {
   zh: {
-    message: 'hklend 核實牌照，唔批貸款',
+    message: 'HK Lend 核實牌照，唔批貸款',
     linkLabel: 'HKMA 放債人名單',
   },
   en: {
-    message: 'hklend verifies licences — we do not issue loans',
+    message: 'HK Lend verifies licences — we do not issue loans',
     linkLabel: 'HKMA moneylenders list',
   },
 } as const

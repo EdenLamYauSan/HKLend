@@ -59,7 +59,7 @@ export default async function Image({ params, searchParams }: Props) {
       >
         {/* hklend wordmark */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 22, fontWeight: 700, color: '#264a58' }}>hklend</span>
+          <span style={{ fontSize: 22, fontWeight: 700, color: '#264a58' }}>HK Lend</span>
           <span style={{ fontSize: 14, color: '#9ca3af' }}>香港持牌放債人資料庫</span>
         </div>
 

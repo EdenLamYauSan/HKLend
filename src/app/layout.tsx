@@ -14,7 +14,7 @@ import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'hklend',
+  title: 'HK Lend',
   description: '免費查核香港持牌放債人牌照狀態，睇用家評分，避免接觸無牌放債人。',
 }
 

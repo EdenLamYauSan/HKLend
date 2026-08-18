@@ -22,13 +22,14 @@ import { LenderFilters } from '@/components/directory/LenderFilters'
 import { ZeroResultVerdict } from '@/components/directory/ZeroResultVerdict'
 import { LenderCard } from '@/components/directory/LenderCard'
 import { Suspense } from 'react'
+import type { Locale } from '@/locales'
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 
 export const metadata: Metadata = {
   title: {
-    zh: '持牌放債人名冊 — hklend',
-    en: 'Licensed Money Lenders Register — hklend',
+    zh: '持牌放債人名冊 — HK Lend',
+    en: 'Licensed Money Lenders Register — HK Lend',
   } as unknown as string,
 }
 
@@ -61,7 +62,7 @@ export default async function LendersPage({
   const search = typeof sp.search === 'string' ? sp.search.trim() : ''
   const districtZh = typeof sp.districtZh === 'string' ? sp.districtZh : ''
   const loanType = typeof sp.loanType === 'string' ? sp.loanType : ''
-  const sortBy = sp.sortBy === 'createdAt' ? 'createdAt' : 'name'
+  const sortBy = ['createdAt', 'name'].includes(sp.sortBy as string) ? sp.sortBy as string : 'recommended'
   const sortOrder = sp.sortOrder === 'desc' ? 'desc' : 'asc'
   const page = parseIntParam(typeof sp.page === 'string' ? sp.page : undefined, 1)
   const skip = (page - 1) * PAGE_SIZE
@@ -82,7 +83,7 @@ export default async function LendersPage({
     `,
   ])
 
-  const districtOptions = allDistricts.map(r => r.districtZh)
+  const districtOptions = allDistricts.map(r => r.districtZh).filter((d): d is string => d !== null)
   const loanTypeOptions = allLoanTypes.map(r => r.tag)
 
   // ── Fetch results ─────────────────────────────────────────────────────────
@@ -97,10 +98,14 @@ export default async function LendersPage({
     ]
   }
 
-  const orderBy: Record<string, string> =
+  // Recommended: ACTIVE licences first, then alphabetical.
+  // When reviews + ad rank exist, swap this for a weighted score column.
+  const orderBy =
     sortBy === 'createdAt'
-      ? { createdAt: sortOrder }
-      : { companyNameZh: sortOrder }
+      ? [{ createdAt: sortOrder as 'asc' | 'desc' }]
+      : sortBy === 'name'
+      ? [{ companyNameZh: sortOrder as 'asc' | 'desc' }]
+      : [{ licenceStatus: 'asc' as const }, { companyNameZh: 'asc' as const }]
 
   const [total, lenders] = await Promise.all([
     db.lender.count({ where }),
@@ -127,27 +132,31 @@ export default async function LendersPage({
   const totalPages = Math.ceil(total / PAGE_SIZE)
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-      <h1 className="mb-2 text-2xl font-semibold text-[#264a58]">
-        {isZh ? '持牌放債人名冊' : 'Licensed Money Lenders Register'}
-      </h1>
-      <p className="mb-6 text-sm text-gray-500">
-        {isZh
-          ? `共 ${total.toLocaleString()} 間持牌放債人`
-          : `${total.toLocaleString()} licensed money lenders`}
-      </p>
+    <div>
+      {/* ── Directory ── */}
+      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+        <div className="mb-4 flex items-baseline justify-between">
+          <h1 className="text-lg font-semibold text-[#264a58]">
+            {isZh ? '持牌放債人名冊' : 'Licensed Money Lenders Registry'}
+          </h1>
+          <span className="text-sm text-gray-500">
+            {search || districtZh || loanType
+              ? (isZh ? `${total.toLocaleString()} 個結果` : `${total.toLocaleString()} results`)
+              : (isZh ? `共 ${total.toLocaleString()} 間` : `${total.toLocaleString()} total`)}
+          </span>
+        </div>
 
-      {/* Filters — client component wrapped in Suspense for useSearchParams */}
-      <Suspense fallback={null}>
-        <LenderFilters
-          districtOptions={districtOptions}
-          loanTypeOptions={loanTypeOptions}
-          locale={locale}
-        />
-      </Suspense>
+        {/* Filters — client component wrapped in Suspense for useSearchParams */}
+        <Suspense fallback={null}>
+          <LenderFilters
+            districtOptions={districtOptions}
+            loanTypeOptions={loanTypeOptions}
+            locale={locale}
+          />
+        </Suspense>
 
-      {/* Results */}
-      <div className="mt-6">
+        {/* Results */}
+        <div className="mt-6">
         {lenders.length === 0 && search ? (
           <ZeroResultVerdict query={search} />
         ) : lenders.length === 0 ? (
@@ -211,6 +220,7 @@ export default async function LendersPage({
             )}
           </>
         )}
+        </div>
       </div>
     </div>
   )

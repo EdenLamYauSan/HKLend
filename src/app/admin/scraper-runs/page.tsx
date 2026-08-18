@@ -16,7 +16,7 @@ import type { Metadata } from 'next'
 import { db } from '@/lib/db'
 
 export const metadata: Metadata = {
-  title: '爬取記錄 — hklend 管理',
+  title: '爬取記錄 — HK Lend 管理',
   robots: { index: false, follow: false },
 }
 

@@ -30,7 +30,7 @@ export function LenderFilters({
   const currentSearch = searchParams.get('search') ?? ''
   const currentDistrict = searchParams.get('districtZh') ?? ''
   const currentLoanType = searchParams.get('loanType') ?? ''
-  const currentSort = searchParams.get('sortBy') ?? 'name'
+  const currentSort = searchParams.get('sortBy') ?? 'recommended'
 
   const updateParams = useCallback(
     (updates: Record<string, string | null>) => {
@@ -68,12 +68,9 @@ export function LenderFilters({
           type="search"
           defaultValue={currentSearch}
           placeholder={isZh ? '搜尋牌照號碼或公司名稱' : 'Search by licence number or company name'}
-          className="h-11 w-full rounded-lg border border-gray-300 bg-white px-4 pr-10 text-base text-gray-900 placeholder:text-gray-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#264a58]"
-          onChange={e => {
-            // Debounce-free — update on every change; fast servers handle this
-            updateParams({ search: e.target.value || null })
-          }}
-          aria-label={isZh ? '搜尋牌照號碼或公司名稱' : 'Search lenders'}
+          className="h-10 w-full rounded-lg border border-gray-300 bg-white px-4 text-sm text-gray-900 placeholder:text-gray-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#264a58]"
+          onChange={e => updateParams({ search: e.target.value || null })}
+          aria-label={isZh ? '搜尋放債人' : 'Search lenders'}
         />
       </div>
 
@@ -162,8 +159,9 @@ export function LenderFilters({
           onChange={e => updateParams({ sortBy: e.target.value })}
           className="rounded-md border border-gray-300 bg-white px-2 py-1 text-xs text-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#264a58]"
         >
+          <option value="recommended">{isZh ? '推薦排序' : 'Recommended'}</option>
           <option value="name">{isZh ? '公司名稱 A→Z' : 'Name A→Z'}</option>
-          <option value="createdAt">{isZh ? '最新登記' : 'Newest registration'}</option>
+          <option value="createdAt">{isZh ? '最新登記' : 'Newest'}</option>
         </select>
       </div>
     </div>

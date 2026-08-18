@@ -24,7 +24,7 @@ export interface LenderCardData {
   licenceStatus: string
   companyNameZh: string
   companyNameEn: string | null
-  districtZh: string
+  districtZh: string | null
   districtEn: string | null
   loanTypeTags: string[]
   eligibilityTags: string[]

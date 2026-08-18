@@ -24,7 +24,7 @@ type PageProps = {
 }
 
 export const metadata: Metadata = {
-  title: '放債人詳情 — hklend 管理',
+  title: '放債人詳情 — HK Lend 管理',
   robots: { index: false, follow: false },
 }
 
