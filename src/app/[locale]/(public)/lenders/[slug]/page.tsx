@@ -25,8 +25,10 @@ import type { Metadata } from 'next'
 import { db } from '@/lib/db'
 import { isLocale } from '@/locales'
 import { getLocalizedField } from '@/lib/utils/get-localized-field'
+import { Suspense } from 'react'
 import { LicenceBadge } from '@/components/directory/LicenceBadge'
 import { DataSourceAttribution } from '@/components/directory/DataSourceAttribution'
+import { ShareRecipientBanner } from '@/components/directory/ShareRecipientBanner'
 import { LicencePanel } from '@/components/profile/LicencePanel'
 import { LoanTypeTags } from '@/components/profile/LoanTypeTags'
 import { LenderPulse } from '@/components/profile/LenderPulse'
@@ -262,6 +264,11 @@ export default async function LenderProfilePage({
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 space-y-5">
+      {/* S-11: Share recipient banner — shown when ?ref=share is present */}
+      <Suspense fallback={null}>
+        <ShareRecipientBanner locale={locale as 'zh' | 'en'} />
+      </Suspense>
+
       {/* JSON-LD structured data — hoisted to <head> by Next.js */}
       {/* eslint-disable-next-line react/no-danger -- safe: __html is JSON.stringify output, not user input */}
       <script
