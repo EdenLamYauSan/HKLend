@@ -18,6 +18,8 @@
 
 export const runtime = 'nodejs'
 
+import '../globals.css'
+import { Analytics } from '@vercel/analytics/next'
 import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/session'
 
@@ -111,6 +113,13 @@ export default async function AdminLayout({
         <main className="flex-1 min-w-0 p-6">
           {children}
         </main>
+
+        {/*
+         * Vercel Analytics — collects page views and web vitals.
+         * Does NOT set tracking cookies (privacy-safe).
+         * AC-4 (Story 1.8).
+         */}
+        <Analytics />
       </body>
     </html>
   )

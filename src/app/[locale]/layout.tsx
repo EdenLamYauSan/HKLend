@@ -13,6 +13,9 @@
  * Next.js 16: params is a Promise and must be awaited.
  */
 
+import type { Metadata } from 'next'
+import '../globals.css'
+import { Analytics } from '@vercel/analytics/next'
 import { Saira } from 'next/font/google'
 import { notFound } from 'next/navigation'
 import { isLocale } from '@/locales'
@@ -32,6 +35,11 @@ const saira = Saira({
   variable: '--font-saira',
   display: 'swap',
 })
+
+export const metadata: Metadata = {
+  title: 'HK Lend',
+  description: '免費查核香港持牌放債人牌照狀態，睇用家評分，避免接觸無牌放債人。',
+}
 
 export async function generateStaticParams() {
   return [{ locale: 'zh' }, { locale: 'en' }]
@@ -85,6 +93,13 @@ export default async function LocaleLayout({
           {/* Site-wide footer */}
           <Footer locale={lang} />
         </div>
+
+        {/*
+         * Vercel Analytics — collects page views and web vitals.
+         * Does NOT set tracking cookies (privacy-safe).
+         * AC-4 (Story 1.8).
+         */}
+        <Analytics />
       </body>
     </html>
   )
