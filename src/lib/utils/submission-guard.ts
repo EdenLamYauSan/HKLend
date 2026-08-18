@@ -82,17 +82,6 @@ export type SubmissionGuardResult =
 
 // ─── Rate limit ───────────────────────────────────────────────────────────────
 
-/**
- * Composite rate-limit key: fingerprint is the primary signal, IP is
- * the backstop. Both are required to prevent evasion via IP rotation
- * (fingerprint stays consistent) or fingerprint spoofing (IP backstop).
- *
- * Note: We check both keys and block if EITHER is exceeded.
- */
-function rateLimitKey(fingerprint: string, ip: string, namespace: string): string {
-  return `ratelimit:${namespace}:fp:${fingerprint}:ip:${ip}`
-}
-
 async function checkRateLimit(
   fingerprint: string,
   ip: string,
@@ -101,13 +90,26 @@ async function checkRateLimit(
   windowSeconds: number
 ): Promise<{ allowed: boolean }> {
   const redis = getRedis()
-  const key = rateLimitKey(fingerprint, ip, namespace)
+  const fpKey = `ratelimit:${namespace}:fp:${fingerprint}`
+  const ipKey = `ratelimit:${namespace}:ip:${ip}`
 
-  // INCR then EXPIRE in a pipeline — atomic enough for rate limiting.
-  // We do not use SETNX because we want to increment the counter each call.
-  const [[, count]] = await redis.pipeline().incr(key).expire(key, windowSeconds).exec() as [[null, number], [null, number]]
+  // Two independent keys — one per fingerprint, one per IP.
+  // Block if EITHER reaches the limit: IP rotation does not reset the
+  // fingerprint counter, and fingerprint spoofing does not reset the IP counter.
+  const [[, fpCount], , [, ipCount]] = await redis
+    .pipeline()
+    .incr(fpKey)
+    .expire(fpKey, windowSeconds)
+    .incr(ipKey)
+    .expire(ipKey, windowSeconds)
+    .exec() as [
+      [null, number],
+      [null, number],
+      [null, number],
+      [null, number],
+    ]
 
-  return { allowed: (count as number) <= limit }
+  return { allowed: (fpCount as number) <= limit && (ipCount as number) <= limit }
 }
 
 // ─── Turnstile verification ───────────────────────────────────────────────────
