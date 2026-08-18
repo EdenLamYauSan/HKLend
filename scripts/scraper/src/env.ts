@@ -2,15 +2,19 @@
  * scripts/scraper/src/env.ts — Scraper Prisma client.
  *
  * ARCH-3: Scraper is physically isolated in scripts/scraper/. This module
- *         MUST NOT import anything from src/. Any shared type is duplicated here.
+ *         MUST NOT import from src/lib/, src/app/, src/components/, or
+ *         src/types/. Any shared type is duplicated here.
+ *
+ *         Exception (ARCH-3): The generated Prisma client at
+ *         src/generated/prisma/client is exempt from the isolation rule —
+ *         it contains no application logic or browser dependencies and is
+ *         re-used via relative path to avoid duplicating schema management.
+ *         Do NOT install @prisma/client in scripts/scraper/package.json.
+ *
  * ARCH-2: Uses SCRAPER_DATABASE_URL (separate from the app's DATABASE_URL)
  *         with pool max:5 (4 parallel matrix jobs × ~500 lenders each).
  *
  * This module NEVER shares a PrismaClient instance with the app (src/lib/db.ts).
- *
- * The scraper has its own package.json and installs its own node_modules,
- * but for DB access it re-uses the parent's generated Prisma client via a
- * relative path. Do NOT install @prisma/client in scripts/scraper/package.json.
  */
 
 import { Pool } from 'pg'
