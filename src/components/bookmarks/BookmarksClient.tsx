@@ -106,17 +106,7 @@ export function BookmarksClient({ locale, t }: BookmarksClientProps) {
 
   return (
     <div className="space-y-4">
-      {/* Add all to compare shortcut */}
-      {lenders.length > 1 && (
-        <div className="flex justify-end">
-          <a
-            href={`/${locale}/compare?ids=${lenders.map(l => l.id).join(',')}`}
-            className="rounded-lg border border-primary px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-          >
-            {bm.addAllToCompare}
-          </a>
-        </div>
-      )}
+      {/* TODO: wire up when Epic 5 /compare is merged */}
 
       {/* Lender list */}
       <ul className="space-y-3">

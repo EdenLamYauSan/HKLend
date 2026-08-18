@@ -12,7 +12,7 @@
 
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, Fragment } from 'react'
 import type { Metadata } from 'next'
 import { SeasonAlertForm } from '@/components/admin/SeasonAlertForm'
 import type { SeasonAlertFormData } from '@/components/admin/SeasonAlertForm'
@@ -191,8 +191,8 @@ export default function SeasonAlertsPage() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {alerts.map(alert => (
-                <>
-                  <tr key={alert.id} className="hover:bg-gray-50">
+                <Fragment key={alert.id}>
+                  <tr className="hover:bg-gray-50">
                     <td className="px-4 py-3 font-medium text-[#264a58]">
                       {alert.titleZh}
                     </td>
@@ -254,7 +254,7 @@ export default function SeasonAlertsPage() {
                       </td>
                     </tr>
                   )}
-                </>
+                </Fragment>
               ))}
             </tbody>
           </table>

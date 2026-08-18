@@ -263,7 +263,7 @@ export function QuizWizard({ lenders, locale, t }: QuizWizardProps) {
         ) : (
           <ul className="space-y-3">
             {confirmed.map(l => (
-              <LenderResultCard key={l.slug} lender={l} badge={q.confirmedBadge} />
+              <LenderResultCard key={l.slug} lender={l} />
             ))}
             {unconfirmed.map(l => (
               <LenderResultCard key={l.slug} lender={l} badge={q.unconfirmedBadge} />

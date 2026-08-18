@@ -43,8 +43,8 @@ export interface ActiveAlert {
  */
 const getActiveSeasonAlert = unstable_cache(
   async (): Promise<ActiveAlert | null> => {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    const now = new Date()
+    const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
 
     const alert = await db.seasonAlert.findFirst({
       where: {
