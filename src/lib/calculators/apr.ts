@@ -142,7 +142,7 @@ export function calculateApr(inputs: CalculatorInputs): CalculatorResult {
   } else {
     // HKMA standard: nominal APR = monthly IRR × 12 (not effective annual rate)
     // Reference: HKMA's published APR calculation for HK money lending contracts
-    // This produces the ~21.46% result for the AC fixture (100k / 24mo / 1% flat).
+    // This produces the ~21.57% result for the AC fixture (100k / 24mo / 1% flat).
     apr = monthlyIrr * 12 * 100
   }
 

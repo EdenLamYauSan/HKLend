@@ -13,6 +13,8 @@
  *        SSR pre-rendering and for non-JS fallback.
  */
 
+export const runtime = 'edge'
+
 import { NextRequest, NextResponse } from 'next/server'
 import { calculatorQuerySchema } from '@/lib/calculators/apr.schema'
 import { calculateApr } from '@/lib/calculators/apr'
