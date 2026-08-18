@@ -322,6 +322,101 @@ export type Translation = {
     logoutButton: string
     noPermission: string
   }
+
+  // ── Quiz (Story 7.1) ────────────────────────────────────────────────────────
+  quiz: {
+    title: string
+    description: string
+    progressLabel: string   // "第 {current} 題，共 {total} 題"
+    nextButton: string
+    backButton: string
+    submitButton: string
+    resultTitle: string
+    resultCount: string      // "為你找到 {N} 間符合條件的持牌放債人"
+    confirmedBadge: string
+    unconfirmedBadge: string // "資格待確認，請直接查詢"
+    noResultMessage: string
+    noResultAction: string
+    questions: {
+      employment: {
+        label: string
+        salaried: string
+        selfEmployed: string
+        unemployed: string
+      }
+      income: {
+        label: string
+        below10k: string
+        from10kTo20k: string
+        from20kTo50k: string
+        above50k: string
+      }
+      loanAmount: {
+        label: string
+        below50k: string
+        from50kTo200k: string
+        from200kTo1m: string
+        above1m: string
+      }
+      purpose: {
+        label: string
+        personal: string
+        business: string
+        mortgage: string
+        other: string
+      }
+      existingLoans: {
+        label: string
+        yes: string
+        no: string
+      }
+    }
+  }
+
+  // ── Bookmarks (Story 7.2) ───────────────────────────────────────────────────
+  bookmarks: {
+    pageTitle: string
+    addAriaLabel: string     // "收藏 {name}"
+    removeAriaLabel: string  // "移除收藏 {name}"
+    removeButton: string
+    addAllToCompare: string
+    emptyTitle: string
+    emptyDescription: string
+    emptyAction: string
+  }
+
+  // ── WhatsApp Share (Story 7.3) ──────────────────────────────────────────────
+  whatsapp: {
+    shareButton: string           // "分享 WhatsApp"
+    shareAriaLabel: string        // "透過WhatsApp分享{name}"
+    shareText: string             // "{name} — hklend 持牌放債人名冊\n{url}"
+  }
+
+  // ── Season Alert (Stories 7.4 / 7.5) ───────────────────────────────────────
+  seasonAlert: {
+    dismissAriaLabel: string     // "關閉通知"
+    adminPageTitle: string
+    adminNewButton: string
+    adminEditTitle: string
+    adminCreateTitle: string
+    adminTableTitleCol: string
+    adminTableDateRangeCol: string
+    adminTableActiveCol: string
+    adminTableActionsCol: string
+    adminDeleteConfirm: string
+    adminSaveSuccess: string
+    adminDeleteSuccess: string
+    formTitleZhLabel: string
+    formTitleEnLabel: string
+    formBodyZhLabel: string
+    formBodyEnLabel: string
+    formCtaLabelZhLabel: string
+    formCtaLabelEnLabel: string
+    formCtaUrlLabel: string
+    formStartDateLabel: string
+    formEndDateLabel: string
+    formIsActiveLabel: string
+  }
 }
 
 export type Locale = 'zh' | 'en'
