@@ -1,26 +1,212 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Brand design tokens (UX-DR12)
+   brand.navy   = #264a58  → --primary, focus rings, CTA fills
+   brand.coral  = #cf554f  → --destructive, fills/badges ONLY (not text!)
+   brand.bg     = #f7f7f7  → page background
+   brand.card   = #eae8e6  → card surface
+   coral as TEXT: ONLY use #B8390E (5.2:1 on white — WCAG AA pass)
+   #cf554f as text FAILS AA (3.9:1). See ESLint rule in eslint.config.mjs.
+   ═══════════════════════════════════════════════════════════════════════════ */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Map Tailwind utilities to our CSS variable layer */
+  --color-background:          var(--background);
+  --color-foreground:          var(--foreground);
+  --color-card:                var(--card);
+  --color-card-foreground:     var(--card-foreground);
+  --color-popover:             var(--popover);
+  --color-popover-foreground:  var(--popover-foreground);
+  --color-primary:             var(--primary);
+  --color-primary-foreground:  var(--primary-foreground);
+  --color-secondary:           var(--secondary);
+  --color-secondary-foreground:var(--secondary-foreground);
+  --color-muted:               var(--muted);
+  --color-muted-foreground:    var(--muted-foreground);
+  --color-accent:              var(--accent);
+  --color-accent-foreground:   var(--accent-foreground);
+  --color-destructive:         var(--destructive);
+  --color-border:              var(--border);
+  --color-input:               var(--input);
+  --color-ring:                var(--ring);
+
+  /* Brand tokens — accessible as bg-brand-navy, text-brand-coral, etc. */
+  --color-brand-navy:  #264a58;
+  --color-brand-coral: #cf554f;
+  --color-brand-bg:    #f7f7f7;
+  --color-brand-card:  #eae8e6;
+  /* Coral for text — ONLY this value is WCAG AA safe on white (5.2:1) */
+  --color-brand-coral-text: #B8390E;
+
+  /* Sidebar (admin) */
+  --color-sidebar-ring:               var(--sidebar-ring);
+  --color-sidebar-border:             var(--sidebar-border);
+  --color-sidebar-accent-foreground:  var(--sidebar-accent-foreground);
+  --color-sidebar-accent:             var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary:            var(--sidebar-primary);
+  --color-sidebar-foreground:         var(--sidebar-foreground);
+  --color-sidebar:                    var(--sidebar);
+
+  /* Radius scale */
+  --radius-sm:  calc(var(--radius) * 0.6);
+  --radius-md:  calc(var(--radius) * 0.8);
+  --radius-lg:  var(--radius);
+  --radius-xl:  calc(var(--radius) * 1.4);
+
+  /* Typography — UX-DR13
+     Saira is loaded via next/font/google and injected as --font-saira.
+     CJK uses system stack (no web font to keep bundle small). */
+  --font-sans: var(--font-saira, 'Saira'), 'Microsoft JhengHei', 'Noto Sans TC',
+    'LiHei Pro', sans-serif;
+
+  /* Body line-height: 1.6 (UX-DR13) */
+  --leading-body: 1.6;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ─── Light mode (default) ──────────────────────────────────────────────── */
+
+:root {
+  /* shadcn/ui CSS variable overrides — brand palette (UX-DR12) */
+  --background:           #f7f7f7;   /* brand.bg */
+  --foreground:           #1a1a1a;
+  --card:                 #eae8e6;   /* brand.card */
+  --card-foreground:      #1a1a1a;
+  --popover:              #ffffff;
+  --popover-foreground:   #1a1a1a;
+  --primary:              #264a58;   /* brand.navy */
+  --primary-foreground:   #ffffff;
+  --secondary:            #e8e0d0;   /* warm grey */
+  --secondary-foreground: #264a58;
+  --muted:                #e8e0d0;
+  --muted-foreground:     #6b5730;
+  --accent:               #eae8e6;
+  --accent-foreground:    #264a58;
+  --destructive:          #cf554f;   /* brand.coral (fill/badge use only) */
+  --border:               #d0cdc9;
+  --input:                #d0cdc9;
+  --ring:                 #264a58;   /* brand.navy for focus rings */
+  --radius:               0.5rem;
+
+  /* Sidebar */
+  --sidebar:              #264a58;
+  --sidebar-foreground:   #ffffff;
+  --sidebar-primary:      #ffffff;
+  --sidebar-primary-foreground: #264a58;
+  --sidebar-accent:       rgba(255,255,255,0.1);
+  --sidebar-accent-foreground:  #ffffff;
+  --sidebar-border:       rgba(255,255,255,0.15);
+  --sidebar-ring:         #264a58;
+}
+
+/* ─── Dark mode (scoped — hklend has no dark mode design for v1) ──────────
+   We keep dark styles for system preference but redirect to brand colours.
+   This prevents pure black/white jarring contrast on dark-mode systems. */
+
+.dark {
+  --background:           #1c2b33;
+  --foreground:           #f0ece8;
+  --card:                 #24363f;
+  --card-foreground:      #f0ece8;
+  --popover:              #24363f;
+  --popover-foreground:   #f0ece8;
+  --primary:              #5a8fa0;
+  --primary-foreground:   #ffffff;
+  --secondary:            #2e4a56;
+  --secondary-foreground: #e0d8c8;
+  --muted:                #2e4a56;
+  --muted-foreground:     #9ab0ba;
+  --accent:               #2e4a56;
+  --accent-foreground:    #e0d8c8;
+  --destructive:          #cf554f;
+  --border:               rgba(255,255,255,0.12);
+  --input:                rgba(255,255,255,0.12);
+  --ring:                 #5a8fa0;
+  --sidebar:              #162129;
+  --sidebar-foreground:   #e0d8c8;
+  --sidebar-primary:      #5a8fa0;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent:       rgba(255,255,255,0.08);
+  --sidebar-accent-foreground: #e0d8c8;
+  --sidebar-border:       rgba(255,255,255,0.1);
+  --sidebar-ring:         #5a8fa0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Global base styles
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer base {
+  * {
+    @apply border-border;
+    box-sizing: border-box;
   }
+
+  html {
+    /* UX-DR13: body line-height 1.6 */
+    line-height: 1.6;
+    -webkit-text-size-adjust: 100%;
+    tab-size: 4;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    min-height: 100dvh;
+  }
+
+  /* ── WCAG 2.1 AA focus rings (UX-DR19) ──────────────────────────────────
+     2px navy outline, 2px offset on every focusable element. */
+  :focus-visible {
+    outline: 2px solid #264a58;
+    outline-offset: 2px;
+  }
+
+  /* ── Skip-to-content (UX-DR19) ───────────────────────────────────────────
+     Pure HTML/CSS :focus reveal — NOT a Client Component. */
+  .skip-to-content {
+    @apply sr-only;
+    &:focus {
+      @apply not-sr-only;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 9999;
+      padding: 0.5rem 1rem;
+      background: #264a58;
+      color: #ffffff;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 0 0 0.5rem 0;
+    }
+  }
+
+  /* ── prefers-reduced-motion (UX-DR19) ────────────────────────────────────
+     Suppresses all transitions/animations to 0.01ms.
+     .motion-safe-exempt elements (spinners) are excluded. */
+  @media (prefers-reduced-motion: reduce) {
+    *:not(.motion-safe-exempt) {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Text scale (UX-DR13) */
+  h1 { @apply text-3xl font-semibold; }   /* page titles */
+  h2 { @apply text-xl font-semibold; }    /* section headings */
+  /* body: text-base/400 — Tailwind default */
+  /* secondary info: text-sm/400 */
+  /* badges: text-xs/500 */
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+/* ═══════════════════════════════════════════════════════════════════════════
+   Touch target enforcement (UX-DR14, UX-DR19)
+   All interactive elements: min 44×44px, 8px spacing between adjacent.
+   Applied via Button size="touch" variant (see button.tsx).
+   ═══════════════════════════════════════════════════════════════════════════ */
