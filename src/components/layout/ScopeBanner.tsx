@@ -11,6 +11,7 @@
  * UX-DR20: Fixed chrome budget — this strip must never exceed 32px.
  */
 
+import { getTranslations } from '@/locales'
 import type { Locale } from '@/locales'
 
 interface ScopeBannerProps {
@@ -20,23 +21,13 @@ interface ScopeBannerProps {
 const HKMA_URL =
   'https://www.hkma.gov.hk/eng/consumer-education-centre/other-financial-products-and-services/money-lenders/'
 
-const copy = {
-  zh: {
-    message: 'HK Lend 核實牌照，唔批貸款',
-    linkLabel: 'HKMA 放債人名單',
-  },
-  en: {
-    message: 'HK Lend verifies licences — we do not issue loans',
-    linkLabel: 'HKMA moneylenders list',
-  },
-} as const
-
 /**
  * Pure Server Component — no 'use client' directive.
  * Reads locale from parent layout prop (ARCH-9 / AC-5).
  */
 export function ScopeBanner({ locale }: ScopeBannerProps) {
-  const { message, linkLabel } = copy[locale]
+  const { scopeBanner } = getTranslations(locale)
+  const { text: message, hkmaLink: linkLabel } = scopeBanner
 
   return (
     <div

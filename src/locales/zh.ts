@@ -16,7 +16,7 @@ export const zh: Translation = {
 
   // ── Scope banner ──────────────────────────────────────────────────────────
   scopeBanner: {
-    text: 'HK Lend 核實牌照，唔批貸款',
+    text: 'hklend 核實牌照，唔批貸款',
     hkmaLink: '查閱金管局官方名冊',
   },
 
