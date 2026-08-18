@@ -10,6 +10,7 @@
  */
 
 import { LanguageToggle } from './LanguageToggle'
+import { getTranslations } from '@/locales'
 import type { Locale } from '@/locales'
 
 interface HeaderProps {
@@ -17,6 +18,8 @@ interface HeaderProps {
 }
 
 export function Header({ locale }: HeaderProps) {
+  const { nav } = getTranslations(locale)
+
   return (
     <header
       className="
@@ -37,7 +40,7 @@ export function Header({ locale }: HeaderProps) {
             focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2
             rounded-sm
           "
-          aria-label="HK Lend — back to homepage"
+          aria-label={nav.homepageAriaLabel}
         >
           {/* Two-tone wordmark — no image dependency for v1 */}
           <span aria-hidden="true" className="text-white">HK</span>

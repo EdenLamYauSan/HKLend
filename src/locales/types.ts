@@ -29,6 +29,7 @@ export type Translation = {
     news: string
     myShortlist: string
     language: string
+    homepageAriaLabel: string
   }
 
   // ── Common actions ──────────────────────────────────────────────────────────

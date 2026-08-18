@@ -28,6 +28,7 @@ export const zh: Translation = {
     news: '牌照動態',
     myShortlist: '我的收藏',
     language: 'English',
+    homepageAriaLabel: 'hklend — 返回主頁',
   },
 
   // ── Common actions ──────────────────────────────────────────────────────────

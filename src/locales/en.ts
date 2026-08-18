@@ -28,6 +28,7 @@ export const en: Translation = {
     news: 'Licence Updates',
     myShortlist: 'My Shortlist',
     language: '中文',
+    homepageAriaLabel: 'hklend — back to homepage',
   },
 
   // ── Common actions ──────────────────────────────────────────────────────────
