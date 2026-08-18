@@ -12,6 +12,7 @@
 
 import { CopyLicenceNumber } from './CopyLicenceNumber'
 import type { Locale } from '@/locales'
+import { getLocalizedField } from '@/lib/utils/get-localized-field'
 
 interface LenderPanelData {
   licenceNumber: string
