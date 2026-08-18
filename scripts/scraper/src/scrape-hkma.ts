@@ -197,6 +197,7 @@ async function runScraper() {
       const companyNameEn = record.companyNameEn?.trim() || null
       const addressZh = record.addressZh?.trim() || null
       const districtZh = record.districtZh ? normaliseDistrict(record.districtZh) : null
+      const licenceIssuedDate = record.licenceIssuedDate ?? null
       const licenceExpiryDate = record.licenceExpiryDate ?? null
 
       // Generate collision-safe slug
@@ -231,6 +232,7 @@ async function runScraper() {
             companyNameEn,
             addressZh,
             districtZh,
+            licenceIssuedDate,
             licenceExpiryDate,
             lastScrapedAt: now,
             scrapeStatus: 'SUCCESS',
@@ -252,6 +254,7 @@ async function runScraper() {
             companyNameEn,
             addressZh,
             districtZh,
+            licenceIssuedDate,
             licenceExpiryDate,
             lastScrapedAt: now,
             scrapeStatus: 'SUCCESS',

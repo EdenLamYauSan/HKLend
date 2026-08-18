@@ -2,18 +2,22 @@
  * HKMA data source fetch — Story 2.1.
  *
  * Fetches the money lender registry from data.gov.hk.
- * The dataset is published as a CSV file at:
+ * The dataset is also published as an XLSX file at:
  *   https://www.hkma.gov.hk/media/eng/doc/consumer-education-centre/
  *   other-financial-products-and-services/money-lenders/HKMA_ML_list.xlsx
  *
- * However, data.gov.hk also publishes the HKMA money lender list as JSON:
+ * data.gov.hk also publishes the HKMA money lender list as JSON:
  *   https://api.data.gov.hk/v2/filter?resource=<resource-id>&q=1&limit=5000
  *
  * For v1 we use the data.gov.hk API (JSON, more reliable parsing).
- * If the API is unavailable, we fall back to the XLSX download.
+ * If the API is unavailable, download the XLSX manually and pass its path
+ * via HKMA_XLSX_PATH env var or the --xlsx <path> CLI flag.
  *
  * ARCH-3: No import from ../../src/
  */
+
+import { existsSync } from 'node:fs'
+import { resolve } from 'node:path'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -22,11 +26,13 @@ export interface HkmaRecord {
   licenceStatus: string   // raw status text from source
   companyNameZh: string
   companyNameEn: string | null
-  addressZh: string
+  addressZh: string | null
   addressEn: string | null
-  districtZh: string
+  districtZh: string | null
   districtEn: string | null
   phone: string | null
+  licenceIssuedDate?: Date | null
+  licenceExpiryDate?: Date | null
 }
 
 // ─── data.gov.hk API ─────────────────────────────────────────────────────────
@@ -92,6 +98,65 @@ function normaliseRecord(raw: RawGovHkRecord): HkmaRecord | null {
     phone,
   }
 }
+
+// ─── XLSX fallback ────────────────────────────────────────────────────────────
+
+/**
+ * Load HKMA records from a locally-downloaded XLSX file.
+ * Use when data.gov.hk API is unavailable:
+ *   1. Download HKMA_ML_list.xlsx from hkma.gov.hk manually
+ *   2. Run: HKMA_XLSX_PATH=/path/to/HKMA_ML_list.xlsx pnpm scrape
+ *      or:  npx tsx src/scrape-hkma.ts --xlsx /path/to/HKMA_ML_list.xlsx
+ */
+export async function loadHkmaRecordsFromXlsx(filePath: string): Promise<HkmaRecord[]> {
+  const absPath = resolve(filePath)
+  if (!existsSync(absPath)) {
+    throw new Error(`[hkma-source] XLSX file not found: ${absPath}`)
+  }
+
+  console.log(`[hkma-source] Loading from XLSX: ${absPath}`)
+
+  // Dynamic import keeps exceljs out of the hot path when not needed
+  const ExcelJS = await import('exceljs')
+  const workbook = new ExcelJS.default.Workbook()
+  await workbook.xlsx.readFile(absPath)
+
+  const sheet = workbook.worksheets[0]
+  if (!sheet) throw new Error('[hkma-source] XLSX has no worksheets')
+
+  // First row is headers — build a column-index → field-name map
+  const headerRow = sheet.getRow(1)
+  const headers: Record<number, string> = {}
+  headerRow.eachCell((cell, colNumber) => {
+    headers[colNumber] = String(cell.value ?? '').trim()
+  })
+
+  const rawRecords: RawGovHkRecord[] = []
+  sheet.eachRow((row, rowNumber) => {
+    if (rowNumber === 1) return // skip header
+    const raw: Record<string, string> = {}
+    row.eachCell((cell, colNumber) => {
+      const header = headers[colNumber]
+      if (header) raw[header] = String(cell.value ?? '').trim()
+    })
+    rawRecords.push(raw as unknown as RawGovHkRecord)
+  })
+
+  const normalised: HkmaRecord[] = []
+  for (const raw of rawRecords) {
+    const record = normaliseRecord(raw)
+    if (record) {
+      normalised.push(record)
+    } else {
+      console.warn('[hkma-source] Skipping XLSX row with missing required fields:', raw)
+    }
+  }
+
+  console.log(`[hkma-source] Normalised ${normalised.length} / ${rawRecords.length} XLSX rows`)
+  return normalised
+}
+
+// ─── Primary fetch ────────────────────────────────────────────────────────────
 
 /**
  * Fetch all HKMA money lender records from data.gov.hk.
