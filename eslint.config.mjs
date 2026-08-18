@@ -1,6 +1,7 @@
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
+import jsxA11y from "eslint-plugin-jsx-a11y";
 
 /**
  * ARCH-14 / Story 1.5 AC-6: Schema files must be pure.
@@ -72,11 +73,40 @@ const coralTextRule = {
   },
 };
 
+/**
+ * S-4: Ban dangerouslySetInnerHTML across the codebase.
+ * S-5: The one legitimate use (JSON-LD script tag in lender profile page)
+ *      is annotated with // eslint-disable-next-line react/no-danger.
+ */
+const dangerRule = {
+  files: ["**/*.{ts,tsx,js,jsx}"],
+  rules: {
+    "react/no-danger": "error",
+  },
+};
+
+/**
+ * S-18: Explicitly register eslint-plugin-jsx-a11y so its rules are
+ * available for override or custom configuration in this flat-config file.
+ * eslint-config-next already wires a subset of jsx-a11y rules; this block
+ * makes the plugin resolution explicit and auditable.
+ */
+const a11yConfig = {
+  plugins: {
+    "jsx-a11y": jsxA11y,
+  },
+  rules: {
+    ...jsxA11y.configs.recommended.rules,
+  },
+};
+
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   schemaImportRule,
   coralTextRule,
+  dangerRule,
+  a11yConfig,
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

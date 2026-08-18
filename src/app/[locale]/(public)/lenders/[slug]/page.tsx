@@ -249,8 +249,6 @@ export default async function LenderProfilePage({
   const isZh = locale === 'zh'
   const jsonLd = buildJsonLd(lender, isZh)
 
-  const isZh = locale === 'zh'
-
   // Secondary name: EN when viewing in ZH, ZH when there's no EN
   const primaryName = getLocalizedField(lender, 'companyName', locale)
   const secondaryName = isZh
@@ -262,6 +260,7 @@ export default async function LenderProfilePage({
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 space-y-5">
       {/* JSON-LD structured data — hoisted to <head> by Next.js */}
+      {/* eslint-disable-next-line react/no-danger -- safe: __html is JSON.stringify output, not user input */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
