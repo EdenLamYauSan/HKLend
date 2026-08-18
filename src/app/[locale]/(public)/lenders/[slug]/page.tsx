@@ -163,7 +163,16 @@ export async function generateMetadata({
   // ARCH-9: TC URL is canonical — all en pages declare the zh URL as canonical.
   const canonicalUrl = `${SITE_URL}/zh/lenders/${slug}`
   const pageUrl = `${SITE_URL}/${locale}/lenders/${slug}`
-  const ogImageUrl = `${SITE_URL}/og/lender/${slug}.png`
+
+  // OG image URL — lender data embedded as search params so the OG route
+  // needs no Prisma call (Story 2.7). displayName already applies EN→ZH fallback.
+  const ogDistrict = isZh ? lender.districtZh : (lender.districtEn ?? lender.districtZh)
+  const ogParams = new URLSearchParams({
+    name: displayName,
+    status: lender.licenceStatus,
+    district: ogDistrict,
+  })
+  const ogImageUrl = `${SITE_URL}/${locale}/lenders/${slug}/opengraph-image?${ogParams.toString()}`
 
   return {
     title,
