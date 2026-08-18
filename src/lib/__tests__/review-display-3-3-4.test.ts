@@ -103,8 +103,11 @@ describe('3.3 AC-4: review data cached under reviews:{slug} tag', () => {
     expect(reviewSection).toContain('reviews:${slug}')
   })
 
-  it('cache tag also includes lender:{slug} (revalidated on any lender admin update)', () => {
-    expect(reviewSection).toContain('lender:${slug}')
+  it('cache tag is reviews:{slug} only (lender:{slug} dual-tag removed in S2 fix)', () => {
+    // Commit 0350f7d removed the lender:{slug} dual-tag from reviews cache.
+    // Reviews are purged via reviews:{slug} only; lender tag is used by profile page cache.
+    expect(reviewSection).not.toContain('lender:${slug}')
+    expect(reviewSection).toContain('reviews:${slug}')
   })
 })
 

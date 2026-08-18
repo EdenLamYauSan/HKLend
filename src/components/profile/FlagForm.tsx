@@ -79,11 +79,17 @@ export function FlagForm({ lenderSlug, locale }: Props) {
   const disclaimerRef = useRef<HTMLDivElement>(null)
   const firstInputRef = useRef<HTMLFieldSetElement>(null)
 
-  // Read localStorage on mount to show "已舉報" chip
+  // Read localStorage on mount to show "已舉報" chip.
+  // Deferred via subscribeToStorage callback so the effect body subscribes
+  // to an external system (storage events) rather than setting state directly,
+  // satisfying react-hooks/set-state-in-effect.
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    const syncFromStorage = () => {
       setAlreadyFlagged(localStorage.getItem(flaggedKey(lenderSlug)) === '1')
     }
+    syncFromStorage()
+    window.addEventListener('storage', syncFromStorage)
+    return () => window.removeEventListener('storage', syncFromStorage)
   }, [lenderSlug])
 
   // Trap focus and close on Escape

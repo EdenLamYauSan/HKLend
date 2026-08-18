@@ -112,7 +112,9 @@ describe('AC-5: licence event one-liner appears before rating trend', () => {
 
 describe('AC-6: section absent entirely when all signals have no data', () => {
   it('returns null when no events and no trend', () => {
-    expect(pulse).toContain('if (!hasEvent && !hasTrend) return null')
+    // Story 4.4 added a third signal (flag velocity / hasRisingComplaints).
+    // The guard now covers all three signals before rendering the section.
+    expect(pulse).toContain('if (!hasEvent && !hasTrend && !hasRisingComplaints) return null')
   })
 })
 

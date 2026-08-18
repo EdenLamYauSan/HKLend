@@ -136,8 +136,10 @@ describe("AC-4: Admin clicks Reject → status set to 'REJECTED' with reason", (
 // ─── AC-5: Empty queue ────────────────────────────────────────────────────────
 
 describe('AC-5: No pending reviews shows empty state message', () => {
-  it('page shows "No pending reviews" when list is empty', () => {
-    expect(page).toContain('No pending reviews')
+  it('page shows empty state message when list is empty', () => {
+    // F3/F4 fix changed the admin empty state to TC Chinese — the page.tsx now shows
+    // '沒有待審核評論' (no pending reviews in TC); English string moved to list component.
+    expect(page).toContain('沒有待審核評論')
   })
 
   it('list component shows "No pending reviews" when internal state is empty', () => {
