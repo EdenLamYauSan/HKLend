@@ -183,6 +183,69 @@ export const en: Translation = {
       'You received a lender verification link — HK Lend is a free licence-checking tool, not a lending platform',
   },
 
+  // ── Flags (UX-DR8, FR-39) ─────────────────────────────────────────────────
+  flags: {
+    sectionTitle: 'Community Flags',
+    submitButton: 'Report a Problem',
+    modalTitle: 'Report This Lender',
+    legalDisclaimer:
+      'This report is not a legal complaint. HK Lend does not provide legal advice. In emergencies, contact the police.',
+    categoryLabel: 'Category of concern',
+    detailsLabel: 'Details (optional)',
+    detailsPlaceholder: 'Describe what happened (max 500 characters)',
+    detailsCharCount: '{n}/500',
+    successMessage:
+      'Your report has been received. We will review it within 48 hours.',
+    warningBanner:
+      'This lender has received multiple complaints in the past 90 days. Please proceed with caution.',
+    risingComplaints: 'Rising complaints',
+    categories: {
+      HARASSMENT: 'Harassment or threatening behaviour',
+      ILLEGAL_TERMS: 'Hidden fees or unfair terms',
+      FAKE_IDENTITY: 'Impersonating a licensed lender',
+      OVERCHARGING: 'Rates or fees differ from advertised',
+      OTHER: 'Other concern',
+    },
+  },
+
+  // ── Scam board (FR-31–FR-34) ──────────────────────────────────────────────
+  scamBoard: {
+    pageTitle: 'Scam Board',
+    pageDescription:
+      'Browse user-submitted and reviewed scam alerts to protect yourself from fraudulent lenders.',
+    hkpfLink: 'HKPF Anti-Scam Information',
+    submitButton: 'Report a Scam',
+    searchPlaceholder: 'Search by name or phone number',
+    legalDisclaimer:
+      'Reports below are submitted by users and have undergone basic review by HK Lend. We do not guarantee the accuracy of the content. If you suspect fraud, please report to the police.',
+    emptyState:
+      'No verified scam reports yet. If you encounter a suspicious lender, please file a report.',
+    reportCount: '{n} verified report(s)',
+    form: {
+      companyNameLabel: 'Company or individual name',
+      companyNamePlaceholder: 'Name of the reported entity',
+      licenceLabel: 'Claimed licence number (optional)',
+      licencePlaceholder: 'e.g. ML/XXXXXXXX/YYYY',
+      incidentDateLabel: 'Incident date (optional)',
+      lossAmountLabel: 'Estimated financial loss in HKD (optional)',
+      evidenceLabel: 'Description of the incident',
+      evidencePlaceholder:
+        'Describe what happened, suspicious behaviour, and any relevant details (100–2,000 characters)',
+      evidenceCharCount: '{n}/2,000',
+      successMessage: 'Thank you for your report. We will review it as soon as possible.',
+      legalDisclaimer:
+        'By submitting, you confirm the information is truthful and understand that false reports may result in legal liability.',
+    },
+    card: {
+      verifiedLabel: 'Verified',
+      licenceClaimed: 'Claimed licence',
+      incidentDate: 'Incident date',
+      estimatedLoss: 'Estimated loss',
+      readMore: 'Read more',
+      showLess: 'Show less',
+    },
+  },
+
   // ── Captcha ───────────────────────────────────────────────────────────────
   captcha: {
     verifying: 'Verifying…',

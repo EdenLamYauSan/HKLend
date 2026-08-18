@@ -182,6 +182,66 @@ export const zh: Translation = {
       '你收到一個放債人核實連結 — HK Lend 係免費查牌工具，唔係借貸平台',
   },
 
+  // ── Flags (UX-DR8, FR-39) ─────────────────────────────────────────────────
+  flags: {
+    sectionTitle: '用家標記',
+    submitButton: '舉報問題',
+    modalTitle: '舉報此放債人',
+    legalDisclaimer:
+      '此舉報並非法律投訴，HK Lend 不提供法律建議。如有緊急情況，請聯絡警方。',
+    categoryLabel: '舉報類別',
+    detailsLabel: '詳細描述（選填）',
+    detailsPlaceholder: '請描述你遇到的問題（最多 500 字）',
+    detailsCharCount: '{n}/500 字',
+    successMessage: '已收到你的標記，我們將於 48 小時內審核。',
+    warningBanner:
+      '此放債人在過去 90 天內收到多宗投訴，請謹慎考慮。',
+    risingComplaints: '近期投訴上升',
+    categories: {
+      HARASSMENT: '恐嚇或騷擾',
+      ILLEGAL_TERMS: '隱藏收費或不合理條款',
+      FAKE_IDENTITY: '冒充持牌放債人',
+      OVERCHARGING: '利率或收費與廣告不符',
+      OTHER: '其他問題',
+    },
+  },
+
+  // ── Scam board (FR-31–FR-34) ──────────────────────────────────────────────
+  scamBoard: {
+    pageTitle: '詐騙警示板',
+    pageDescription:
+      '查看用戶提交並經審核的詐騙警告，保護自己免受冒牌放債人侵害。',
+    hkpfLink: '香港警察防騙資訊',
+    submitButton: '舉報詐騙',
+    searchPlaceholder: '搜尋公司名稱或電話',
+    legalDisclaimer:
+      '以下舉報由用戶提交，HK Lend 已進行基本核實但不保證內容準確性。如懷疑詐騙，請向警方舉報。',
+    emptyState: '目前沒有已核實的詐騙舉報。如遇可疑放債人，請舉報。',
+    reportCount: '{n} 宗已核實舉報',
+    form: {
+      companyNameLabel: '公司或個人名稱',
+      companyNamePlaceholder: '被舉報的公司或個人名稱',
+      licenceLabel: '對方聲稱的牌照號碼（選填）',
+      licencePlaceholder: '例如：ML/XXXXXXXX/YYYY',
+      incidentDateLabel: '事發日期（選填）',
+      lossAmountLabel: '估計損失金額（港元，選填）',
+      evidenceLabel: '詳細描述',
+      evidencePlaceholder: '請詳細描述事件經過、可疑行為及任何相關資料（100–2000 字）',
+      evidenceCharCount: '{n}/2000 字',
+      successMessage: '感謝你的舉報！我們將盡快審核。',
+      legalDisclaimer:
+        '提交舉報即表示你確認所提供資料真實，並了解虛假舉報可能承擔法律責任。',
+    },
+    card: {
+      verifiedLabel: '已核實',
+      licenceClaimed: '聲稱牌照號碼',
+      incidentDate: '事發日期',
+      estimatedLoss: '估計損失',
+      readMore: '閱讀全文',
+      showLess: '收起',
+    },
+  },
+
   // ── Captcha ───────────────────────────────────────────────────────────────
   captcha: {
     verifying: '驗證中…',

@@ -35,6 +35,7 @@ import { LenderPulse } from '@/components/profile/LenderPulse'
 import { EligibilityChips } from '@/components/profile/EligibilityChips'
 import { ReviewSection } from '@/components/profile/ReviewSection'
 import { ActivityFeed } from '@/components/profile/ActivityFeed'
+import { FlagsSection } from '@/components/profile/FlagsSection'
 
 // ─── Site config ──────────────────────────────────────────────────────────────
 
@@ -327,6 +328,13 @@ export default async function LenderProfilePage({
 
       {/* S-10: Data source attribution */}
       <DataSourceAttribution lastChecked={lender.lastScrapedAt} locale={locale as 'zh' | 'en'} />
+
+      {/* Community flags — warning banner + list (Stories 4.1–4.3) */}
+      <FlagsSection
+        lenderId={lender.id}
+        lenderSlug={lender.slug}
+        locale={locale}
+      />
 
       {/* Community reviews (Stories 3.1–3.5) */}
       <ReviewSection
