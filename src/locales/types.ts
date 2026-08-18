@@ -258,6 +258,53 @@ export type Translation = {
     }
   }
 
+  // ── APR Calculator (Story 5.3) ──────────────────────────────────────────────
+  calculator: {
+    title: string
+    loanAmount: string
+    loanAmountPlaceholder: string
+    tenor: string
+    tenorUnit: string            // "個月"
+    flatRate: string
+    flatRateUnit: string         // "% / 月"
+    monthlyPayment: string
+    totalRepayable: string
+    apr: string
+    emptyResult: string          // "—"
+    useLenderRate: string        // "使用此放債人最低利率"
+    flatRateTooltipTitle: string
+    flatRateTooltipBody: string  // explanation of flat rate vs APR
+    shareWhatsApp: string
+    shareText: string            // "{amount} / {tenor} 月 → 月供 {payment}，APR {apr}%"
+    errorMin: string
+    errorMax: string
+    errorRequired: string
+  }
+
+  // ── Compare tray (Story 5.4) ─────────────────────────────────────────────────
+  compareTray: {
+    maxReached: string        // "最多可比較4間放債人"
+    compareButton: string     // "比較"
+    removeAriaLabel: string   // "移除 {name}"
+  }
+
+  // ── Comparison grid (Story 5.6) ─────────────────────────────────────────────
+  compareGrid: {
+    title: string
+    emptyPrompt: string       // "請先從名冊中選擇至少兩間放債人進行比較。"
+    backToDirectory: string
+    attributes: {
+      company: string
+      licenceStatus: string
+      district: string
+      loanTypes: string
+      rateRange: string
+      apr: string
+      tenor: string
+    }
+    shareWhatsApp: string
+  }
+
   // ── Admin (TC only — EN mirrors TC, not translated) ─────────────────────────
   admin: {
     loginTitle: string

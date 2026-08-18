@@ -4,16 +4,24 @@
  * Story 2.4: shows company name, licence number, district, up to 3 loan type
  * tags ("+N more" overflow), LicenceBadge, and eligibility warning.
  *
+ * Story 5.5: "加入比較" (Add to Compare) button added below the link area.
+ *
  * ARCH-10: {field}En shown when non-null; {field}Zh as fallback when En is null.
  * UX-DR17: hasValue() used — 0 is real data; never render blank fields.
  * UX-DR16: no double-mount; single layout tree.
- * Mobile: entire card is a block <a> ≥ 44px (min-h-[44px]) touch target.
  *
- * Pure Server Component — no 'use client'.
+ * Card structure:
+ *   <li>
+ *     <a> → lender profile (covers the card info area)
+ *     <div> → action buttons (AddToCompareButton) — NOT inside <a>
+ *   </li>
+ *
+ * AddToCompareButton is a Client Component; this card is a Server Component.
  */
 
 import { hasValue } from '@/lib/utils/has-value'
 import { LicenceBadge } from './LicenceBadge'
+import { AddToCompareButton } from './AddToCompareButton'
 
 const MAX_VISIBLE_TAGS = 3
 
@@ -28,6 +36,7 @@ export interface LenderCardData {
   districtEn: string | null
   loanTypeTags: string[]
   eligibilityTags: string[]
+  interestRateMin?: number | null
 }
 
 interface LenderCardProps {
@@ -58,8 +67,19 @@ export function LenderCard({ lender, locale }: LenderCardProps) {
   const isWarning =
     lender.licenceStatus === 'SUSPENDED' || lender.licenceStatus === 'REVOKED'
 
+  // Shape for the compare store (only the fields it needs)
+  const compareLender = {
+    slug: lender.slug,
+    companyNameZh: lender.companyNameZh,
+    companyNameEn: lender.companyNameEn,
+    licenceStatus: lender.licenceStatus,
+    districtZh: lender.districtZh,
+    interestRateMin: lender.interestRateMin ?? null,
+  }
+
   return (
     <li className={`rounded-xl border border-border bg-white shadow-sm transition-all hover:border-primary/30 hover:shadow-md ${isWarning ? 'opacity-75' : ''}`}>
+      {/* Card info — full clickable link target */}
       <a
         href={`/${locale}/lenders/${lender.slug}`}
         className="flex min-h-[44px] flex-col gap-2 p-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
@@ -113,6 +133,11 @@ export function LenderCard({ lender, locale }: LenderCardProps) {
           </p>
         )}
       </a>
+
+      {/* Action row — outside <a> to avoid nested interactive elements */}
+      <div className="border-t border-gray-100 px-4 py-2 flex items-center justify-end">
+        <AddToCompareButton lender={compareLender} locale={locale} />
+      </div>
     </li>
   )
 }

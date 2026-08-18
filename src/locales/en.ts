@@ -267,6 +267,54 @@ export const en: Translation = {
     },
   },
 
+  // ── APR Calculator (Story 5.3) ────────────────────────────────────────────
+  calculator: {
+    title: 'APR Calculator',
+    loanAmount: 'Loan Amount (HKD)',
+    loanAmountPlaceholder: 'e.g. 100,000',
+    tenor: 'Loan Term',
+    tenorUnit: 'months',
+    flatRate: 'Monthly Flat Rate (%)',
+    flatRateUnit: '% / month',
+    monthlyPayment: 'Monthly Payment',
+    totalRepayable: 'Total Repayable',
+    apr: 'True APR',
+    emptyResult: '—',
+    useLenderRate: "Use lender's lowest rate",
+    flatRateTooltipTitle: 'Flat Rate vs APR',
+    flatRateTooltipBody:
+      'The monthly flat rate calculates interest on the original loan amount each month, ignoring that your principal reduces over time. APR accounts for this and gives a more accurate picture of your true borrowing cost. APR is typically twice or more than the flat rate.',
+    shareWhatsApp: 'Share on WhatsApp',
+    shareText: 'Loan {amount} over {tenor} months → Monthly payment {payment}, APR {apr}%',
+    errorMin: 'Minimum value is {min}',
+    errorMax: 'Maximum value is {max}',
+    errorRequired: 'This field is required',
+  },
+
+  // ── Compare tray (Story 5.4) ───────────────────────────────────────────────
+  compareTray: {
+    maxReached: 'Maximum 4 lenders to compare',
+    compareButton: 'Compare',
+    removeAriaLabel: 'Remove {name}',
+  },
+
+  // ── Comparison grid (Story 5.6) ────────────────────────────────────────────
+  compareGrid: {
+    title: 'Compare Lenders',
+    emptyPrompt: 'Please select at least two lenders from the directory to compare.',
+    backToDirectory: 'Back to Directory',
+    attributes: {
+      company: 'Lender',
+      licenceStatus: 'Licence Status',
+      district: 'District',
+      loanTypes: 'Loan Types',
+      rateRange: 'Advertised Rate (Flat)',
+      apr: 'True APR',
+      tenor: 'Tenor (Months)',
+    },
+    shareWhatsApp: 'Share Comparison',
+  },
+
   // ── Admin (TC mirrors EN for admin — admin UI is TC-only per spec) ─────────
   admin: {
     loginTitle: 'Admin Login',

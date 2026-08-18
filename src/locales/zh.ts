@@ -263,6 +263,54 @@ export const zh: Translation = {
     },
   },
 
+  // ── APR Calculator ────────────────────────────────────────────────────────
+  calculator: {
+    title: '供款試算',
+    loanAmount: '貸款金額 (HKD)',
+    loanAmountPlaceholder: '例如 100,000',
+    tenor: '還款期',
+    tenorUnit: '個月',
+    flatRate: '月平息',
+    flatRateUnit: '% / 月',
+    monthlyPayment: '每月供款',
+    totalRepayable: '應還總額',
+    apr: '實際年利率 (APR)',
+    emptyResult: '—',
+    useLenderRate: '使用此放債人最低利率',
+    flatRateTooltipTitle: '月平息 vs 實際年利率',
+    flatRateTooltipBody:
+      '月平息（俗稱「月息」）按原始貸款金額計算每月利息，不反映本金逐月遞減的實際成本。實際年利率（APR）考慮到本金遞減因素，能更準確反映你的實際借貸成本。同一筆貸款，APR 通常是月平息的兩倍或以上。',
+    shareWhatsApp: '分享 WhatsApp',
+    shareText: '貸款 {amount}，還款期 {tenor} 個月 → 每月供款 {payment}，APR {apr}%',
+    errorMin: '請輸入最小值 {min}',
+    errorMax: '最大值為 {max}',
+    errorRequired: '此欄必填',
+  },
+
+  // ── Compare tray ──────────────────────────────────────────────────────────
+  compareTray: {
+    maxReached: '最多可比較4間放債人',
+    compareButton: '比較',
+    removeAriaLabel: '移除 {name}',
+  },
+
+  // ── Comparison grid ───────────────────────────────────────────────────────
+  compareGrid: {
+    title: '放債人比較',
+    emptyPrompt: '請先從名冊中選擇至少兩間放債人進行比較。',
+    backToDirectory: '返回名冊',
+    attributes: {
+      company: '放債人',
+      licenceStatus: '牌照狀態',
+      district: '地區',
+      loanTypes: '貸款類型',
+      rateRange: '廣告利率（月平息）',
+      apr: '實際年利率',
+      tenor: '還款期（月）',
+    },
+    shareWhatsApp: '分享比較',
+  },
+
   // ── Admin ─────────────────────────────────────────────────────────────────
   admin: {
     loginTitle: '管理員登入',

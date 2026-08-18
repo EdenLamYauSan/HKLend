@@ -17,7 +17,9 @@ import type { Decimal } from '../../generated/prisma/client/runtime/library'
 interface RatePanelProps {
   interestRateMin: Decimal | number | null
   interestRateMax: Decimal | number | null
-  lastScrapedAt: Date | null
+  /** Date | string — Date when called from a Server Component directly;
+   *  string (ISO) when the prop crosses a client component boundary. */
+  lastScrapedAt: Date | string | null
   locale: 'zh' | 'en'
 }
 
@@ -71,7 +73,7 @@ export function RatePanel({
         {lastScrapedAt && (
           <p className="text-xs text-gray-500">
             {lastCheckedLabel}:{' '}
-            {lastScrapedAt.toLocaleDateString(isZh ? 'zh-HK' : 'en-HK', {
+            {new Date(lastScrapedAt).toLocaleDateString(isZh ? 'zh-HK' : 'en-HK', {
               timeZone: 'Asia/Hong_Kong',
               year: 'numeric',
               month: 'long',
