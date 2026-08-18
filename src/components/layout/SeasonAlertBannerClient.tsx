@@ -77,7 +77,7 @@ export function SeasonAlertBannerClient({ alert, locale, dismissAriaLabel }: Pro
           onClick={handleDismiss}
           aria-label={dismissAriaLabel}
           className="
-            flex h-7 w-7 shrink-0 items-center justify-center rounded
+            flex h-11 w-11 shrink-0 items-center justify-center rounded
             text-amber-700 hover:bg-amber-200
             focus-visible:outline-2 focus-visible:outline-offset-2
             focus-visible:outline-amber-700 transition-colors

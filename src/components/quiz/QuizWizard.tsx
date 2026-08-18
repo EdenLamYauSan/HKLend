@@ -295,7 +295,7 @@ export function QuizWizard({ lenders, locale, t }: QuizWizardProps) {
             style={{ width: `${(step / TOTAL_STEPS) * 100}%` }}
             role="progressbar"
             aria-valuenow={step}
-            aria-valuemin={1}
+            aria-valuemin={0}
             aria-valuemax={TOTAL_STEPS}
           />
         </div>
