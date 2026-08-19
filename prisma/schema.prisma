@@ -17,7 +17,8 @@ model Lender {
   id              String   @id @default(cuid())
   slug            String   @unique
   licenceNumber   String   @unique
-  licenceStatus   String   // ACTIVE | SUSPENDED | REVOKED
+  licenceStatus   String   // ACTIVE | SUSPENDED | REVOKED | PENDING | EXPIRED | DISMISSED | WITHDRAWN
+  mlrNumber       Int?     // Court registry file number (MLR No.) — set for PDF-sourced records
   companyNameZh   String
   companyNameEn   String?
   addressZh       String?

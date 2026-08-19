@@ -17,17 +17,28 @@ import { useCallback, useTransition, useRef } from 'react'
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 
+import type { StatusFilter } from '@/lib/search-lenders'
+
 interface LenderFiltersProps {
   loanTypeOptions: string[]
   locale: string
   /** Result count forwarded from the server for aria-live announcement (S-13). */
   resultCount?: number
+  currentStatus?: StatusFilter
 }
+
+const STATUS_TABS: { value: StatusFilter; zh: string; en: string }[] = [
+  { value: 'active',    zh: '持牌',      en: 'Licensed' },
+  { value: 'pending',   zh: '申請中',    en: 'Pending' },
+  { value: 'expired',   zh: '已屆滿',    en: 'Expired' },
+  { value: 'dismissed', zh: '已駁回/撤回', en: 'Dismissed' },
+]
 
 export function LenderFilters({
   loanTypeOptions,
   locale,
   resultCount,
+  currentStatus = 'active',
 }: LenderFiltersProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -83,6 +94,30 @@ export function LenderFilters({
       className={`space-y-4 ${isPending ? 'opacity-60 pointer-events-none' : ''}`}
       aria-busy={isPending}
     >
+      {/* Status filter tabs */}
+      <div
+        role="tablist"
+        aria-label={isZh ? '牌照狀態' : 'Licence status'}
+        className="flex gap-1 border-b border-border"
+      >
+        {STATUS_TABS.map(tab => (
+          <button
+            key={tab.value}
+            role="tab"
+            aria-selected={currentStatus === tab.value}
+            type="button"
+            onClick={() => updateParams({ status: tab.value === 'active' ? null : tab.value, letter: null, loanType: null })}
+            className={`px-3 py-2 text-sm font-medium border-b-2 transition-colors -mb-px ${
+              currentStatus === tab.value
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+            }`}
+          >
+            {isZh ? tab.zh : tab.en}
+          </button>
+        ))}
+      </div>
+
       {/* Search bar */}
       <div className="relative">
         <label htmlFor="lender-search" className="sr-only">

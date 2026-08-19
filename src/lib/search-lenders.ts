@@ -37,11 +37,24 @@ export interface Lender {
 
 // ─── Helper ───────────────────────────────────────────────────────────────────
 
+// Valid status groups for filtering
+export type StatusFilter = 'active' | 'pending' | 'expired' | 'dismissed' | 'all'
+
+// Maps StatusFilter to DB licenceStatus values
+const STATUS_FILTER_MAP: Record<StatusFilter, string[]> = {
+  active:    ['ACTIVE', 'SUSPENDED', 'REVOKED'],
+  pending:   ['PENDING'],
+  expired:   ['EXPIRED'],
+  dismissed: ['DISMISSED', 'WITHDRAWN'],
+  all:       [],  // empty = no filter
+}
+
 export async function searchLenders(params: {
   search?: string
   letter?: string
   loanType?: string
   districtZh?: string
+  status?: StatusFilter
   sortBy?: string
   sortOrder?: string
   page?: number
@@ -52,11 +65,14 @@ export async function searchLenders(params: {
     letter = '',
     loanType = '',
     districtZh = '',
+    status = 'active',
     sortBy = 'recommended',
     sortOrder = 'asc',
     page = 1,
     pageSize = 20,
   } = params
+
+  const allowedStatuses = STATUS_FILTER_MAP[status] ?? STATUS_FILTER_MAP.active
 
   const skip = (page - 1) * pageSize
   const trimmedSearch = search.trim()
@@ -68,6 +84,7 @@ export async function searchLenders(params: {
     const whereArgs: unknown[] = [`%${trimmedSearch}%`, trimmedSearch, 0.1]
     let letterFilter = ''
     let loanTypeFilter = ''
+    let statusFilter = ''
 
     if (letter) {
       whereArgs.push(`${letter}%`)
@@ -76,6 +93,10 @@ export async function searchLenders(params: {
     if (loanType) {
       whereArgs.push(loanType)
       loanTypeFilter = `AND $${whereArgs.length} = ANY("loanTypeTags")`
+    }
+    if (allowedStatuses.length > 0) {
+      whereArgs.push(allowedStatuses)
+      statusFilter = `AND "licenceStatus" = ANY($${whereArgs.length}::text[])`
     }
 
     const countRows = await db.$queryRawUnsafe<[{ total: string }]>(
@@ -86,7 +107,8 @@ export async function searchLenders(params: {
          OR similarity(aliases_text, $2) > $3
        )
        ${letterFilter}
-       ${loanTypeFilter}`,
+       ${loanTypeFilter}
+       ${statusFilter}`,
       ...whereArgs
     )
     const total = parseInt(countRows[0]?.total ?? '0', 10)
@@ -108,6 +130,7 @@ export async function searchLenders(params: {
        )
        ${letterFilter}
        ${loanTypeFilter}
+       ${statusFilter}
        ORDER BY
          CASE WHEN "licenceNumber" ILIKE $1 THEN 1 ELSE 0 END DESC,
          similarity(aliases_text, $2) DESC
@@ -123,6 +146,7 @@ export async function searchLenders(params: {
   if (letter) where.companyNameEn = { startsWith: letter, mode: 'insensitive' }
   if (loanType) where.loanTypeTags = { has: loanType }
   if (districtZh) where.districtZh = districtZh
+  if (allowedStatuses.length > 0) where.licenceStatus = { in: allowedStatuses }
 
   // Default: ACTIVE licences first, then alphabetical. No featured boosting.
   const orderBy =

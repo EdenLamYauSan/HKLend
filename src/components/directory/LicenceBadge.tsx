@@ -63,6 +63,42 @@ const STATUS_CONFIG: Record<
       en: 'This licence has lapsed — the lender is no longer licensed.',
     },
   },
+  PENDING: {
+    zh: '申請中',
+    en: 'Pending',
+    className: 'bg-amber-100 text-amber-800',
+    tooltip: {
+      zh: '此公司正在申請放債人牌照，尚未獲批。',
+      en: 'This company has applied for a money lender licence — the application is pending.',
+    },
+  },
+  EXPIRED: {
+    zh: '已屆滿',
+    en: 'Expired',
+    className: 'bg-gray-100 text-gray-600',
+    tooltip: {
+      zh: '此牌照已屆滿，放債人已不再領有牌照。',
+      en: 'This licence has expired — the lender is no longer licensed.',
+    },
+  },
+  DISMISSED: {
+    zh: '已駁回',
+    en: 'Dismissed',
+    className: 'bg-[#cf554f] text-white',
+    tooltip: {
+      zh: '此公司的放債人牌照申請已被駁回。',
+      en: 'This company\'s money lender licence application was dismissed.',
+    },
+  },
+  WITHDRAWN: {
+    zh: '已撤回',
+    en: 'Withdrawn',
+    className: 'bg-gray-200 text-gray-700',
+    tooltip: {
+      zh: '此公司已撤回放債人牌照申請。',
+      en: 'This company withdrew its money lender licence application.',
+    },
+  },
 }
 
 export function LicenceBadge({

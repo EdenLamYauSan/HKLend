@@ -19,7 +19,7 @@ import type { Metadata } from 'next'
 import { isLocale } from '@/locales'
 import { db } from '@/lib/db'
 import { unstable_cache } from 'next/cache'
-import { searchLenders } from '@/lib/search-lenders'
+import { searchLenders, type StatusFilter } from '@/lib/search-lenders'
 import { LenderFilters } from '@/components/directory/LenderFilters'
 import { ZeroResultVerdict } from '@/components/directory/ZeroResultVerdict'
 import { LenderCard } from '@/components/directory/LenderCard'
@@ -92,6 +92,8 @@ export default async function LendersPage({
   const search = typeof sp.search === 'string' ? sp.search.trim() : ''
   const letter = typeof sp.letter === 'string' && /^[a-z]$/i.test(sp.letter) ? sp.letter.toUpperCase() : ''
   const loanType = typeof sp.loanType === 'string' ? sp.loanType : ''
+  const validStatuses: StatusFilter[] = ['active', 'pending', 'expired', 'dismissed', 'all']
+  const status: StatusFilter = validStatuses.includes(sp.status as StatusFilter) ? sp.status as StatusFilter : 'active'
   const sortBy = ['createdAt', 'name'].includes(sp.sortBy as string) ? sp.sortBy as string : 'recommended'
   const sortOrder = sp.sortOrder === 'desc' ? 'desc' : 'asc'
   const page = parseIntParam(typeof sp.page === 'string' ? sp.page : undefined, 1)
@@ -130,6 +132,7 @@ export default async function LendersPage({
     search,
     letter,
     loanType,
+    status,
     sortBy,
     sortOrder,
     page,
@@ -163,6 +166,7 @@ export default async function LendersPage({
             loanTypeOptions={loanTypeOptions}
             locale={locale}
             resultCount={total}
+            currentStatus={status}
           />
         </Suspense>
 
@@ -198,6 +202,7 @@ export default async function LendersPage({
                       ...(search ? { search } : {}),
                       ...(letter ? { letter } : {}),
                       ...(loanType ? { loanType } : {}),
+                      ...(status !== 'active' ? { status } : {}),
                       sortBy,
                       sortOrder,
                       page: String(page - 1),
@@ -218,6 +223,7 @@ export default async function LendersPage({
                       ...(search ? { search } : {}),
                       ...(letter ? { letter } : {}),
                       ...(loanType ? { loanType } : {}),
+                      ...(status !== 'active' ? { status } : {}),
                       sortBy,
                       sortOrder,
                       page: String(page + 1),
