@@ -242,16 +242,31 @@ export default async function NewsDetailPage({ params }: PageProps) {
           </div>
         )}
 
-        {/* Article body — plain text, no dangerouslySetInnerHTML */}
-        <div className="prose prose-gray max-w-none leading-relaxed text-gray-800">
-          {body.split('\n').map((paragraph, i) =>
-            paragraph.trim() ? (
-              <p key={i} className="mb-4">
-                {paragraph}
-              </p>
-            ) : null
-          )}
-        </div>
+        {/* Article body or source CTA if body is empty */}
+        {body.trim() ? (
+          <div className="prose prose-gray max-w-none leading-relaxed text-gray-800">
+            {body.split('\n').map((paragraph, i) =>
+              paragraph.trim() ? (
+                <p key={i} className="mb-4">{paragraph}</p>
+              ) : null
+            )}
+          </div>
+        ) : (
+          <div className="rounded-xl border border-gray-200 bg-gray-50 p-8 text-center">
+            <p className="mb-1 text-sm text-gray-500">
+              {locale === 'zh' ? '本文全文由原始機構發布' : 'Full article published by the source'}
+            </p>
+            <p className="mb-6 text-xs text-gray-400">{sourceDomain}</p>
+            <a
+              href={item.source}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-lg bg-brand-navy px-6 py-3 text-sm font-medium text-white hover:opacity-90 transition-opacity"
+            >
+              {locale === 'zh' ? '查看全文' : 'Read Full Article'} →
+            </a>
+          </div>
+        )}
 
         {/* Related lenders */}
         {linkedLenders.length > 0 && (
