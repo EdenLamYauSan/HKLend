@@ -1,0 +1,310 @@
+'use client'
+
+/**
+ * CalculatorPage — Standalone loan calculator (Part A).
+ *
+ * Inputs: loan amount (HKD), term (months), monthly flat rate (%).
+ * Outputs: monthly payment, total interest, APR, full repayment schedule.
+ *
+ * Calculation is performed client-side using calculateApr (NFR-3: <100ms).
+ * No API round-trip required.
+ */
+
+import { useState } from 'react'
+import { calculateApr } from '@/lib/calculators/apr'
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface ScheduleRow {
+  period: number
+  payment: number
+  interest: number
+  principal: number
+  balance: number
+}
+
+interface CalcResult {
+  monthlyPayment: number
+  totalInterest: number
+  aprPercent: number
+  schedule: ScheduleRow[]
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+const hkdFmt = new Intl.NumberFormat('zh-HK', {
+  style: 'currency',
+  currency: 'HKD',
+  maximumFractionDigits: 0,
+})
+
+function fmt(n: number): string {
+  return hkdFmt.format(n)
+}
+
+/**
+ * Generate a flat-rate repayment schedule.
+ * Interest per month = total_interest / termMonths (constant under flat rate).
+ * Principal per month = monthly_payment - interest_per_month.
+ */
+function buildSchedule(
+  principal: number,
+  termMonths: number,
+  monthlyPayment: number,
+  totalInterest: number,
+): ScheduleRow[] {
+  const monthlyInterest = Math.round(totalInterest / termMonths)
+  const monthlyPrincipal = monthlyPayment - monthlyInterest
+  const rows: ScheduleRow[] = []
+  let balance = principal
+
+  for (let i = 1; i <= termMonths; i++) {
+    const isLast = i === termMonths
+    // On the last period, absorb rounding residuals so balance lands at 0.
+    const principalThisPeriod = isLast ? balance : monthlyPrincipal
+    const interestThisPeriod = isLast
+      ? monthlyPayment - principalThisPeriod
+      : monthlyInterest
+    balance = Math.max(0, balance - principalThisPeriod)
+
+    rows.push({
+      period: i,
+      payment: isLast ? principalThisPeriod + interestThisPeriod : monthlyPayment,
+      interest: interestThisPeriod,
+      principal: principalThisPeriod,
+      balance,
+    })
+  }
+
+  return rows
+}
+
+function calculate(
+  principalStr: string,
+  termStr: string,
+  rateStr: string,
+): { result: CalcResult; errors: Record<string, string> } | { result: null; errors: Record<string, string> } {
+  const errors: Record<string, string> = {}
+  const principal = parseFloat(principalStr.replace(/,/g, ''))
+  const termMonths = parseInt(termStr, 10)
+  const rate = parseFloat(rateStr)
+
+  if (isNaN(principal) || principal < 1000) errors.principal = '貸款金額最少 HK$1,000'
+  else if (principal > 10_000_000) errors.principal = '貸款金額最多 HK$10,000,000'
+
+  if (isNaN(termMonths) || termMonths < 3) errors.term = '還款期最少 3 個月'
+  else if (termMonths > 120) errors.term = '還款期最多 120 個月'
+
+  if (isNaN(rate) || rate < 0.1) errors.rate = '月息最少 0.1%'
+  else if (rate > 4.0) errors.rate = '月息最多 4.0%'
+
+  if (Object.keys(errors).length > 0) return { result: null, errors }
+
+  const calc = calculateApr({
+    principal,
+    tenorMonths: termMonths,
+    monthlyFlatRate: rate,
+  })
+
+  const schedule = buildSchedule(principal, termMonths, calc.monthlyPayment, calc.totalInterest)
+
+  return {
+    result: {
+      monthlyPayment: calc.monthlyPayment,
+      totalInterest: calc.totalInterest,
+      aprPercent: calc.apr,
+      schedule,
+    },
+    errors: {},
+  }
+}
+
+// ─── Component ───────────────────────────────────────────────────────────────
+
+export function CalculatorPage() {
+  const [principal, setPrincipal] = useState('100000')
+  const [term, setTerm] = useState('24')
+  const [rate, setRate] = useState('1.0')
+  const [result, setResult] = useState<CalcResult | null>(null)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [showFullSchedule, setShowFullSchedule] = useState(false)
+
+  function handleCalculate() {
+    const out = calculate(principal, term, rate)
+    setErrors(out.errors)
+    setResult(out.result ?? null)
+    setShowFullSchedule(false)
+  }
+
+  const scheduleRows = result
+    ? showFullSchedule
+      ? result.schedule
+      : result.schedule.slice(0, 12)
+    : []
+
+  return (
+    <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
+      {/* Inputs */}
+      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        <h1 className="mb-6 text-xl font-semibold text-gray-900">貸款計算機</h1>
+
+        <div className="space-y-5">
+          {/* Principal */}
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              貸款金額（港元）
+            </label>
+            <input
+              type="number"
+              value={principal}
+              onChange={e => setPrincipal(e.target.value)}
+              min={1000}
+              max={10000000}
+              step={1000}
+              className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy ${
+                errors.principal ? 'border-red-400' : 'border-gray-300'
+              }`}
+              placeholder="例如 100000"
+            />
+            {errors.principal && (
+              <p className="mt-1 text-xs text-red-600">{errors.principal}</p>
+            )}
+          </div>
+
+          {/* Term */}
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              還款期（月）
+            </label>
+            <input
+              type="number"
+              value={term}
+              onChange={e => setTerm(e.target.value)}
+              min={3}
+              max={120}
+              step={1}
+              className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy ${
+                errors.term ? 'border-red-400' : 'border-gray-300'
+              }`}
+              placeholder="例如 24"
+            />
+            {errors.term && (
+              <p className="mt-1 text-xs text-red-600">{errors.term}</p>
+            )}
+          </div>
+
+          {/* Rate */}
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              月息（%）
+            </label>
+            <input
+              type="number"
+              value={rate}
+              onChange={e => setRate(e.target.value)}
+              min={0.1}
+              max={4.0}
+              step={0.1}
+              className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy ${
+                errors.rate ? 'border-red-400' : 'border-gray-300'
+              }`}
+              placeholder="例如 1.0"
+            />
+            {errors.rate && (
+              <p className="mt-1 text-xs text-red-600">{errors.rate}</p>
+            )}
+          </div>
+        </div>
+
+        <button
+          onClick={handleCalculate}
+          className="mt-6 w-full rounded-lg bg-brand-navy px-4 py-3 text-sm font-semibold text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-brand-navy focus:ring-offset-2 transition-opacity"
+        >
+          計算
+        </button>
+      </div>
+
+      {/* Results */}
+      {result && (
+        <div className="mt-6 space-y-6">
+          {/* Summary */}
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            <h2 className="mb-4 text-base font-semibold text-gray-900">計算結果</h2>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="rounded-lg bg-blue-50 p-4 text-center">
+                <p className="text-xs text-gray-500">月供</p>
+                <p className="mt-1 text-lg font-bold text-brand-navy">
+                  {fmt(result.monthlyPayment)}
+                </p>
+              </div>
+              <div className="rounded-lg bg-amber-50 p-4 text-center">
+                <p className="text-xs text-gray-500">總利息</p>
+                <p className="mt-1 text-lg font-bold text-amber-700">
+                  {fmt(result.totalInterest)}
+                </p>
+              </div>
+              <div className="rounded-lg bg-green-50 p-4 text-center">
+                <p className="text-xs text-gray-500">實際年利率</p>
+                <p className="mt-1 text-lg font-bold text-green-700">
+                  {result.aprPercent.toFixed(2)}%
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Schedule */}
+          <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+            <div className="border-b border-gray-100 px-6 py-4">
+              <h2 className="text-base font-semibold text-gray-900">還款計劃表</h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-gray-50 text-xs text-gray-500">
+                    <th className="px-4 py-3 text-right font-medium">期數</th>
+                    <th className="px-4 py-3 text-right font-medium">月供</th>
+                    <th className="px-4 py-3 text-right font-medium">利息</th>
+                    <th className="px-4 py-3 text-right font-medium">本金</th>
+                    <th className="px-4 py-3 text-right font-medium">餘額</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {scheduleRows.map(row => (
+                    <tr key={row.period} className="hover:bg-gray-50">
+                      <td className="px-4 py-2.5 text-right text-gray-600">{row.period}</td>
+                      <td className="px-4 py-2.5 text-right font-medium text-gray-900">
+                        {fmt(row.payment)}
+                      </td>
+                      <td className="px-4 py-2.5 text-right text-amber-700">
+                        {fmt(row.interest)}
+                      </td>
+                      <td className="px-4 py-2.5 text-right text-blue-700">
+                        {fmt(row.principal)}
+                      </td>
+                      <td className="px-4 py-2.5 text-right text-gray-500">
+                        {fmt(row.balance)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {result.schedule.length > 12 && (
+              <div className="border-t border-gray-100 px-6 py-3 text-center">
+                <button
+                  onClick={() => setShowFullSchedule(v => !v)}
+                  className="text-sm text-brand-navy underline hover:opacity-80"
+                >
+                  {showFullSchedule
+                    ? '收起'
+                    : `顯示全部 ${result.schedule.length} 期`}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

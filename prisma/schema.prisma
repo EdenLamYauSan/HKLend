@@ -265,6 +265,54 @@ model NewsItem {
   @@map("NewsItem")
 }
 
+// ─── Forum ────────────────────────────────────────────────────────────────────
+// Community discussion board (Epic 9).
+// Posts are public; both posts and replies support upvoting and soft-hide.
+// Flat threading: replies may reference another reply via replyToId (quote context).
+
+enum ForumCategory {
+  LENDER_RECO   // 放債人推薦
+  LOAN_QUESTION // 貸款問題
+  REPAYMENT     // 還款問題
+  INDUSTRY      // 行業討論
+}
+
+model ForumPost {
+  id         String        @id @default(cuid())
+  category   ForumCategory
+  titleZh    String
+  bodyZh     String        @db.Text
+  authorName String        @default("匿名")
+  upvotes    Int           @default(0)
+  isHidden   Boolean       @default(false)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  replies    ForumReply[]
+
+  @@index([category, createdAt(sort: Desc)])
+  @@index([upvotes(sort: Desc)])
+  @@map("ForumPost")
+}
+
+model ForumReply {
+  id          String      @id @default(cuid())
+  postId      String
+  post        ForumPost   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  bodyZh      String      @db.Text
+  authorName  String      @default("匿名")
+  upvotes     Int         @default(0)
+  isHidden    Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+
+  // Flat threading — optional reference to another reply (quote context)
+  replyToId   String?
+  replyTo     ForumReply?  @relation("ReplyToReply", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies     ForumReply[] @relation("ReplyToReply")
+
+  @@index([postId, createdAt(sort: Asc)])
+  @@map("ForumReply")
+}
+
 // ─── Article ──────────────────────────────────────────────────────────────────
 // AI-generated blog articles for the public /blog section.
 // Created by the weekly generate-articles.ts script as drafts (isPublished=false).
