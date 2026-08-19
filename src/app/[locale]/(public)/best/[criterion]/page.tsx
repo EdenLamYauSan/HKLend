@@ -220,12 +220,11 @@ async function getLendersForCriterion(criterion: Criterion): Promise<RankedLende
 
 // ─── generateStaticParams ─────────────────────────────────────────────────────
 
+export const dynamicParams = true
+
+// Return [] — rendered on first request and cached via ISR.
 export function generateStaticParams() {
-  const locales: Locale[] = ['zh', 'en']
-  // S1: 'top-rated' and 'most-reviewed' are excluded from static pre-rendering
-  // until Epic 3's Review table is merged. Re-add them to STATIC_CRITERIA then.
-  const STATIC_CRITERIA = ['recently-active'] as const
-  return locales.flatMap((locale) => STATIC_CRITERIA.map((criterion) => ({ locale, criterion })))
+  return []
 }
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
