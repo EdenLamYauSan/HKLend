@@ -213,6 +213,98 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   Prose / rich-text content (blog articles)
+   Applied via className="prose" on the ReactMarkdown wrapper.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.prose {
+  line-height: 1.75;
+  color: #374151;
+
+  h1, h2, h3, h4 {
+    margin-top: 1.75em;
+    margin-bottom: 0.6em;
+    line-height: 1.3;
+    font-family: var(--font-heading);
+    color: #111827;
+  }
+
+  h1 { font-size: 1.75rem; font-weight: 700; }
+  h2 { font-size: 1.25rem; font-weight: 700; margin-top: 2em; }
+  h3 { font-size: 1.1rem;  font-weight: 600; }
+
+  p { margin-bottom: 1.1em; }
+
+  ul, ol {
+    margin: 1em 0 1.25em 1.5em;
+    & li { margin-bottom: 0.4em; }
+  }
+  ul { list-style-type: disc; }
+  ol { list-style-type: decimal; }
+
+  blockquote {
+    margin: 1.5em 0;
+    padding: 0.75em 1em;
+    border-left: 3px solid #C8900C;
+    background: #faf8f5;
+    color: #4b5563;
+    font-style: normal;
+    border-radius: 0 0.375rem 0.375rem 0;
+    & p { margin-bottom: 0; }
+  }
+
+  hr {
+    margin: 2em 0;
+    border-color: #e5e7eb;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5em 0;
+    font-size: 0.9rem;
+    overflow-x: auto;
+    display: block;
+    & th {
+      background: #f3f4f6;
+      font-weight: 600;
+      padding: 0.5em 0.75em;
+      text-align: left;
+      border: 1px solid #e5e7eb;
+    }
+    & td {
+      padding: 0.5em 0.75em;
+      border: 1px solid #e5e7eb;
+    }
+    & tr:nth-child(even) td { background: #f9fafb; }
+  }
+
+  strong { font-weight: 600; color: #111827; }
+
+  a {
+    color: #264a58;
+    text-decoration: underline;
+    &:hover { color: #C8900C; }
+  }
+
+  img {
+    max-width: 100%;
+    border-radius: 0.5rem;
+    margin: 1.5em 0;
+  }
+
+  code {
+    font-size: 0.875em;
+    background: #f3f4f6;
+    padding: 0.15em 0.35em;
+    border-radius: 0.25rem;
+  }
+
+  /* First element: no leading margin */
+  > *:first-child { margin-top: 0; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
    Touch target enforcement (UX-DR14, UX-DR19)
    All interactive elements: min 44×44px, 8px spacing between adjacent.
    Applied via Button size="touch" variant (see button.tsx).
