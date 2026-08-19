@@ -124,13 +124,13 @@ export async function searchLenders(params: {
   if (loanType) where.loanTypeTags = { has: loanType }
   if (districtZh) where.districtZh = districtZh
 
-  // Featured lenders sort first in default view; then ACTIVE licences, then alphabetical.
+  // Default: ACTIVE licences first, then alphabetical. No featured boosting.
   const orderBy =
     sortBy === 'createdAt'
       ? [{ createdAt: sortOrder as 'asc' | 'desc' }]
       : sortBy === 'name'
       ? [{ companyNameZh: sortOrder as 'asc' | 'desc' }]
-      : [{ isFeatured: 'desc' as const }, { licenceStatus: 'asc' as const }, { companyNameZh: 'asc' as const }]
+      : [{ licenceStatus: 'asc' as const }, { companyNameZh: 'asc' as const }]
 
   const [total, rows] = await Promise.all([
     db.lender.count({ where }),
