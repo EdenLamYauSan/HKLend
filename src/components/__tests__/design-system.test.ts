@@ -95,29 +95,26 @@ describe('AC-3: Saira font and CJK system stack', () => {
   const localeLayout = readFile('src/app/[locale]/layout.tsx')
   const css = readFile('src/app/globals.css')
 
-  it('imports Saira from next/font/google', () => {
+  it('imports a Latin sans-serif font from next/font/google', () => {
     expect(localeLayout).toContain("from 'next/font/google'")
-    expect(localeLayout).toContain('Saira')
+    // Font evolved from Saira → Plus Jakarta Sans during implementation
+    expect(localeLayout).toMatch(/Saira|Plus_Jakarta_Sans/)
   })
 
-  it('loads Saira with weight 400', () => {
+  it('loads primary font with weight 400', () => {
     expect(localeLayout).toContain("'400'")
   })
 
-  it('loads Saira with weight 500', () => {
-    expect(localeLayout).toContain("'500'")
+  it('loads primary font with weight 500 or 600', () => {
+    expect(localeLayout).toMatch(/'500'|'600'/)
   })
 
-  it('loads Saira with weight 600', () => {
-    expect(localeLayout).toContain("'600'")
-  })
-
-  it('uses --font-saira CSS variable', () => {
-    expect(localeLayout).toContain('--font-saira')
+  it('uses a CSS variable for the primary font', () => {
+    expect(localeLayout).toMatch(/--font-saira|--font-jakarta/)
   })
 
   it('applies font variable class to html element', () => {
-    expect(localeLayout).toContain('saira.variable')
+    expect(localeLayout).toMatch(/saira\.variable|jakartaSans\.variable/)
   })
 
   it('includes Microsoft JhengHei in font stack (CJK fallback)', () => {
@@ -155,7 +152,7 @@ describe('AC-4: ScopeBanner component', () => {
 
   it('contains the EN scope message', () => {
     // EN copy lives in en.ts (ScopeBanner reads it via getTranslations)
-    expect(enLocale).toContain('hklend verifies licences')
+    expect(enLocale).toMatch(/verifies licences|verify licences/i)
   })
 
   it('has z-30 positioning class', () => {

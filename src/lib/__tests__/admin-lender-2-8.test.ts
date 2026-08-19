@@ -18,8 +18,8 @@ function fileExists(rel: string): boolean {
   return existsSync(resolve(root, rel))
 }
 
-const LIST_PAGE    = 'src/app/admin/lenders/page.tsx'
-const DETAIL_PAGE  = 'src/app/admin/lenders/[id]/page.tsx'
+const LIST_PAGE    = 'src/app/admin/(protected)/lenders/page.tsx'
+const DETAIL_PAGE  = 'src/app/admin/(protected)/lenders/[id]/page.tsx'
 const FORM         = 'src/components/admin/AdminLenderForm.tsx'
 const API_ROUTE    = 'src/app/api/admin/lenders/[id]/route.ts'
 

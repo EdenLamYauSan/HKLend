@@ -136,6 +136,7 @@ export async function generateMetadata({
   const title = getLocalizedField(item, 'title', locale)
   const body = (locale === 'en' && item.bodyEn ? item.bodyEn : item.bodyZh)
   const description = body.slice(0, 160)
+  const publishedAt = new Date(item.publishedAt)
 
   return {
     title: `${title.slice(0, 50)} — HK Lend`,
@@ -144,7 +145,7 @@ export async function generateMetadata({
       title,
       description,
       type: 'article',
-      publishedTime: item.publishedAt.toISOString(),
+      publishedTime: publishedAt.toISOString(),
       section: item.category,
       url: `/${locale}/news/${slug}`,
     },
@@ -165,7 +166,7 @@ function buildJsonLd(item: NewsDetail, locale: Locale) {
     '@type': 'NewsArticle',
     headline: title,
     description: body.slice(0, 160),
-    datePublished: item.publishedAt.toISOString(),
+    datePublished: new Date(item.publishedAt).toISOString(),
     url: `https://hklend.hk/${locale}/news/${item.slug}`,
     articleSection: item.category,
     inLanguage: locale === 'zh' ? 'zh-HK' : 'en',

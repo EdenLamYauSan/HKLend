@@ -98,7 +98,7 @@ describe('AC-3: .env.example has LOCAL DEV warning', () => {
 // ─── AC-4: Vercel Analytics in root layout ───────────────────────────────────
 
 describe('AC-4: Vercel Analytics in root layout.tsx', () => {
-  const layout = readFile('src/app/layout.tsx')
+  const layout = readFile('src/app/[locale]/layout.tsx')
 
   it('imports Analytics from @vercel/analytics', () => {
     expect(layout).toContain('@vercel/analytics')

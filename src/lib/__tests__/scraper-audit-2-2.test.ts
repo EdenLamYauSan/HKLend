@@ -124,13 +124,13 @@ describe('AC-3: scrape-hkma.yml GitHub Actions workflow', () => {
     expect(workflow).toContain('pnpm install --frozen-lockfile')
   })
 
-  it('runs pnpm run scrape', () => {
-    expect(workflow).toContain('pnpm run scrape')
+  it('runs the scraper via tsx or pnpm', () => {
+    expect(workflow).toMatch(/tsx.*scrape|pnpm.*scrape/)
   })
 
-  it('passes DATABASE_URL secret to scraper', () => {
-    expect(workflow).toContain('DATABASE_URL')
-    expect(workflow).toContain('secrets.DATABASE_URL')
+  it('passes SCRAPER_DATABASE_URL secret to scraper', () => {
+    expect(workflow).toContain('SCRAPER_DATABASE_URL')
+    expect(workflow).toContain('secrets.SCRAPER_DATABASE_URL')
   })
 
   it('passes REVALIDATION_SECRET to scraper', () => {
@@ -142,10 +142,10 @@ describe('AC-3: scrape-hkma.yml GitHub Actions workflow', () => {
 // ─── AC-4: Admin /admin/scraper-runs page ─────────────────────────────────────
 
 describe('AC-4: /admin/scraper-runs page', () => {
-  const page = readFile('src/app/admin/scraper-runs/page.tsx')
+  const page = readFile('src/app/admin/(protected)/scraper-runs/page.tsx')
 
   it('scraper-runs page file exists', () => {
-    expect(fileExists('src/app/admin/scraper-runs/page.tsx')).toBe(true)
+    expect(fileExists('src/app/admin/(protected)/scraper-runs/page.tsx')).toBe(true)
   })
 
   it('declares runtime = "nodejs"', () => {

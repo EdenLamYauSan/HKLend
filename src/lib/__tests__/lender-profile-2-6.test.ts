@@ -45,9 +45,10 @@ describe('AC-1: LicencePanel — licence badge, number, address, district, phone
     expect(page).toContain("from '@/components/profile/LicencePanel'")
   })
 
-  it('LicencePanel imports LicenceBadge', () => {
-    expect(panel).toContain("from '@/components/directory/LicenceBadge'")
-    expect(panel).toContain('LicenceBadge')
+  it('LicenceBadge is rendered on the profile page (not inside LicencePanel)', () => {
+    // LicenceBadge is intentionally rendered by the page itself, not nested in LicencePanel
+    expect(page).toContain("from '@/components/directory/LicenceBadge'")
+    expect(page).toContain('LicenceBadge')
   })
 
   it('LicencePanel uses getLocalizedField for address', () => {

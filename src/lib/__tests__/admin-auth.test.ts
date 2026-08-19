@@ -154,8 +154,8 @@ describe('AC-5: wrong credentials — no cookie, inline error', () => {
 // ─── AC-6: admin dashboard and layout ────────────────────────────────────────
 
 describe('AC-6: admin dashboard shell with sidebar', () => {
-  const layout = readFile('src/app/admin/layout.tsx')
-  const dashboard = readFile('src/app/admin/dashboard/page.tsx')
+  const layout = readFile('src/app/admin/(protected)/layout.tsx')
+  const dashboard = readFile('src/app/admin/(protected)/dashboard/page.tsx')
 
   it('admin layout declares runtime = "nodejs"', () => {
     expect(layout).toMatch(/export const runtime\s*=\s*['"]nodejs['"]/)

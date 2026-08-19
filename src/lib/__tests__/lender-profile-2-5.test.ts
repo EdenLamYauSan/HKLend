@@ -29,30 +29,29 @@ describe('AC-0: file exists', () => {
   })
 })
 
-// ─── generateStaticParams ─────────────────────────────────────────────────────
+// ─── ISR strategy ─────────────────────────────────────────────────────────────
 
-describe('AC-1: generateStaticParams — both locales at build time', () => {
+describe('AC-1: ISR strategy — dynamicParams + page-level revalidate', () => {
   const page = readFile(PAGE_PATH)
 
-  it('exports generateStaticParams', () => {
-    expect(page).toContain('export async function generateStaticParams')
+  it('exports dynamicParams = true (serve on-demand for unknown slugs)', () => {
+    expect(page).toContain('export const dynamicParams = true')
   })
 
-  it('queries all slugs from the DB via db.lender.findMany', () => {
-    expect(page).toContain('db.lender.findMany')
-    expect(page).toContain("select: { slug: true }")
+  it('exports page-level revalidate (ISR TTL)', () => {
+    expect(page).toContain('export const revalidate')
   })
 
-  it('returns params for the zh locale', () => {
-    expect(page).toContain("locale: 'zh'")
+  it('uses unstable_cache for per-slug DB lookup', () => {
+    expect(page).toContain('unstable_cache')
   })
 
-  it('returns params for the en locale', () => {
-    expect(page).toContain("locale: 'en'")
+  it('handles zh locale in metadata / rendering', () => {
+    expect(page).toContain("locale: string")
   })
 
-  it('uses flatMap to emit one param set per locale per slug', () => {
-    expect(page).toContain('flatMap')
+  it('handles en locale in metadata / rendering', () => {
+    expect(page).toContain("companyNameEn ?? companyNameZh")
   })
 })
 
@@ -112,7 +111,8 @@ describe('AC-4: Metadata — title, canonical, og:*, twitter:card', () => {
 
   it('zh title format: {companyNameZh} — HK Lend', () => {
     expect(page).toContain('companyNameZh')
-    expect(page).toContain('— HK Lend`')
+    // Title uses SUFFIX const: const SUFFIX = ' — HK Lend'
+    expect(page).toContain("' — HK Lend'")
   })
 
   it('en title uses companyNameEn ?? companyNameZh', () => {

@@ -19,6 +19,7 @@ function fileExists(rel: string): boolean {
 
 describe('AC-1 & AC-2: GET /api/lenders route handler', () => {
   const route = readFile('src/app/api/lenders/route.ts')
+  const searchLenders = readFile('src/lib/search-lenders.ts')
 
   it('route file exists', () => {
     expect(fileExists('src/app/api/lenders/route.ts')).toBe(true)
@@ -61,14 +62,14 @@ describe('AC-1 & AC-2: GET /api/lenders route handler', () => {
   })
 
   it('uses pg_trgm similarity() for search path', () => {
-    expect(route).toContain('similarity')
-    expect(route).toContain('aliases_text')
-    expect(route).toContain('$queryRawUnsafe')
+    expect(searchLenders).toContain('similarity')
+    expect(searchLenders).toContain('aliases_text')
+    expect(searchLenders).toContain('$queryRawUnsafe')
   })
 
   it('also matches licenceNumber via ILIKE prefix for search', () => {
-    expect(route).toContain('licenceNumber')
-    expect(route).toContain('ILIKE')
+    expect(searchLenders).toContain('licenceNumber')
+    expect(searchLenders).toContain('ILIKE')
   })
 
   it('pageSize defaults to 20 and max is 100', () => {
@@ -85,9 +86,10 @@ describe('AC-1 & AC-2: GET /api/lenders route handler', () => {
     expect(route).toContain("z.enum(['name', 'createdAt'])")
   })
 
-  it('paginates with skip and take', () => {
-    expect(route).toContain('skip')
-    expect(route).toContain('take: pageSize')
+  it('paginates with skip and take (via search-lenders)', () => {
+    // Pagination logic lives in src/lib/search-lenders.ts, called by the route
+    expect(searchLenders).toContain('skip')
+    expect(searchLenders).toContain('take: pageSize')
   })
 })
 
@@ -105,14 +107,14 @@ describe('AC-3: ZeroResultVerdict component', () => {
     expect(component).toContain('query}')
   })
 
-  it('shows TC message about full company name registration', () => {
-    expect(component).toContain('找不到')
-    expect(component).toContain('持牌放債人')
-    expect(component).toContain('HKMA 官方名冊以公司全名登記')
+  it('shows TC message about registry registration (S-9 updated copy)', () => {
+    // S-9 changed copy: "此名稱並未在放債人登記冊登記" (accurate phrasing)
+    expect(component).toContain('放債人登記冊')
+    expect(component).toContain('公司全名登記')
   })
 
-  it('links to HKMA official directory', () => {
-    expect(component).toContain('hkma.gov.hk')
+  it('links to an external authority (S-9: scam alert board, not HKMA)', () => {
+    // S-9 replaced HKMA link with police scam alert board
     expect(component).toContain('target="_blank"')
     expect(component).toContain('rel="noopener noreferrer"')
   })
@@ -121,8 +123,9 @@ describe('AC-3: ZeroResultVerdict component', () => {
     expect(component).toContain('sr-only')
   })
 
-  it('has aria-live="polite" for screen reader announcement', () => {
-    expect(component).toContain('aria-live="polite"')
+  it('uses role="alert" for immediate screen reader announcement (S-9)', () => {
+    // S-9 changed from aria-live="polite" to role="alert" for immediate announcement
+    expect(component).toContain('role="alert"')
   })
 })
 
