@@ -200,37 +200,51 @@ export default async function NewsPage({ params, searchParams }: PageProps) {
             const sourceDomain = (() => {
               try { return new URL(item.source).hostname } catch { return item.source }
             })()
+            const categoryColors: Record<string, { bg: string; text: string; strip: string }> = {
+              regulatory: { bg: 'bg-blue-50',   text: 'text-blue-700',  strip: 'bg-blue-600' },
+              industry:   { bg: 'bg-green-50',  text: 'text-green-700', strip: 'bg-green-600' },
+              enforcement:{ bg: 'bg-red-50',    text: 'text-red-700',   strip: 'bg-red-600' },
+              general:    { bg: 'bg-gray-100',  text: 'text-gray-600',  strip: 'bg-gray-400' },
+            }
+            const colors = categoryColors[item.category] ?? categoryColors.general
+            const sourceIcon: Record<string, string> = {
+              'apps.sfc.hk': 'SFC',
+              'www.sfc.hk': 'SFC',
+              'www.hkma.gov.hk': 'HKMA',
+              'api.hkma.gov.hk': 'HKMA',
+            }
+            const iconLabel = sourceIcon[sourceDomain] ?? sourceDomain.split('.')[0].toUpperCase()
+
             return (
               <article
                 key={item.id}
-                className="rounded-lg border border-gray-200 bg-white p-5 hover:shadow-sm transition-shadow"
+                className="overflow-hidden rounded-lg border border-gray-200 bg-white hover:shadow-md transition-shadow"
               >
-                <div className="flex items-start gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
-                        {categoryLabel(item.category, locale, t)}
-                      </span>
-                      <span className="text-xs text-gray-400">
-                        {formatDate(item.publishedAt, locale)}
-                      </span>
-                      <span className="text-xs text-gray-400">· {sourceDomain}</span>
+                <Link href={`/${locale}/news/${item.slug}`} className="flex items-stretch">
+                  {/* Left colour strip + source badge */}
+                  <div className={`${colors.strip} w-1.5 shrink-0`} aria-hidden="true" />
+                  <div className="flex flex-1 items-start gap-4 p-5">
+                    {/* Source icon */}
+                    <div className={`hidden sm:flex shrink-0 h-11 w-11 items-center justify-center rounded-lg ${colors.bg} ${colors.text} text-xs font-bold tracking-tight`}>
+                      {iconLabel}
                     </div>
-                    <Link
-                      href={`/${locale}/news/${item.slug}`}
-                      className="block text-lg font-medium text-gray-900 hover:text-brand-navy transition-colors"
-                    >
-                      {title}
-                    </Link>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                        <span className={`inline-flex items-center rounded-full ${colors.bg} px-2 py-0.5 text-xs font-medium ${colors.text}`}>
+                          {categoryLabel(item.category, locale, t)}
+                        </span>
+                        <span className="text-xs text-gray-400">
+                          {formatDate(item.publishedAt, locale)}
+                        </span>
+                        <span className="text-xs text-gray-400 hidden sm:inline">· {sourceDomain}</span>
+                      </div>
+                      <p className="text-base font-medium text-gray-900 leading-snug hover:text-brand-navy transition-colors line-clamp-2">
+                        {title}
+                      </p>
+                    </div>
+                    <span className="shrink-0 self-center text-gray-400 text-lg" aria-hidden="true">→</span>
                   </div>
-                  <Link
-                    href={`/${locale}/news/${item.slug}`}
-                    className="shrink-0 rounded-md bg-brand-navy px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 min-h-[44px] flex items-center"
-                    aria-label={`${locale === 'zh' ? '閱讀' : 'Read'}: ${title}`}
-                  >
-                    {locale === 'zh' ? '閱讀' : 'Read'}
-                  </Link>
-                </div>
+                </Link>
               </article>
             )
           })}

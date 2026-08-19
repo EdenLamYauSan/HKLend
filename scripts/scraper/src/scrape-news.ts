@@ -13,7 +13,26 @@
  *      or: pnpm scrape:news    (from project root)
  */
 
+import Anthropic from '@anthropic-ai/sdk'
 import { getScraperDb } from './env'
+
+// ─── TC Translation ───────────────────────────────────────────────────────────
+
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+
+async function translateToTC(text: string): Promise<string> {
+  if (!text.trim()) return text
+  const msg = await anthropic.messages.create({
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 1024,
+    messages: [{
+      role: 'user',
+      content: `Translate the following financial/regulatory news text into professional Traditional Chinese (繁體中文) as used in Hong Kong. Return ONLY the translation, no explanation.\n\n${text}`,
+    }],
+  })
+  const block = msg.content[0]
+  return block.type === 'text' ? block.text.trim() : text
+}
 
 // ─── Types (ARCH-3 — no src/ imports) ────────────────────────────────────────
 
@@ -227,12 +246,15 @@ async function main(): Promise<void> {
         const baseSlug = generateNewsSlug(item.title, item.pubDate)
         const slug = await resolveUniqueSlug(db, baseSlug)
 
+        const titleZh = await translateToTC(item.title)
+        const bodyZh = item.description ? await translateToTC(item.description) : ''
+
         await db.newsItem.create({
           data: {
             slug,
-            titleZh: item.title,
-            titleEn: item.title,  // English source feeds provide English titles
-            bodyZh: item.description,
+            titleZh,
+            titleEn: item.title,
+            bodyZh,
             bodyEn: item.description,
             source: sourceUrl,
             publishedAt: pubDate,
