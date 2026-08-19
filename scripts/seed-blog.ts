@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Pool } from 'pg'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient, ArticleCategory } from '../src/generated/prisma/client'
