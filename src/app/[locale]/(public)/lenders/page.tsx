@@ -18,6 +18,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { isLocale } from '@/locales'
 import { db } from '@/lib/db'
+import { unstable_cache } from 'next/cache'
 import { searchLenders } from '@/lib/search-lenders'
 import { LenderFilters } from '@/components/directory/LenderFilters'
 import { ZeroResultVerdict } from '@/components/directory/ZeroResultVerdict'
@@ -97,31 +98,38 @@ export default async function LendersPage({
 
   const isZh = locale === 'zh'
 
-  // ── Fetch filter options, last-checked date, and results ─────────────────
-  // lastScrapedAt from the most recently scraped lender = the last scraper run date.
-  const lastScrapedRow = await db.lender.findFirst({
-    where: { lastScrapedAt: { not: null } },
-    orderBy: { lastScrapedAt: 'desc' },
-    select: { lastScrapedAt: true },
-  })
-  const lastChecked = lastScrapedRow?.lastScrapedAt ?? null
+  // ── Fetch stable filter options and last-checked date (cached) ───────────
+  // These change only when the scraper runs — tag-busted via 'lenders:list'.
+  const getFilterOptions = unstable_cache(
+    async () => {
+      const [lastScrapedRow, allDistricts, allLoanTypes] = await Promise.all([
+        db.lender.findFirst({
+          where: { lastScrapedAt: { not: null } },
+          orderBy: { lastScrapedAt: 'desc' },
+          select: { lastScrapedAt: true },
+        }),
+        db.lender.findMany({
+          select: { districtZh: true },
+          distinct: ['districtZh'],
+          orderBy: { districtZh: 'asc' },
+        }),
+        db.$queryRaw<Array<{ tag: string }>>`
+          SELECT DISTINCT unnest("loanTypeTags") AS tag
+          FROM "Lender"
+          ORDER BY tag
+        `,
+      ])
+      return {
+        lastChecked: lastScrapedRow?.lastScrapedAt ?? null,
+        districtOptions: allDistricts.map(r => r.districtZh).filter((d): d is string => d !== null),
+        loanTypeOptions: allLoanTypes.map(r => r.tag),
+      }
+    },
+    ['lenders:filter-options'],
+    { tags: ['lenders:list'], revalidate: 86400 }
+  )
 
-  // ── Fetch filter options (distinct districts and loan type tags) ───────────
-  const [allDistricts, allLoanTypes] = await Promise.all([
-    db.lender.findMany({
-      select: { districtZh: true },
-      distinct: ['districtZh'],
-      orderBy: { districtZh: 'asc' },
-    }),
-    db.$queryRaw<Array<{ tag: string }>>`
-      SELECT DISTINCT unnest("loanTypeTags") AS tag
-      FROM "Lender"
-      ORDER BY tag
-    `,
-  ])
-
-  const districtOptions = allDistricts.map(r => r.districtZh).filter((d): d is string => d !== null)
-  const loanTypeOptions = allLoanTypes.map(r => r.tag)
+  const { lastChecked, districtOptions, loanTypeOptions } = await getFilterOptions()
 
   // ── Fetch results ─────────────────────────────────────────────────────────
   const { data: lenders, total } = await searchLenders({

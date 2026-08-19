@@ -1,8 +1,11 @@
 import { notFound } from 'next/navigation'
 import { isLocale } from '@/locales'
 import { db } from '@/lib/db'
+import { unstable_cache } from 'next/cache'
 import { Suspense } from 'react'
 import { HeroSearch } from '@/components/directory/HeroSearch'
+import Link from 'next/link'
+import { CalculatorPage } from '@/components/calculator/CalculatorPage'
 import type { Locale } from '@/locales'
 import type { Metadata } from 'next'
 
@@ -52,7 +55,12 @@ export default async function HomePage({
   const lang = locale as Locale
   const isZh = lang === 'zh'
 
-  const totalAll = await db.lender.count()
+  const getLenderCount = unstable_cache(
+    () => db.lender.count(),
+    ['home:lender-count'],
+    { tags: ['lenders:list'], revalidate: 86400 }
+  )
+  const totalAll = await getLenderCount()
 
   return (
     <div>
@@ -203,13 +211,26 @@ export default async function HomePage({
         </div>
 
         <div className="mt-10 text-center">
-          <a
+          <Link
             href={`/${lang}/lenders`}
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary/90 transition-colors"
           >
             {isZh ? '查閱放債人名冊' : 'Browse the lender registry'}
             <span aria-hidden="true">→</span>
-          </a>
+          </Link>
+        </div>
+      </div>
+
+      {/* ── Calculator ── */}
+      <div className="border-t border-border bg-gray-50">
+        <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
+          <h2 className="mb-2 text-center">
+            {isZh ? '供款試算' : 'Loan Calculator'}
+          </h2>
+          <p className="mb-8 text-center text-sm text-muted-foreground">
+            {isZh ? '輸入貸款金額、還款期及月息，即時計算月供及實際年利率。' : 'Enter the loan amount, term, and monthly flat rate to calculate your monthly payment and APR.'}
+          </p>
+          <CalculatorPage />
         </div>
       </div>
     </div>

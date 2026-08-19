@@ -110,12 +110,11 @@ async function getAllDistrictZh(): Promise<string[]> {
 
 // ─── generateStaticParams ─────────────────────────────────────────────────────
 
-export async function generateStaticParams() {
-  const districtZhs = await getAllDistrictZh()
-  const locales: Locale[] = ['zh', 'en']
-  return locales.flatMap((locale) =>
-    districtZhs.map((zh) => ({ locale, district: districtSlug(zh) }))
-  )
+export const dynamicParams = true
+
+// Return [] so no pages are pre-built at deploy time; rendered on first request.
+export function generateStaticParams() {
+  return []
 }
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────

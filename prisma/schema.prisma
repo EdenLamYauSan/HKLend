@@ -28,6 +28,7 @@ model Lender {
   licenceExpiryDate DateTime?
   phone           String?
   websiteUrl      String?
+  isFeatured      Boolean  @default(false)
 
   // JSONB column — array of alternative name strings for trigram search.
   // aliases_text generated column and GIN index are defined in the raw migration SQL.

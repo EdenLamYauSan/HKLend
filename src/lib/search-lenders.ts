@@ -121,14 +121,13 @@ export async function searchLenders(params: {
   if (districtZh) where.districtZh = districtZh
   if (loanType) where.loanTypeTags = { has: loanType }
 
-  // 'recommended' = ACTIVE licences first, then alphabetical.
-  // When ad-rank / review scores exist, replace with a weighted column.
+  // Featured lenders sort first in default view; then ACTIVE licences, then alphabetical.
   const orderBy =
     sortBy === 'createdAt'
       ? [{ createdAt: sortOrder as 'asc' | 'desc' }]
       : sortBy === 'name'
       ? [{ companyNameZh: sortOrder as 'asc' | 'desc' }]
-      : [{ licenceStatus: 'asc' as const }, { companyNameZh: 'asc' as const }]
+      : [{ isFeatured: 'desc' as const }, { licenceStatus: 'asc' as const }, { companyNameZh: 'asc' as const }]
 
   const [total, rows] = await Promise.all([
     db.lender.count({ where }),

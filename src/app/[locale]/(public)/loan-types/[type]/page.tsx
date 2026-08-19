@@ -92,10 +92,11 @@ async function getAllDistinctLoanTypes(): Promise<string[]> {
 
 // ─── generateStaticParams ─────────────────────────────────────────────────────
 
-export async function generateStaticParams() {
-  const types = await getAllDistinctLoanTypes()
-  const locales: Locale[] = ['zh', 'en']
-  return locales.flatMap((locale) => types.map((type) => ({ locale, type })))
+export const dynamicParams = true
+
+// Return [] so no pages are pre-built at deploy time; rendered on first request.
+export function generateStaticParams() {
+  return []
 }
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────

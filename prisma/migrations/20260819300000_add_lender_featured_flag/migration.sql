@@ -1,0 +1,1 @@
+ALTER TABLE "Lender" ADD COLUMN "isFeatured" BOOLEAN NOT NULL DEFAULT false;

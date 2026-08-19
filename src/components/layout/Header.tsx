@@ -9,6 +9,7 @@
  * sticky so it stays visible while scrolling.
  */
 
+import Link from 'next/link'
 import { LanguageToggle } from './LanguageToggle'
 import { getTranslations } from '@/locales'
 import type { Locale } from '@/locales'
@@ -30,7 +31,7 @@ export function Header({ locale }: HeaderProps) {
     >
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
         {/* hklend wordmark — links to locale homepage */}
-        <a
+        <Link
           href={`/${locale}`}
           className="
             flex items-center
@@ -42,7 +43,7 @@ export function Header({ locale }: HeaderProps) {
         >
           <span aria-hidden="true" className="text-brand-amber">HK</span>
           <span aria-hidden="true" className="text-white">Lend</span>
-        </a>
+        </Link>
 
         {/* Language toggle */}
         <nav aria-label="Language switcher">
