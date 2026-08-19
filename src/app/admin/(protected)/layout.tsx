@@ -18,7 +18,7 @@
 
 export const runtime = 'nodejs'
 
-import '../globals.css'
+import '../../globals.css'
 import { Analytics } from '@vercel/analytics/next'
 import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/session'
