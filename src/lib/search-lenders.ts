@@ -39,7 +39,7 @@ export interface Lender {
 
 export async function searchLenders(params: {
   search?: string
-  districtZh?: string
+  letter?: string
   loanType?: string
   sortBy?: string
   sortOrder?: string
@@ -48,7 +48,7 @@ export async function searchLenders(params: {
 }): Promise<{ data: Lender[]; total: number }> {
   const {
     search = '',
-    districtZh = '',
+    letter = '',
     loanType = '',
     sortBy = 'recommended',
     sortOrder = 'asc',
@@ -64,12 +64,12 @@ export async function searchLenders(params: {
     // Positional args for $queryRawUnsafe.
     // $1 = licenceNumber ILIKE pattern  $2 = trigram term  $3 = threshold
     const whereArgs: unknown[] = [`%${trimmedSearch}%`, trimmedSearch, 0.1]
-    let districtFilter = ''
+    let letterFilter = ''
     let loanTypeFilter = ''
 
-    if (districtZh) {
-      whereArgs.push(districtZh)
-      districtFilter = `AND "districtZh" = $${whereArgs.length}`
+    if (letter) {
+      whereArgs.push(`${letter}%`)
+      letterFilter = `AND "companyNameEn" ILIKE $${whereArgs.length}`
     }
     if (loanType) {
       whereArgs.push(loanType)
@@ -83,7 +83,7 @@ export async function searchLenders(params: {
          "licenceNumber" ILIKE $1
          OR similarity(aliases_text, $2) > $3
        )
-       ${districtFilter}
+       ${letterFilter}
        ${loanTypeFilter}`,
       ...whereArgs
     )
@@ -104,7 +104,7 @@ export async function searchLenders(params: {
          "licenceNumber" ILIKE $1
          OR similarity(aliases_text, $2) > $3
        )
-       ${districtFilter}
+       ${letterFilter}
        ${loanTypeFilter}
        ORDER BY
          CASE WHEN "licenceNumber" ILIKE $1 THEN 1 ELSE 0 END DESC,
@@ -118,7 +118,7 @@ export async function searchLenders(params: {
 
   // ── Browse path: Prisma ORM (no text search) ──────────────────────────────
   const where: Record<string, unknown> = {}
-  if (districtZh) where.districtZh = districtZh
+  if (letter) where.companyNameEn = { startsWith: letter, mode: 'insensitive' }
   if (loanType) where.loanTypeTags = { has: loanType }
 
   // Featured lenders sort first in default view; then ACTIVE licences, then alphabetical.

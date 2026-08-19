@@ -90,7 +90,7 @@ export default async function LendersPage({
 
   const sp = await searchParams
   const search = typeof sp.search === 'string' ? sp.search.trim() : ''
-  const districtZh = typeof sp.districtZh === 'string' ? sp.districtZh : ''
+  const letter = typeof sp.letter === 'string' && /^[a-z]$/i.test(sp.letter) ? sp.letter.toUpperCase() : ''
   const loanType = typeof sp.loanType === 'string' ? sp.loanType : ''
   const sortBy = ['createdAt', 'name'].includes(sp.sortBy as string) ? sp.sortBy as string : 'recommended'
   const sortOrder = sp.sortOrder === 'desc' ? 'desc' : 'asc'
@@ -102,16 +102,11 @@ export default async function LendersPage({
   // These change only when the scraper runs — tag-busted via 'lenders:list'.
   const getFilterOptions = unstable_cache(
     async () => {
-      const [lastScrapedRow, allDistricts, allLoanTypes] = await Promise.all([
+      const [lastScrapedRow, allLoanTypes] = await Promise.all([
         db.lender.findFirst({
           where: { lastScrapedAt: { not: null } },
           orderBy: { lastScrapedAt: 'desc' },
           select: { lastScrapedAt: true },
-        }),
-        db.lender.findMany({
-          select: { districtZh: true },
-          distinct: ['districtZh'],
-          orderBy: { districtZh: 'asc' },
         }),
         db.$queryRaw<Array<{ tag: string }>>`
           SELECT DISTINCT unnest("loanTypeTags") AS tag
@@ -121,7 +116,6 @@ export default async function LendersPage({
       ])
       return {
         lastChecked: lastScrapedRow?.lastScrapedAt ?? null,
-        districtOptions: allDistricts.map(r => r.districtZh).filter((d): d is string => d !== null),
         loanTypeOptions: allLoanTypes.map(r => r.tag),
       }
     },
@@ -129,12 +123,12 @@ export default async function LendersPage({
     { tags: ['lenders:list'], revalidate: 86400 }
   )
 
-  const { lastChecked, districtOptions, loanTypeOptions } = await getFilterOptions()
+  const { lastChecked, loanTypeOptions } = await getFilterOptions()
 
   // ── Fetch results ─────────────────────────────────────────────────────────
   const { data: lenders, total } = await searchLenders({
     search,
-    districtZh,
+    letter,
     loanType,
     sortBy,
     sortOrder,
@@ -157,7 +151,7 @@ export default async function LendersPage({
             <DataSourceAttribution lastChecked={lastChecked} locale={locale as 'zh' | 'en'} />
           </div>
           <span className="text-sm text-muted-foreground">
-            {search || districtZh || loanType
+            {search || letter || loanType
               ? (isZh ? `${total.toLocaleString()} 個結果` : `${total.toLocaleString()} results`)
               : (isZh ? `共 ${total.toLocaleString()} 間` : `${total.toLocaleString()} total`)}
           </span>
@@ -166,7 +160,6 @@ export default async function LendersPage({
         {/* Filters — client component wrapped in Suspense for useSearchParams */}
         <Suspense fallback={null}>
           <LenderFilters
-            districtOptions={districtOptions}
             loanTypeOptions={loanTypeOptions}
             locale={locale}
             resultCount={total}
@@ -203,7 +196,7 @@ export default async function LendersPage({
                   <a
                     href={`?${new URLSearchParams({
                       ...(search ? { search } : {}),
-                      ...(districtZh ? { districtZh } : {}),
+                      ...(letter ? { letter } : {}),
                       ...(loanType ? { loanType } : {}),
                       sortBy,
                       sortOrder,
@@ -223,7 +216,7 @@ export default async function LendersPage({
                   <a
                     href={`?${new URLSearchParams({
                       ...(search ? { search } : {}),
-                      ...(districtZh ? { districtZh } : {}),
+                      ...(letter ? { letter } : {}),
                       ...(loanType ? { loanType } : {}),
                       sortBy,
                       sortOrder,

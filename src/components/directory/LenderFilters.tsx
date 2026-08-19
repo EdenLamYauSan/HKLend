@@ -6,8 +6,7 @@
  * The browser back button restores prior filter state naturally.
  *
  * S-12: 150ms debounce + AbortController cancel superseded fetches on the
- *       text search input. District/loanType/sort chips fire immediately
- *       (single-tap selections — no debounce needed).
+ *       text search input. Letter/loanType/sort chips fire immediately.
  * S-13: aria-live="polite" region announces result count after each search.
  */
 
@@ -16,8 +15,9 @@
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useCallback, useTransition, useRef } from 'react'
 
+const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+
 interface LenderFiltersProps {
-  districtOptions: string[]
   loanTypeOptions: string[]
   locale: string
   /** Result count forwarded from the server for aria-live announcement (S-13). */
@@ -25,7 +25,6 @@ interface LenderFiltersProps {
 }
 
 export function LenderFilters({
-  districtOptions,
   loanTypeOptions,
   locale,
   resultCount,
@@ -36,7 +35,7 @@ export function LenderFilters({
   const [isPending, startTransition] = useTransition()
 
   const currentSearch = searchParams.get('search') ?? ''
-  const currentDistrict = searchParams.get('districtZh') ?? ''
+  const currentLetter = searchParams.get('letter') ?? ''
   const currentLoanType = searchParams.get('loanType') ?? ''
   const currentSort = searchParams.get('sortBy') ?? 'recommended'
 
@@ -127,42 +126,41 @@ export function LenderFilters({
         </p>
       )}
 
-      {/* District filter chips */}
-      {districtOptions.length > 0 && (
-        <div role="group" aria-label={isZh ? '地區篩選' : 'Filter by district'}>
-          <p className="mb-2 text-xs font-medium text-gray-500">
-            {isZh ? '地區' : 'District'}
-          </p>
-          <div className="flex flex-wrap gap-2">
+      {/* A–Z alphabet filter */}
+      <div role="group" aria-label={isZh ? '按字母篩選' : 'Filter by letter'}>
+        <p className="mb-2 text-xs font-medium text-gray-500">
+          {isZh ? '首字母' : 'Letter'}
+        </p>
+        <div className="flex flex-wrap gap-1">
+          <button
+            type="button"
+            onClick={() => updateParams({ letter: null })}
+            aria-pressed={currentLetter === ''}
+            className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${
+              currentLetter === ''
+                ? 'bg-primary text-white'
+                : 'border border-border bg-white text-foreground hover:bg-secondary/50'
+            }`}
+          >
+            {isZh ? '全部' : 'All'}
+          </button>
+          {ALPHABET.map(letter => (
             <button
+              key={letter}
               type="button"
-              onClick={() => updateParams({ districtZh: null })}
-              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                currentDistrict === ''
+              onClick={() => updateParams({ letter })}
+              aria-pressed={currentLetter === letter}
+              className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${
+                currentLetter === letter
                   ? 'bg-primary text-white'
                   : 'border border-border bg-white text-foreground hover:bg-secondary/50'
               }`}
             >
-              {isZh ? '全部' : 'All'}
+              {letter}
             </button>
-            {districtOptions.map(district => (
-              <button
-                key={district}
-                type="button"
-                onClick={() => updateParams({ districtZh: district })}
-                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                  currentDistrict === district
-                    ? 'bg-primary text-white'
-                    : 'border border-border bg-white text-foreground hover:bg-secondary/50'
-                }`}
-                aria-pressed={currentDistrict === district}
-              >
-                {district}
-              </button>
-            ))}
-          </div>
+          ))}
         </div>
-      )}
+      </div>
 
       {/* Loan type filter chips */}
       {loanTypeOptions.length > 0 && (
