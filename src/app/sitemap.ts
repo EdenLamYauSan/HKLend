@@ -118,7 +118,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     getLoanTypes(),
     getDistrictZhs(),
     getPublishedArticles(),
-  ])
+  ]).catch(() => [[], [], [], [], []] as [typeof lenders, typeof newsItems, typeof loanTypes, typeof districtZhs, typeof articles])
 
   const now = new Date()
   const entries: MetadataRoute.Sitemap = []
