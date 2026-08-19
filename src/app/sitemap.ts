@@ -113,12 +113,12 @@ const getDistrictZhs = unstable_cache(
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [lenders, newsItems, loanTypes, districtZhs, articles] = await Promise.all([
-    getLenderSlugs(),
-    getNewsItems(),
-    getLoanTypes(),
-    getDistrictZhs(),
-    getPublishedArticles(),
-  ]).catch(() => [[], [], [], [], []] as [typeof lenders, typeof newsItems, typeof loanTypes, typeof districtZhs, typeof articles])
+    getLenderSlugs().catch(() => []),
+    getNewsItems().catch(() => []),
+    getLoanTypes().catch(() => []),
+    getDistrictZhs().catch(() => []),
+    getPublishedArticles().catch(() => []),
+  ])
 
   const now = new Date()
   const entries: MetadataRoute.Sitemap = []
