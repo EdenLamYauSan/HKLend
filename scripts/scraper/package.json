@@ -13,6 +13,8 @@
     "install-browsers": "playwright install chromium"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.117.1",
+    "exceljs": "^4.4.0",
     "pinyin-pro": "3.28.1"
   },
   "devDependencies": {

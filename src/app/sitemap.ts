@@ -86,6 +86,16 @@ const getLoanTypes = unstable_cache(
   { tags: ['lenders:list'], revalidate: 86400 }
 )
 
+const getPublishedArticles = unstable_cache(
+  async () =>
+    db.article.findMany({
+      where: { isPublished: true },
+      select: { slug: true, updatedAt: true },
+    }),
+  ['sitemap-articles'],
+  { tags: ['blog:list'], revalidate: 86400 }
+)
+
 const getDistrictZhs = unstable_cache(
   async () => {
     const rows = await db.lender.findMany({
@@ -102,11 +112,12 @@ const getDistrictZhs = unstable_cache(
 // ─── Sitemap ──────────────────────────────────────────────────────────────────
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [lenders, newsItems, loanTypes, districtZhs] = await Promise.all([
+  const [lenders, newsItems, loanTypes, districtZhs, articles] = await Promise.all([
     getLenderSlugs(),
     getNewsItems(),
     getLoanTypes(),
     getDistrictZhs(),
+    getPublishedArticles(),
   ])
 
   const now = new Date()
@@ -117,6 +128,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages = [
     { path: '/lenders', priority: 0.9, changeFrequency: 'daily' as const },
     { path: '/news', priority: 0.8, changeFrequency: 'daily' as const },
+    { path: '/blog', priority: 0.8, changeFrequency: 'weekly' as const },
     { path: '/compare', priority: 0.7, changeFrequency: 'weekly' as const },
     { path: '/scam-board', priority: 0.7, changeFrequency: 'weekly' as const },
   ]
@@ -143,6 +155,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: locale === 'zh' ? 0.8 : 0.6,
       })
     }
+  }
+
+  // ── Blog articles ─────────────────────────────────────────────────────────
+
+  for (const { slug, updatedAt } of articles) {
+    entries.push({
+      url: `${BASE_URL}/zh/blog/${slug}`,
+      lastModified: updatedAt,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    })
   }
 
   // ── News articles ─────────────────────────────────────────────────────────

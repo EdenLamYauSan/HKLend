@@ -30,6 +30,7 @@ const NAV_ITEMS = [
   { href: '/admin/reviews', label: '評論' },
   { href: '/admin/scam-board', label: '詐騙警示板' },
   { href: '/admin/news', label: '新聞草稿' },
+  { href: '/admin/articles', label: '部落格文章' },
   { href: '/admin/season-alerts', label: '季節提示' },
 ] as const
 

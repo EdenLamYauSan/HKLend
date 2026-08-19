@@ -1,0 +1,49 @@
+# Story 8.3: AI Blog Article Generation — weekly cron.
+#
+# Runs every Sunday at 16:00 UTC (Monday 00:00 HKT).
+# Generates 3 draft blog articles via Claude and saves to the Article table.
+# Admin reviews and publishes via /admin/articles.
+
+name: Generate AI Blog Articles
+
+on:
+  schedule:
+    - cron: '0 16 * * 0'   # Sunday 16:00 UTC = Monday 00:00 HKT
+  workflow_dispatch:         # Manual trigger
+
+jobs:
+  generate:
+    name: Generate blog article drafts
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        run: npm install -g pnpm@9
+
+      - name: Install root dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install scraper dependencies
+        working-directory: scripts/scraper
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        working-directory: scripts/scraper
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npx prisma generate --schema ../../prisma/schema.prisma
+
+      - name: Generate articles
+        working-directory: scripts/scraper
+        env:
+          SCRAPER_DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: npx tsx src/generate-articles.ts

@@ -14,6 +14,7 @@ export function DirectoryTabNav({ locale }: DirectoryTabNavProps) {
   const tabs = [
     { labelZh: '首頁', labelEn: 'Home', href: `/${locale}` },
     { labelZh: '放債人名冊', labelEn: 'Lender Registry', href: `/${locale}/lenders` },
+    { labelZh: '部落格', labelEn: 'Blog', href: `/${locale}/blog` },
   ]
 
   const isHome = pathname === `/${locale}`
