@@ -194,56 +194,41 @@ export default async function NewsPage({ params, searchParams }: PageProps) {
           <p className="text-gray-500">{t.news.empty}</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="divide-y divide-gray-200 border-t border-gray-200">
           {items.map((item) => {
             const title = getLocalizedField(item, 'title', locale)
             const sourceDomain = (() => {
               try { return new URL(item.source).hostname } catch { return item.source }
             })()
-            const categoryColors: Record<string, { bg: string; text: string; strip: string }> = {
-              regulatory: { bg: 'bg-blue-50',   text: 'text-blue-700',  strip: 'bg-blue-600' },
-              industry:   { bg: 'bg-green-50',  text: 'text-green-700', strip: 'bg-green-600' },
-              enforcement:{ bg: 'bg-red-50',    text: 'text-red-700',   strip: 'bg-red-600' },
-              general:    { bg: 'bg-gray-100',  text: 'text-gray-600',  strip: 'bg-gray-400' },
+            const sourceLabel: Record<string, string> = {
+              'apps.sfc.hk': '證監會',
+              'www.sfc.hk': '證監會',
+              'www.hkma.gov.hk': '金管局',
+              'api.hkma.gov.hk': '金管局',
             }
-            const colors = categoryColors[item.category] ?? categoryColors.general
-            const sourceIcon: Record<string, string> = {
-              'apps.sfc.hk': 'SFC',
-              'www.sfc.hk': 'SFC',
-              'www.hkma.gov.hk': 'HKMA',
-              'api.hkma.gov.hk': 'HKMA',
-            }
-            const iconLabel = sourceIcon[sourceDomain] ?? sourceDomain.split('.')[0].toUpperCase()
+            const source = locale === 'zh'
+              ? (sourceLabel[sourceDomain] ?? sourceDomain)
+              : sourceDomain
 
             return (
-              <article
-                key={item.id}
-                className="overflow-hidden rounded-lg border border-gray-200 bg-white hover:shadow-md transition-shadow"
-              >
-                <Link href={`/${locale}/news/${item.slug}`} className="flex items-stretch">
-                  {/* Left colour strip + source badge */}
-                  <div className={`${colors.strip} w-1.5 shrink-0`} aria-hidden="true" />
-                  <div className="flex flex-1 items-start gap-4 p-5">
-                    {/* Source icon */}
-                    <div className={`hidden sm:flex shrink-0 h-11 w-11 items-center justify-center rounded-lg ${colors.bg} ${colors.text} text-xs font-bold tracking-tight`}>
-                      {iconLabel}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                        <span className={`inline-flex items-center rounded-full ${colors.bg} px-2 py-0.5 text-xs font-medium ${colors.text}`}>
-                          {categoryLabel(item.category, locale, t)}
-                        </span>
-                        <span className="text-xs text-gray-400">
-                          {formatDate(item.publishedAt, locale)}
-                        </span>
-                        <span className="text-xs text-gray-400 hidden sm:inline">· {sourceDomain}</span>
-                      </div>
-                      <p className="text-base font-medium text-gray-900 leading-snug hover:text-brand-navy transition-colors line-clamp-2">
-                        {title}
-                      </p>
-                    </div>
-                    <span className="shrink-0 self-center text-gray-400 text-lg" aria-hidden="true">→</span>
+              <article key={item.id}>
+                <Link
+                  href={`/${locale}/news/${item.slug}`}
+                  className="group flex items-baseline justify-between gap-4 py-5 hover:bg-gray-50 -mx-4 px-4 transition-colors"
+                >
+                  <div className="min-w-0">
+                    <p className="text-base font-medium text-gray-900 leading-relaxed group-hover:text-brand-navy transition-colors line-clamp-2">
+                      {title}
+                    </p>
+                    <p className="mt-1.5 text-xs text-gray-400">
+                      {source}
+                      <span className="mx-1.5">·</span>
+                      {categoryLabel(item.category, locale, t)}
+                      <span className="mx-1.5">·</span>
+                      {formatDate(item.publishedAt, locale)}
+                    </p>
                   </div>
+                  <span className="shrink-0 text-gray-300 group-hover:text-brand-navy transition-colors" aria-hidden="true">→</span>
                 </Link>
               </article>
             )
