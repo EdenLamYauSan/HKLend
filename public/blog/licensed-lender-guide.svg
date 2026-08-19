@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 360" fill="none">
+  <defs>
+    <linearGradient id="llbg" x1="0" y1="0" x2="800" y2="360">
+      <stop offset="0%" stop-color="#faf6f1"/>
+      <stop offset="100%" stop-color="#f0e8dc"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="360" rx="16" fill="url(#llbg)"/>
+  <text x="400" y="42" text-anchor="middle" font-family="serif" font-size="20" fill="#4a3520" font-weight="bold">持牌放債人識別指南</text>
+  <!-- Two columns -->
+  <!-- Licensed -->
+  <rect x="50" y="65" width="330" height="260" rx="14" fill="#f5ede0" stroke="#4a7c59" stroke-width="2"/>
+  <rect x="50" y="65" width="330" height="45" rx="14" fill="#4a7c59"/>
+  <rect x="50" y="95" width="330" height="15" fill="#4a7c59"/>
+  <text x="215" y="94" text-anchor="middle" font-family="serif" font-size="16" fill="#fff" font-weight="bold">持牌放債人</text>
+  <text x="80" y="135" font-family="serif" font-size="13" fill="#4a7c59">&#x2713;</text>
+  <text x="100" y="135" font-family="serif" font-size="12" fill="#4a3520">有公司註冊處發出嘅牌照</text>
+  <text x="80" y="160" font-family="serif" font-size="13" fill="#4a7c59">&#x2713;</text>
+  <text x="100" y="160" font-family="serif" font-size="12" fill="#4a3520">年利率上限 48%</text>
+  <text x="80" y="185" font-family="serif" font-size="13" fill="#4a7c59">&#x2713;</text>
+  <text x="100" y="185" font-family="serif" font-size="12" fill="#4a3520">書面合約列明 APR</text>
+  <text x="80" y="210" font-family="serif" font-size="13" fill="#4a7c59">&#x2713;</text>
+  <text x="100" y="210" font-family="serif" font-size="12" fill="#4a3520">7 日冷靜期</text>
+  <text x="80" y="235" font-family="serif" font-size="13" fill="#4a7c59">&#x2713;</text>
+  <text x="100" y="235" font-family="serif" font-size="12" fill="#4a3520">唔會收批核前費用</text>
+  <text x="80" y="260" font-family="serif" font-size="13" fill="#4a7c59">&#x2713;</text>
+  <text x="100" y="260" font-family="serif" font-size="12" fill="#4a3520">有實體辦公室</text>
+  <text x="80" y="285" font-family="serif" font-size="13" fill="#4a7c59">&#x2713;</text>
+  <text x="100" y="285" font-family="serif" font-size="12" fill="#4a3520">合法追收途徑</text>
+  <!-- Unlicensed -->
+  <rect x="420" y="65" width="330" height="260" rx="14" fill="#f5ede0" stroke="#b5402a" stroke-width="2"/>
+  <rect x="420" y="65" width="330" height="45" rx="14" fill="#b5402a"/>
+  <rect x="420" y="95" width="330" height="15" fill="#b5402a"/>
+  <text x="585" y="94" text-anchor="middle" font-family="serif" font-size="16" fill="#fff" font-weight="bold">無牌放債</text>
+  <text x="450" y="135" font-family="serif" font-size="13" fill="#b5402a">&#x2717;</text>
+  <text x="470" y="135" font-family="serif" font-size="12" fill="#4a3520">冇牌照或拒絕出示</text>
+  <text x="450" y="160" font-family="serif" font-size="13" fill="#b5402a">&#x2717;</text>
+  <text x="470" y="160" font-family="serif" font-size="12" fill="#4a3520">利率不透明或超過法定上限</text>
+  <text x="450" y="185" font-family="serif" font-size="13" fill="#b5402a">&#x2717;</text>
+  <text x="470" y="185" font-family="serif" font-size="12" fill="#4a3520">冇正式合約</text>
+  <text x="450" y="210" font-family="serif" font-size="13" fill="#b5402a">&#x2717;</text>
+  <text x="470" y="210" font-family="serif" font-size="12" fill="#4a3520">冇冷靜期</text>
+  <text x="450" y="235" font-family="serif" font-size="13" fill="#b5402a">&#x2717;</text>
+  <text x="470" y="235" font-family="serif" font-size="12" fill="#4a3520">收取前期費用</text>
+  <text x="450" y="260" font-family="serif" font-size="13" fill="#b5402a">&#x2717;</text>
+  <text x="470" y="260" font-family="serif" font-size="12" fill="#4a3520">只透過 WhatsApp 聯絡</text>
+  <text x="450" y="285" font-family="serif" font-size="13" fill="#b5402a">&#x2717;</text>
+  <text x="470" y="285" font-family="serif" font-size="12" fill="#4a3520">暴力或威脅追數</text>
+  <!-- Bottom -->
+  <rect x="180" y="335" width="440" height="18" rx="6" fill="none"/>
+  <text x="400" y="348" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">查詢牌照：公司註冊處「持牌放債人名冊」</text>
+</svg>

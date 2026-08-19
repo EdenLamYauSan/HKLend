@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300" fill="none">
+  <defs>
+    <linearGradient id="rbg" x1="0" y1="0" x2="800" y2="300">
+      <stop offset="0%" stop-color="#faf6f1"/>
+      <stop offset="100%" stop-color="#f0e8dc"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="300" rx="16" fill="url(#rbg)"/>
+  <text x="400" y="40" text-anchor="middle" font-family="serif" font-size="20" fill="#4a3520" font-weight="bold">轉按流程</text>
+  <!-- Bank A -->
+  <rect x="60" y="70" width="140" height="70" rx="12" fill="#8b5e3c"/>
+  <text x="130" y="100" text-anchor="middle" font-family="serif" font-size="14" fill="#fff" font-weight="bold">原有銀行</text>
+  <text x="130" y="120" text-anchor="middle" font-family="serif" font-size="11" fill="#f0e8dc">現有按揭</text>
+  <!-- Arrow -->
+  <path d="M200 105 L280 105" stroke="#c4956a" stroke-width="2" stroke-dasharray="6,3"/>
+  <text x="240" y="95" text-anchor="middle" font-family="serif" font-size="10" fill="#8b7355">贖樓</text>
+  <!-- House -->
+  <polygon points="370,65 320,100 420,100" fill="none" stroke="#4a7c59" stroke-width="2"/>
+  <rect x="340" y="100" width="60" height="40" fill="none" stroke="#4a7c59" stroke-width="1.5"/>
+  <text x="370" y="160" text-anchor="middle" font-family="serif" font-size="12" fill="#4a3520">你嘅物業</text>
+  <!-- Arrow -->
+  <path d="M420 105 L500 105" stroke="#4a7c59" stroke-width="2" stroke-dasharray="6,3"/>
+  <text x="460" y="95" text-anchor="middle" font-family="serif" font-size="10" fill="#8b7355">重新抵押</text>
+  <!-- Bank B -->
+  <rect x="500" y="70" width="140" height="70" rx="12" fill="#4a7c59"/>
+  <text x="570" y="100" text-anchor="middle" font-family="serif" font-size="14" fill="#fff" font-weight="bold">新銀行</text>
+  <text x="570" y="120" text-anchor="middle" font-family="serif" font-size="11" fill="#f0e8dc">新按揭 + 回贈</text>
+  <!-- Costs vs Benefits -->
+  <rect x="60" y="190" width="300" height="85" rx="10" fill="#f5ede0" stroke="#b5402a" stroke-width="1.2"/>
+  <text x="210" y="215" text-anchor="middle" font-family="serif" font-size="14" fill="#b5402a" font-weight="bold">成本</text>
+  <text x="210" y="237" text-anchor="middle" font-family="serif" font-size="12" fill="#5a3e28">律師費 $8-15K ╱ 估價費 $2-4K</text>
+  <text x="210" y="257" text-anchor="middle" font-family="serif" font-size="12" fill="#5a3e28">罰息期內需付 1-2% 罰息</text>
+  <rect x="440" y="190" width="300" height="85" rx="10" fill="#f5ede0" stroke="#4a7c59" stroke-width="1.2"/>
+  <text x="590" y="215" text-anchor="middle" font-family="serif" font-size="14" fill="#4a7c59" font-weight="bold">好處</text>
+  <text x="590" y="237" text-anchor="middle" font-family="serif" font-size="12" fill="#5a3e28">現金回贈 1-2%（數萬元）</text>
+  <text x="590" y="257" text-anchor="middle" font-family="serif" font-size="12" fill="#5a3e28">可能享有更低利率</text>
+  <circle cx="45" cy="280" r="10" fill="none" stroke="#c9b99a" stroke-width="0.8"/>
+  <circle cx="755" cy="280" r="10" fill="none" stroke="#c9b99a" stroke-width="0.8"/>
+</svg>

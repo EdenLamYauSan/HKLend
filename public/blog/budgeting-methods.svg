@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 320" fill="none">
+  <defs>
+    <linearGradient id="bbg" x1="0" y1="0" x2="800" y2="320">
+      <stop offset="0%" stop-color="#faf6f1"/>
+      <stop offset="100%" stop-color="#f0e8dc"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="320" rx="16" fill="url(#bbg)"/>
+  <text x="400" y="42" text-anchor="middle" font-family="serif" font-size="20" fill="#4a3520" font-weight="bold">三種記帳方法比較</text>
+  <!-- Method 1 -->
+  <rect x="50" y="70" width="210" height="180" rx="14" fill="#f5ede0" stroke="#8b5e3c" stroke-width="1.5"/>
+  <rect x="50" y="70" width="210" height="45" rx="14" fill="#8b5e3c"/>
+  <rect x="50" y="100" width="210" height="15" fill="#8b5e3c"/>
+  <text x="155" y="98" text-anchor="middle" font-family="serif" font-size="16" fill="#fff" font-weight="bold">信封法</text>
+  <text x="155" y="140" text-anchor="middle" font-family="serif" font-size="12" fill="#4a3520">將錢分入唔同類別</text>
+  <text x="155" y="160" text-anchor="middle" font-family="serif" font-size="12" fill="#4a3520">用完就冇</text>
+  <text x="155" y="190" text-anchor="middle" font-family="serif" font-size="11" fill="#4a7c59">最簡單</text>
+  <text x="155" y="210" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">適合經常使多咗</text>
+  <text x="155" y="228" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">特定類別嘅人</text>
+  <!-- Method 2 -->
+  <rect x="295" y="70" width="210" height="180" rx="14" fill="#f5ede0" stroke="#4a7c59" stroke-width="1.5"/>
+  <rect x="295" y="70" width="210" height="45" rx="14" fill="#4a7c59"/>
+  <rect x="295" y="100" width="210" height="15" fill="#4a7c59"/>
+  <text x="400" y="98" text-anchor="middle" font-family="serif" font-size="16" fill="#fff" font-weight="bold">50/30/20</text>
+  <text x="400" y="140" text-anchor="middle" font-family="serif" font-size="12" fill="#4a3520">50% 需要</text>
+  <text x="400" y="160" text-anchor="middle" font-family="serif" font-size="12" fill="#4a3520">30% 想要 ╱ 20% 儲蓄</text>
+  <text x="400" y="190" text-anchor="middle" font-family="serif" font-size="11" fill="#4a7c59">最平衡</text>
+  <text x="400" y="210" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">適合想了解</text>
+  <text x="400" y="228" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">消費模式嘅人</text>
+  <!-- Method 3 -->
+  <rect x="540" y="70" width="210" height="180" rx="14" fill="#f5ede0" stroke="#c4956a" stroke-width="1.5"/>
+  <rect x="540" y="70" width="210" height="45" rx="14" fill="#c4956a"/>
+  <rect x="540" y="100" width="210" height="15" fill="#c4956a"/>
+  <text x="645" y="98" text-anchor="middle" font-family="serif" font-size="16" fill="#fff" font-weight="bold">反向預算法</text>
+  <text x="645" y="140" text-anchor="middle" font-family="serif" font-size="12" fill="#4a3520">先儲蓄</text>
+  <text x="645" y="160" text-anchor="middle" font-family="serif" font-size="12" fill="#4a3520">再使剩低嘅</text>
+  <text x="645" y="190" text-anchor="middle" font-family="serif" font-size="11" fill="#4a7c59">最適合懶人</text>
+  <text x="645" y="210" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">適合冇記帳</text>
+  <text x="645" y="228" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">習慣嘅人</text>
+  <!-- Bottom -->
+  <rect x="200" y="270" width="400" height="36" rx="10" fill="#fff8f0" stroke="#c9b99a" stroke-width="1"/>
+  <text x="400" y="294" text-anchor="middle" font-family="serif" font-size="13" fill="#6b4226">最好嘅方法係你會持續用嘅嗰個</text>
+  <circle cx="45" cy="300" r="10" fill="none" stroke="#c9b99a" stroke-width="0.8"/>
+  <circle cx="755" cy="300" r="10" fill="none" stroke="#c9b99a" stroke-width="0.8"/>
+</svg>

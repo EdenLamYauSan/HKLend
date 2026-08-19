@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300" fill="none">
+  <defs>
+    <linearGradient id="fbg" x1="0" y1="0" x2="800" y2="300">
+      <stop offset="0%" stop-color="#faf6f1"/>
+      <stop offset="100%" stop-color="#f0e8dc"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="300" rx="16" fill="url(#fbg)"/>
+  <text x="400" y="40" text-anchor="middle" font-family="serif" font-size="20" fill="#4a3520" font-weight="bold">新手借貸五步流程</text>
+  <!-- Steps -->
+  <rect x="40" y="75" width="120" height="80" rx="12" fill="#8b5e3c"/>
+  <text x="100" y="105" text-anchor="middle" font-family="serif" font-size="28" fill="#fff" font-weight="bold">1</text>
+  <text x="100" y="135" text-anchor="middle" font-family="serif" font-size="12" fill="#f0e8dc">確認金額</text>
+  <text x="100" y="185" text-anchor="middle" font-family="serif" font-size="11" fill="#5a3e28">借幾多？</text>
+  <text x="100" y="200" text-anchor="middle" font-family="serif" font-size="11" fill="#5a3e28">供得起嗎？</text>
+  <polygon points="165,115 180,115 172,108 180,115 172,122" fill="#c4956a"/>
+  <rect x="190" y="75" width="120" height="80" rx="12" fill="#c4956a"/>
+  <text x="250" y="105" text-anchor="middle" font-family="serif" font-size="28" fill="#fff" font-weight="bold">2</text>
+  <text x="250" y="135" text-anchor="middle" font-family="serif" font-size="12" fill="#fff">準備文件</text>
+  <text x="250" y="185" text-anchor="middle" font-family="serif" font-size="11" fill="#5a3e28">身份證、糧單</text>
+  <text x="250" y="200" text-anchor="middle" font-family="serif" font-size="11" fill="#5a3e28">月結單</text>
+  <polygon points="315,115 330,115 322,108 330,115 322,122" fill="#c4956a"/>
+  <rect x="340" y="75" width="120" height="80" rx="12" fill="#4a7c59"/>
+  <text x="400" y="105" text-anchor="middle" font-family="serif" font-size="28" fill="#fff" font-weight="bold">3</text>
+  <text x="400" y="135" text-anchor="middle" font-family="serif" font-size="12" fill="#f0e8dc">格價比較</text>
+  <text x="400" y="185" text-anchor="middle" font-family="serif" font-size="11" fill="#5a3e28">至少比較</text>
+  <text x="400" y="200" text-anchor="middle" font-family="serif" font-size="11" fill="#5a3e28">三間機構</text>
+  <polygon points="465,115 480,115 472,108 480,115 472,122" fill="#c4956a"/>
+  <rect x="490" y="75" width="120" height="80" rx="12" fill="#c4956a"/>
+  <text x="550" y="105" text-anchor="middle" font-family="serif" font-size="28" fill="#fff" font-weight="bold">4</text>
+  <text x="550" y="135" text-anchor="middle" font-family="serif" font-size="12" fill="#fff">睇合約</text>
+  <text x="550" y="185" text-anchor="middle" font-family="serif" font-size="11" fill="#5a3e28">APR、條款</text>
+  <text x="550" y="200" text-anchor="middle" font-family="serif" font-size="11" fill="#5a3e28">冷靜期</text>
+  <polygon points="615,115 630,115 622,108 630,115 622,122" fill="#c4956a"/>
+  <rect x="640" y="75" width="120" height="80" rx="12" fill="#8b5e3c"/>
+  <text x="700" y="105" text-anchor="middle" font-family="serif" font-size="28" fill="#fff" font-weight="bold">5</text>
+  <text x="700" y="135" text-anchor="middle" font-family="serif" font-size="12" fill="#f0e8dc">提交申請</text>
+  <text x="700" y="185" text-anchor="middle" font-family="serif" font-size="11" fill="#5a3e28">等批核</text>
+  <text x="700" y="200" text-anchor="middle" font-family="serif" font-size="11" fill="#5a3e28">收款</text>
+  <!-- Bottom tip -->
+  <rect x="200" y="240" width="400" height="40" rx="10" fill="#fff8f0" stroke="#c9b99a" stroke-width="1"/>
+  <text x="400" y="266" text-anchor="middle" font-family="serif" font-size="13" fill="#6b4226">唔好借多過你需要嘅金額</text>
+  <circle cx="50" cy="280" r="12" fill="none" stroke="#c9b99a" stroke-width="0.8"/>
+  <circle cx="750" cy="280" r="12" fill="none" stroke="#c9b99a" stroke-width="0.8"/>
+</svg>
