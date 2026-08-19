@@ -85,7 +85,12 @@ export async function SeasonAlertBanner({
   locale,
   dismissAriaLabel,
 }: SeasonAlertBannerProps) {
-  const alert = await getActiveSeasonAlert()
+  let alert: ActiveAlert | null = null
+  try {
+    alert = await getActiveSeasonAlert()
+  } catch {
+    return null
+  }
   if (!alert) return null
 
   return (
