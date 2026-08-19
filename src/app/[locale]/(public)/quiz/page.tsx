@@ -61,7 +61,7 @@ export default async function QuizPage({ params }: { params: PageParams }) {
       interestRateMax: true,
     },
     orderBy: { companyNameZh: 'asc' },
-  })
+  }).catch(() => [])
 
   // Convert Prisma Decimal to number (serialisable for client prop)
   const lenders: QuizLenderData[] = lendersRaw.map(l => ({

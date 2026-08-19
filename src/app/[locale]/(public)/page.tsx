@@ -60,7 +60,7 @@ export default async function HomePage({
     ['home:lender-count'],
     { tags: ['lenders:list'], revalidate: 86400 }
   )
-  const totalAll = await getLenderCount()
+  const totalAll = await getLenderCount().catch(() => 0)
 
   return (
     <div>

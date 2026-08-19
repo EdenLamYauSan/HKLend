@@ -129,7 +129,7 @@ export default async function ScamBoardPage({ params }: { params: PageParams }) 
   const lang = locale as Locale
   const isZh = lang === 'zh'
 
-  const { reports, total } = await getVerifiedReports()
+  const { reports, total } = await getVerifiedReports().catch(() => ({ reports: [], total: 0 }))
 
   // Serialise dates for client components (Server Components pass JSON)
   const serialisedReports = reports.map((r) => ({
