@@ -12,8 +12,8 @@ function readFile(rel: string): string {
   return readFileSync(resolve(root, rel), 'utf-8')
 }
 
-const page = readFile('src/app/admin/reviews/page.tsx')
-const list = readFile('src/app/admin/reviews/ReviewModerationList.tsx')
+const page = readFile('src/app/admin/(protected)/reviews/page.tsx')
+const list = readFile('src/app/admin/(protected)/reviews/ReviewModerationList.tsx')
 const route = readFile('src/app/api/admin/reviews/[id]/route.ts')
 
 // ─── AC-1: Admin queue page ───────────────────────────────────────────────────
