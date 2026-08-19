@@ -139,22 +139,10 @@ function getLenderBySlug(slug: string): Promise<LenderData | null> {
   )()
 }
 
-// ─── generateStaticParams ─────────────────────────────────────────────────────
-
-/**
- * Pre-generate all lender × locale combos at build time.
- *
- * Fetches every slug from the DB and emits one param set per locale.
- * Both TC and EN pages are generated as static HTML.
- */
-export async function generateStaticParams() {
-  const lenders = await db.lender.findMany({ select: { slug: true } })
-
-  return lenders.flatMap(({ slug }) => [
-    { locale: 'zh', slug },
-    { locale: 'en', slug },
-  ])
-}
+// ISR: pages are generated on first request and cached for 24h.
+// Tag-based purge (lender:{slug}) via admin actions still works as before.
+export const revalidate = 86400
+export const dynamicParams = true
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 
