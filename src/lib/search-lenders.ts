@@ -41,6 +41,7 @@ export async function searchLenders(params: {
   search?: string
   letter?: string
   loanType?: string
+  districtZh?: string
   sortBy?: string
   sortOrder?: string
   page?: number
@@ -50,6 +51,7 @@ export async function searchLenders(params: {
     search = '',
     letter = '',
     loanType = '',
+    districtZh = '',
     sortBy = 'recommended',
     sortOrder = 'asc',
     page = 1,
@@ -120,6 +122,7 @@ export async function searchLenders(params: {
   const where: Record<string, unknown> = {}
   if (letter) where.companyNameEn = { startsWith: letter, mode: 'insensitive' }
   if (loanType) where.loanTypeTags = { has: loanType }
+  if (districtZh) where.districtZh = districtZh
 
   // Featured lenders sort first in default view; then ACTIVE licences, then alphabetical.
   const orderBy =
