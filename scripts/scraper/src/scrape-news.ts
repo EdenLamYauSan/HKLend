@@ -35,6 +35,8 @@ interface RssItem {
 interface FeedConfig {
   url: string
   source: 'hkma' | 'sfc'
+  /** 'rss' = standard RSS/Atom XML; 'api' = HKMA Open API (JSON) */
+  type: 'rss' | 'api'
   category: string
   labelZh: string
   labelEn: string
@@ -42,15 +44,20 @@ interface FeedConfig {
 
 const FEEDS: FeedConfig[] = [
   {
-    url: 'https://www.hkma.gov.hk/eng/news-and-media/rss/press-releases-rss.xml',
+    // HKMA dropped their RSS feed; the Open API returns up to 100 records as JSON.
+    // API docs: https://apidocs.hkma.gov.hk/documentation/press-releases
+    url: 'https://api.hkma.gov.hk/public/press-releases?offset=0&limit=100&lang=en',
     source: 'hkma',
+    type: 'api',
     category: 'regulatory',
     labelZh: '金管局',
     labelEn: 'HKMA',
   },
   {
-    url: 'https://www.sfc.hk/en/RSS/news-press-releases',
+    // Confirmed working 2026-08-19; old /en/RSS/news-press-releases was 404.
+    url: 'https://www.sfc.hk/en/RSS-Feeds/Press-releases',
     source: 'sfc',
+    type: 'rss',
     category: 'regulatory',
     labelZh: '證監會',
     labelEn: 'SFC',
@@ -69,6 +76,44 @@ function generateNewsSlug(title: string, pubDate: string): string {
     .slice(0, 60)
     .replace(/-$/, '')
   return `${dateStr}-${titleSlug}`
+}
+
+// ─── HKMA Open API fetching ───────────────────────────────────────────────────
+
+interface HkmaApiResponse {
+  header: { success: boolean; err_code: string; err_msg: string }
+  result: {
+    datasize: number
+    records: Array<{ title: string; link: string; date: string }>
+  }
+}
+
+async function fetchHkmaApi(url: string): Promise<RssItem[]> {
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 15_000)
+
+  try {
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: { 'User-Agent': 'HKLend-NewsBot/1.0' },
+    })
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status} from ${url}`)
+    }
+    const data = (await res.json()) as HkmaApiResponse
+    if (!data.header.success) {
+      throw new Error(`HKMA API error: ${data.header.err_msg}`)
+    }
+    return data.result.records.map((r) => ({
+      title: r.title,
+      link: r.link,
+      description: '',
+      // API returns YYYY-MM-DD; append time so Date parsing is unambiguous
+      pubDate: `${r.date}T00:00:00+08:00`,
+    }))
+  } finally {
+    clearTimeout(timeout)
+  }
 }
 
 // ─── RSS fetching & parsing ───────────────────────────────────────────────────
@@ -162,7 +207,7 @@ async function main(): Promise<void> {
   for (const feed of FEEDS) {
     let items: RssItem[]
     try {
-      items = await fetchRssFeed(feed.url)
+      items = feed.type === 'api' ? await fetchHkmaApi(feed.url) : await fetchRssFeed(feed.url)
       console.log(`[scrape-news] ${feed.source}: fetched ${items.length} items`)
     } catch (err) {
       console.error(`[scrape-news] Failed to fetch ${feed.url}:`, err)
