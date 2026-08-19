@@ -1,10 +1,6 @@
-// @ts-nocheck
 import { Pool } from 'pg'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient, ArticleCategory } from '../src/generated/prisma/client'
-import dotenv from 'dotenv'
-
-dotenv.config({ path: '.env.local' })
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 1 })
 const adapter = new PrismaPg(pool)
