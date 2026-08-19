@@ -32,8 +32,12 @@ export interface LenderCardData {
   licenceStatus: string
   companyNameZh: string
   companyNameEn: string | null
+  addressZh: string | null
+  addressEn: string | null
   districtZh: string | null
   districtEn: string | null
+  phone: string | null
+  websiteUrl: string | null
   loanTypeTags: string[]
   eligibilityTags: string[]
   interestRateMin?: number | null
@@ -53,13 +57,22 @@ export function LenderCard({ lender, locale }: LenderCardProps) {
     ? lender.companyNameZh
     : (hasValue(lender.companyNameEn) ? lender.companyNameEn : lender.companyNameZh)
 
+  // Show the other-locale name as secondary only when it actually differs
   const secondaryName = isZh
-    ? (hasValue(lender.companyNameEn) ? lender.companyNameEn : null)
-    : null
+    ? (hasValue(lender.companyNameEn) && lender.companyNameEn !== lender.companyNameZh ? lender.companyNameEn : null)
+    : (hasValue(lender.companyNameZh) && lender.companyNameZh !== lender.companyNameEn ? lender.companyNameZh : null)
 
   const district = isZh
     ? lender.districtZh
     : (hasValue(lender.districtEn) ? lender.districtEn : lender.districtZh)
+
+  const address = isZh
+    ? lender.addressZh
+    : (hasValue(lender.addressEn) ? lender.addressEn : lender.addressZh)
+
+  const websiteDisplay = lender.websiteUrl
+    ? lender.websiteUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')
+    : null
 
   // Loan type tags: show up to MAX_VISIBLE_TAGS; "+N more" overflow
   const visibleTags = lender.loanTypeTags.slice(0, MAX_VISIBLE_TAGS)
@@ -105,6 +118,14 @@ export function LenderCard({ lender, locale }: LenderCardProps) {
           {lender.licenceNumber}
           {hasValue(district) && <> · {district}</>}
         </p>
+
+        {/* Contact info */}
+        {hasValue(address) && (
+          <p className="text-xs text-muted-foreground leading-snug">{address}</p>
+        )}
+        {hasValue(lender.phone) && (
+          <p className="text-xs text-muted-foreground">{lender.phone}</p>
+        )}
 
         {/* Loan type tags */}
         {visibleTags.length > 0 && (
@@ -156,7 +177,19 @@ export function LenderCard({ lender, locale }: LenderCardProps) {
       </a>
 
       {/* Action row — outside <a> to avoid nested interactive elements */}
-      <div className="border-t border-gray-100 px-4 py-2 flex items-center justify-end">
+      <div className="border-t border-gray-100 px-4 py-2 flex items-center justify-between gap-2">
+        {hasValue(websiteDisplay) ? (
+          <a
+            href={lender.websiteUrl!}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="min-w-0 truncate text-xs text-primary/70 hover:text-primary hover:underline"
+          >
+            {websiteDisplay}
+          </a>
+        ) : (
+          <span />
+        )}
         <AddToCompareButton lender={compareLender} locale={locale} />
       </div>
     </li>
