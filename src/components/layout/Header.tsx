@@ -23,8 +23,6 @@ export function Header({ locale }: HeaderProps) {
   return (
     <header
       className="
-        sticky top-8
-        z-20
         w-full
         bg-brand-navy
         border-b border-white/10
@@ -35,14 +33,13 @@ export function Header({ locale }: HeaderProps) {
         <a
           href={`/${locale}`}
           className="
-            flex items-center gap-1.5
-            text-lg font-bold tracking-tight text-white
+            flex items-center
+            text-xl font-extrabold tracking-tight
             focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2
             rounded-sm
           "
           aria-label={nav.homepageAriaLabel}
         >
-          {/* Two-tone wordmark — no image dependency for v1 */}
           <span aria-hidden="true" className="text-white">HK</span>
           <span aria-hidden="true" className="text-white">Lend</span>
         </a>

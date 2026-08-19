@@ -14,6 +14,7 @@ export function DirectoryTabNav({ locale }: DirectoryTabNavProps) {
   const tabs = [
     { labelZh: '首頁', labelEn: 'Home', href: `/${locale}` },
     { labelZh: '放債人名冊', labelEn: 'Lender Registry', href: `/${locale}/lenders` },
+    { labelZh: '新聞', labelEn: 'News', href: `/${locale}/news` },
     { labelZh: '部落格', labelEn: 'Blog', href: `/${locale}/blog` },
   ]
 
@@ -33,7 +34,7 @@ export function DirectoryTabNav({ locale }: DirectoryTabNavProps) {
                   relative px-4 py-3 text-sm font-medium transition-colors
                   ${isHome
                     ? isActive
-                      ? 'text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[#264a58]'
+                      ? 'text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-white'
                       : 'text-white/60 hover:text-white/90'
                     : isActive
                       ? 'text-primary after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary'
