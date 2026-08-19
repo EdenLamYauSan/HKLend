@@ -50,8 +50,8 @@ interface ArticleDetail {
 
 function getArticle(slug: string): Promise<ArticleDetail | null> {
   return unstable_cache(
-    async () =>
-      db.article.findUnique({
+    async () => {
+      const row = await db.article.findUnique({
         where: { slug },
         select: {
           id: true,
@@ -67,7 +67,16 @@ function getArticle(slug: string): Promise<ArticleDetail | null> {
           seoDescription: true,
           createdAt: true,
         },
-      }) as Promise<ArticleDetail | null>,
+      })
+      if (!row) return null
+      // Neon pg adapter returns dates as strings; coerce to Date objects so
+      // downstream code (openGraph publishedTime, formatDate) receives a Date.
+      return {
+        ...row,
+        publishedAt: row.publishedAt ? new Date(row.publishedAt as unknown as string) : null,
+        createdAt: new Date(row.createdAt as unknown as string),
+      } as ArticleDetail
+    },
     [`blog-article-${slug}`],
     { tags: [`blog:${slug}`], revalidate: REVALIDATE_SECONDS }
   )()
@@ -98,7 +107,7 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
       url,
       type: 'article',
       images: [{ url: `${BASE_URL}/og-blog-default.jpg`, width: 1200, height: 630 }],
-      publishedTime: article.publishedAt?.toISOString(),
+      publishedTime: article.publishedAt ? new Date(article.publishedAt).toISOString() : undefined,
       tags: article.tags,
     },
     alternates: {
@@ -132,8 +141,8 @@ function buildJsonLd(article: ArticleDetail): string {
     headline: article.seoTitle ?? article.titleZh,
     description: article.seoDescription ?? article.excerpt,
     url: `${BASE_URL}/zh/blog/${article.slug}`,
-    datePublished: article.publishedAt?.toISOString(),
-    dateModified: article.publishedAt?.toISOString(),
+    datePublished: article.publishedAt ? new Date(article.publishedAt).toISOString() : undefined,
+    dateModified: article.publishedAt ? new Date(article.publishedAt).toISOString() : undefined,
     inLanguage: 'zh-HK',
     publisher: {
       '@type': 'Organization',
