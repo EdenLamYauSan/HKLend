@@ -77,8 +77,10 @@ export function proxy(request: NextRequest) {
 
   if (pathname.startsWith('/api/admin/') && !isAdminLoginApi) {
     const sessionCookie = request.cookies.get(ADMIN_SESSION_COOKIE)
+    const authHeader = request.headers.get('authorization')
+    const hasBearerToken = authHeader?.startsWith('Bearer ')
 
-    if (!sessionCookie?.value) {
+    if (!sessionCookie?.value && !hasBearerToken) {
       // /api/admin/* → 401 JSON (Story 1.6 AC-3)
       return NextResponse.json(
         { error: 'UNAUTHORIZED', message: 'Authentication required' },
