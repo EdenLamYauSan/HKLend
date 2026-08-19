@@ -102,13 +102,10 @@ function getLinkedLenders(slugs: string[]): Promise<LinkedLender[]> {
 
 // ─── generateStaticParams ─────────────────────────────────────────────────────
 
+// Return empty array so no pages are pre-built at deploy time.
+// Each slug is rendered on first request and cached via unstable_cache (ISR).
 export async function generateStaticParams() {
-  const slugs = await db.newsItem.findMany({
-    where: { status: 'PUBLISHED' },
-    select: { slug: true },
-  })
-  const locales: Locale[] = ['zh', 'en']
-  return locales.flatMap((locale) => slugs.map(({ slug }) => ({ locale, slug })))
+  return []
 }
 
 // ─── Category label helpers ───────────────────────────────────────────────────
