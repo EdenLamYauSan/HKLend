@@ -8,7 +8,7 @@
  */
 
 interface Props {
-  date: Date | null
+  date: Date | string | null
   locale?: 'zh' | 'en'
 }
 
@@ -17,7 +17,9 @@ export function DataFreshnessLabel({ date, locale = 'zh' }: Props) {
     return <span>{locale === 'zh' ? '未知' : 'unknown'}</span>
   }
 
-  const formatted = date.toLocaleDateString(
+  const d = date instanceof Date ? date : new Date(date)
+
+  const formatted = d.toLocaleDateString(
     locale === 'zh' ? 'zh-HK' : 'en-HK',
     {
       timeZone: 'Asia/Hong_Kong',
@@ -28,6 +30,6 @@ export function DataFreshnessLabel({ date, locale = 'zh' }: Props) {
   )
 
   return (
-    <time dateTime={date.toISOString().slice(0, 10)}>{formatted}</time>
+    <time dateTime={d.toISOString().slice(0, 10)}>{formatted}</time>
   )
 }
