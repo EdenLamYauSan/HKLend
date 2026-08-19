@@ -317,8 +317,8 @@ export function FlagForm({ lenderSlug, locale }: Props) {
                       </p>
                       <p>
                         {isZh
-                          ? '此舉報並非法律投訴，hklend 不提供法律建議。如有緊急情況，請聯絡警方。'
-                          : 'This report is not a legal complaint. hklend does not provide legal advice. In an emergency, please contact the police.'}
+                          ? '此舉報並非法律投訴，HK Lend 不提供法律建議。如有緊急情況，請聯絡警方。'
+                          : 'This report is not a legal complaint. HK Lend does not provide legal advice. In an emergency, please contact the police.'}
                       </p>
                     </div>
                     {!hasScrolledDisclaimer && (

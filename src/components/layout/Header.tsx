@@ -40,7 +40,7 @@ export function Header({ locale }: HeaderProps) {
           "
           aria-label={nav.homepageAriaLabel}
         >
-          <span aria-hidden="true" className="text-white">HK</span>
+          <span aria-hidden="true" className="text-brand-amber">HK</span>
           <span aria-hidden="true" className="text-white">Lend</span>
         </a>
 

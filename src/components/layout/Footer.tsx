@@ -31,7 +31,7 @@ export function Footer({ locale }: FooterProps) {
             </p>
             <p className="mt-1 max-w-xs text-xs text-muted-foreground leading-relaxed">
               {isZh
-                ? '香港持牌放債人查冊。免費核實牌照狀態，唔批貸款。'
+                ? '香港持牌放債人查冊。免費核實牌照狀態，不提供貸款。'
                 : 'Hong Kong licensed money lenders registry. Free licence checks — we do not issue loans.'}
             </p>
           </div>

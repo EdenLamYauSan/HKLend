@@ -113,8 +113,8 @@ export async function generateMetadata({
 
   const title =
     locale === 'zh'
-      ? `香港${labelZh}持牌放債人名冊 — hklend`
-      : `Hong Kong ${labelEn} Licensed Money Lenders — hklend`
+      ? `香港${labelZh}持牌放債人名冊 — HK Lend`
+      : `Hong Kong ${labelEn} Licensed Money Lenders — HK Lend`
 
   const description =
     locale === 'zh'

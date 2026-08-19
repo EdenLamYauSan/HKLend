@@ -16,11 +16,12 @@
 import type { Metadata } from 'next'
 import '../globals.css'
 import { Analytics } from '@vercel/analytics/next'
-import { Saira } from 'next/font/google'
+import { Plus_Jakarta_Sans, Noto_Serif_TC } from 'next/font/google'
 import { notFound } from 'next/navigation'
 import { isLocale } from '@/locales'
 import type { Locale } from '@/locales'
 import { ScopeBanner } from '@/components/layout/ScopeBanner'
+import { StickyNavWrapper } from '@/components/layout/StickyNavWrapper'
 import { SeasonAlertBanner } from '@/components/layout/SeasonAlertBanner'
 import { Header } from '@/components/layout/Header'
 import { DirectoryTabNav } from '@/components/layout/DirectoryTabNav'
@@ -28,20 +29,23 @@ import { Footer } from '@/components/layout/Footer'
 import { CompareTray } from '@/components/CompareTray'
 import { getTranslations } from '@/locales'
 
-/**
- * Saira: geometric sans with excellent Latin numeral rendering.
- * variable: '--font-saira' wires into globals.css @theme (AC-3).
- */
-const saira = Saira({
+const jakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
-  weight: ['400', '500', '600'],
-  variable: '--font-saira',
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-jakarta',
+  display: 'swap',
+})
+
+const notoSerifTC = Noto_Serif_TC({
+  subsets: ['latin'],
+  weight: ['400', '700', '900'],
+  variable: '--font-noto-serif-tc',
   display: 'swap',
 })
 
 export const metadata: Metadata = {
   title: 'HK Lend',
-  description: '免費查核香港持牌放債人牌照狀態，睇用家評分，避免接觸無牌放債人。',
+  description: '免費查核香港持牌放債人牌照狀態，查看用戶評分，避免接觸無牌放債人。',
 }
 
 export async function generateStaticParams() {
@@ -63,7 +67,7 @@ export default async function LocaleLayout({
   const t = getTranslations(lang)
 
   return (
-    <html lang={lang} className={`h-full ${saira.variable}`}>
+    <html lang={lang} className={`h-full ${jakartaSans.variable} ${notoSerifTC.variable}`}>
       <body className="min-h-full flex flex-col antialiased">
         {/*
          * Skip-to-content: first focusable element, visually hidden until
@@ -93,11 +97,11 @@ export default async function LocaleLayout({
             locale={lang}
             dismissAriaLabel={t.seasonAlert.dismissAriaLabel}
           />
-          {/* Sticky header below banner */}
-          <Header locale={lang} />
-
-          {/* Tab nav — sits between header and page content */}
-          <DirectoryTabNav locale={lang} />
+          {/* Sticky header + tab nav — hides on scroll-down, reveals on scroll-up */}
+          <StickyNavWrapper>
+            <Header locale={lang} />
+            <DirectoryTabNav locale={lang} />
+          </StickyNavWrapper>
 
           {/* Main content — target of skip-to-content link */}
           <main id="main-content" className="flex-1">

@@ -42,6 +42,8 @@
   --color-brand-card:  #eae8e6;
   /* Coral for text — ONLY this value is WCAG AA safe on white (5.2:1) */
   --color-brand-coral-text: #B8390E;
+  /* Amber-gold accent — highlights, key numbers, icons, CTA fills */
+  --color-brand-amber: #C8900C;
 
   /* Sidebar (admin) */
   --color-sidebar-ring:               var(--sidebar-ring);
@@ -60,10 +62,12 @@
   --radius-xl:  calc(var(--radius) * 1.4);
 
   /* Typography — UX-DR13
-     Saira is loaded via next/font/google and injected as --font-saira.
-     CJK uses system stack (no web font to keep bundle small). */
-  --font-sans: var(--font-saira, 'Saira'), 'Microsoft JhengHei', 'Noto Sans TC',
-    'LiHei Pro', sans-serif;
+     Plus Jakarta Sans for Latin body; Noto Serif TC for headings (CJK + Latin).
+     Both loaded via next/font/google and injected as CSS variables. */
+  --font-sans: var(--font-jakarta, 'Plus Jakarta Sans'), 'Noto Sans TC',
+    'Microsoft JhengHei', 'LiHei Pro', sans-serif;
+  --font-heading: var(--font-noto-serif-tc, 'Noto Serif TC'), 'Georgia',
+    'Times New Roman', serif;
 
   /* Body line-height: 1.6 (UX-DR13) */
   --leading-body: 1.6;
@@ -198,8 +202,11 @@
   }
 
   /* Text scale (UX-DR13) */
-  h1 { @apply text-3xl font-semibold text-primary; }   /* page titles */
-  h2 { @apply text-xl font-semibold text-primary; }    /* section headings */
+  h1, h2, h3 {
+    font-family: var(--font-heading);
+  }
+  h1 { @apply text-3xl font-bold text-primary; }
+  h2 { @apply text-xl font-bold text-primary; }
   /* body: text-base/400 — Tailwind default */
   /* secondary info: text-sm/400 */
   /* badges: text-xs/500 */

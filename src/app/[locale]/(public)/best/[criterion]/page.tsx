@@ -243,7 +243,7 @@ export async function generateMetadata({
   const description = locale === 'zh' ? meta.descZh : meta.descEn
 
   return {
-    title: `${title} — hklend`,
+    title: `${title} — HK Lend`,
     description,
     alternates: {
       canonical: `/zh/best/${criterion}`,

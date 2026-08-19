@@ -150,7 +150,7 @@ describe('AC-4: ScopeBanner component', () => {
 
   it('contains the TC scope message', () => {
     // TC copy lives in zh.ts (ScopeBanner reads it via getTranslations)
-    expect(zhLocale).toContain('hklend 核實牌照，唔批貸款')
+    expect(zhLocale).toContain('HK Lend 核實牌照，不批核貸款')
   })
 
   it('contains the EN scope message', () => {

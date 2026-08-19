@@ -59,7 +59,7 @@ export default async function HomePage({
       {/* ── Hero + Stats (unified dark section) ── */}
       <section className="bg-[#264a58] text-center">
         <div className="px-4 pt-12 pb-10 sm:pt-16 sm:pb-12">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-white/60">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-white/60" style={{ fontFamily: 'var(--font-heading)' }}>
             {isZh ? '香港持牌放債人查冊' : 'HK Licensed Money Lenders Registry'}
           </p>
           <h1 className="mb-4 text-5xl font-bold leading-tight text-white sm:text-6xl">
@@ -69,7 +69,7 @@ export default async function HomePage({
               <>Verify licences,<br />protect yourself.</>
             )}
           </h1>
-          <p className="mb-8 mx-auto max-w-sm text-sm leading-relaxed text-white/70">
+          <p className="mb-8 mx-auto max-w-sm text-sm leading-relaxed text-white/70" style={{ fontFamily: 'var(--font-heading)' }}>
             {isZh
               ? '免費查核HKMA持牌放債人名冊，避免接觸無牌放債人'
               : 'Free checks from the HKMA official money lenders register'}
@@ -88,8 +88,8 @@ export default async function HomePage({
               { value: isZh ? '完全免費' : 'Completely free', label: isZh ? '無需登記' : 'No registration' },
             ].map(stat => (
               <div key={stat.label} className="flex-1 py-5 px-4 text-center">
-                <p className="text-2xl font-bold tabular-nums tracking-tight text-white">{stat.value}</p>
-                <p className="mt-0.5 text-xs text-white/50">{stat.label}</p>
+                <p className="text-2xl font-bold tabular-nums tracking-tight text-brand-amber" style={{ fontFamily: 'var(--font-heading)' }}>{stat.value}</p>
+                <p className="mt-0.5 text-xs text-white/50" style={{ fontFamily: 'var(--font-heading)' }}>{stat.label}</p>
               </div>
             ))}
           </div>
@@ -99,13 +99,14 @@ export default async function HomePage({
       {/* ── How it works ── */}
       <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
         <h2 className="mb-10 text-center">
-          {isZh ? '點解要查牌？' : 'Why verify a licence?'}
+          {isZh ? '為何需要核查牌照？' : 'Why verify a licence?'}
         </h2>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
           {[
             {
+              accent: 'border-l-brand-amber',
               icon: (
-                <svg className="h-7 w-7 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <svg className="h-7 w-7 text-brand-amber" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                 </svg>
               ),
@@ -115,8 +116,9 @@ export default async function HomePage({
               bodyEn: 'Licensed lenders are HKMA-regulated. Each has a unique licence number you can verify instantly.',
             },
             {
+              accent: 'border-l-brand-coral',
               icon: (
-                <svg className="h-7 w-7 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <svg className="h-7 w-7 text-brand-coral-text" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
                 </svg>
               ),
@@ -126,6 +128,7 @@ export default async function HomePage({
               bodyEn: 'Borrowing from unlicensed companies risks illegal contracts, loan sharking, and personal threats.',
             },
             {
+              accent: 'border-l-primary',
               icon: (
                 <svg className="h-7 w-7 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
@@ -137,7 +140,7 @@ export default async function HomePage({
               bodyEn: 'Check licence status, address, and community ratings to make a more informed decision.',
             },
           ].map(item => (
-            <div key={item.titleZh} className="rounded-xl border border-border bg-white p-6 text-center shadow-sm">
+            <div key={item.titleZh} className={`rounded-xl border border-border border-l-4 ${item.accent} bg-white p-6 text-center shadow-sm`}>
               <div className="mb-4 flex justify-center">{item.icon}</div>
               <h3 className="mb-2 font-semibold text-primary">
                 {isZh ? item.titleZh : item.titleEn}

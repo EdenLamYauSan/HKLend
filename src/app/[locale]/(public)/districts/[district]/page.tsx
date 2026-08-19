@@ -134,8 +134,8 @@ export async function generateMetadata({
   const labelEn = districtEn(districtZh)
   const title =
     locale === 'zh'
-      ? `${districtZh}持牌放債人 — hklend`
-      : `${labelEn} Licensed Money Lenders — hklend`
+      ? `${districtZh}持牌放債人 — HK Lend`
+      : `${labelEn} Licensed Money Lenders — HK Lend`
 
   const description =
     locale === 'zh'

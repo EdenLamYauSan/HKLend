@@ -42,18 +42,27 @@ export function ScopeBanner({ locale }: ScopeBannerProps) {
         bg-brand-navy text-white
         text-xs font-medium
         leading-none
+        border-b border-brand-amber/30
       "
     >
-      <span>{message}</span>
-      <span aria-hidden="true" className="opacity-50">·</span>
+      {/* Shield-check icon in amber */}
+      <svg aria-hidden="true" className="shrink-0 text-brand-amber" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <polyline points="9 12 11 14 15 10"/>
+      </svg>
+      {/* Render "HK Lend" in amber, rest in white */}
+      <span>
+        <span className="text-brand-amber font-semibold">HK Lend</span>
+        {' '}{message.replace(/^HK Lend\s*/, '')}
+      </span>
+      <span aria-hidden="true" className="text-brand-amber/60">·</span>
       <a
         href={HKMA_URL}
         target="_blank"
         rel="noopener noreferrer"
-        className="underline underline-offset-2 hover:opacity-80 focus-visible:opacity-80"
+        className="underline underline-offset-2 decoration-white/40 hover:text-brand-amber hover:decoration-brand-amber transition-colors focus-visible:opacity-80"
       >
         {linkLabel}
-        {/* Screen-reader hint for external link */}
         <span className="sr-only"> (opens in new tab)</span>
       </a>
     </div>

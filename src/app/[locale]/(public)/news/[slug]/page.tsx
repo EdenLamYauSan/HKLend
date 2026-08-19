@@ -141,7 +141,7 @@ export async function generateMetadata({
   const description = body.slice(0, 160)
 
   return {
-    title: `${title.slice(0, 50)} — hklend`,
+    title: `${title.slice(0, 50)} — HK Lend`,
     description,
     openGraph: {
       title,

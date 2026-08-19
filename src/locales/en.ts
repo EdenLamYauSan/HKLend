@@ -16,7 +16,7 @@ export const en: Translation = {
 
   // ── Scope banner ──────────────────────────────────────────────────────────
   scopeBanner: {
-    text: 'hklend verifies licences — we do not approve loans',
+    text: 'HK Lend verifies licences — we do not approve loans',
     hkmaLink: 'View HKMA official directory',
   },
 
@@ -28,7 +28,7 @@ export const en: Translation = {
     news: 'Licence Updates',
     myShortlist: 'My Shortlist',
     language: '中文',
-    homepageAriaLabel: 'hklend — back to homepage',
+    homepageAriaLabel: 'HK Lend — back to homepage',
   },
 
   // ── Common actions ──────────────────────────────────────────────────────────
@@ -399,7 +399,7 @@ export const en: Translation = {
   whatsapp: {
     shareButton: 'Share on WhatsApp',
     shareAriaLabel: 'Share {name} via WhatsApp',
-    shareText: '{name} — hklend Licensed Money Lender Directory\n{url}',
+    shareText: '{name} — HK Lend Licensed Money Lender Directory\n{url}',
   },
 
   // ── Season Alert (Stories 7.4 / 7.5) ───────────────────────────────────────
