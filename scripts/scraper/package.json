@@ -10,6 +10,7 @@
     "scrape": "tsx src/scrape-hkma.ts",
     "scrape:news": "tsx src/scrape-news.ts",
     "scrape:rates": "tsx src/scrape-rates.ts",
+    "backfill:news-body": "tsx src/backfill-news-body.ts",
     "install-browsers": "playwright install chromium"
   },
   "dependencies": {

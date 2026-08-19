@@ -15,6 +15,7 @@
 
 import Anthropic from '@anthropic-ai/sdk'
 import { getScraperDb } from './env'
+import { scrapeBodyZh } from './body-scraper'
 
 // ─── TC Translation ───────────────────────────────────────────────────────────
 
@@ -247,7 +248,8 @@ async function main(): Promise<void> {
         const slug = await resolveUniqueSlug(db, baseSlug)
 
         const titleZh = await translateToTC(item.title)
-        const bodyZh = item.description ? await translateToTC(item.description) : ''
+        const bodyZh = await scrapeBodyZh(sourceUrl)
+        const bodyEn = item.description || ''
 
         await db.newsItem.create({
           data: {
@@ -255,7 +257,7 @@ async function main(): Promise<void> {
             titleZh,
             titleEn: item.title,
             bodyZh,
-            bodyEn: item.description,
+            bodyEn,
             source: sourceUrl,
             publishedAt: pubDate,
             status: 'DRAFT',
