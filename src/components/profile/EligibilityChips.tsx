@@ -25,15 +25,7 @@ interface Props {
 export function EligibilityChips({ tags, locale }: Props) {
   const isZh = locale === 'zh'
 
-  if (tags.length === 0) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        {isZh
-          ? '資格待確認，請直接查詢'
-          : 'Eligibility unconfirmed — please enquire directly'}
-      </p>
-    )
-  }
+  if (tags.length === 0) return null
 
   return (
     <section>

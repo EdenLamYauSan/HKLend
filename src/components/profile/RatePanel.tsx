@@ -43,10 +43,10 @@ export function RatePanel({
   const monthlyLabel = isZh ? '月息' : 'Monthly flat rate'
   const lastCheckedLabel = isZh ? '最後更新' : 'Last updated'
 
+  if (min === null) return null
+
   let rateDisplay: string
-  if (min === null) {
-    rateDisplay = pendingText
-  } else if (max === null || max === min) {
+  if (max === null || max === min) {
     rateDisplay = `${monthlyLabel} ${min.toFixed(2)}%`
   } else {
     rateDisplay = `${monthlyLabel} ${min.toFixed(2)}% – ${max.toFixed(2)}%`
