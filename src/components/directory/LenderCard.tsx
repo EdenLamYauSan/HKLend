@@ -155,14 +155,9 @@ export function LenderCard({ lender, locale }: LenderCardProps) {
                 .map(r => `${r}%`)
                 .join('–')
             : null
+          if (!rateText) return null
           return (
-            <p className="text-xs font-medium text-primary">
-              {rateText ?? (
-                <span className="font-normal text-gray-400">
-                  {isZh ? '利率資料待更新' : 'Rate data pending'}
-                </span>
-              )}
-            </p>
+            <p className="text-xs font-medium text-primary">{rateText}</p>
           )
         })()}
 
