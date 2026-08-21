@@ -65,8 +65,20 @@ export default async function HomePage({
   return (
     <div>
       {/* ── Hero + Stats (unified dark section) ── */}
-      <section className="bg-[#264a58] text-center">
-        <div className="px-4 pt-12 pb-10 sm:pt-16 sm:pb-12">
+      <section className="bg-[#264a58] text-center relative overflow-hidden">
+        {/* Diagonal texture — subtle depth without glassmorphism */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ backgroundImage: 'repeating-linear-gradient(-45deg, transparent, transparent 20px, rgba(255,255,255,0.018) 20px, rgba(255,255,255,0.018) 21px)' }}
+          aria-hidden="true"
+        />
+        {/* Amber atmospheric glow — top-right */}
+        <div
+          className="absolute -top-24 -right-24 w-96 h-96 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(200,144,12,0.14) 0%, transparent 68%)' }}
+          aria-hidden="true"
+        />
+        <div className="relative px-4 pt-12 pb-10 sm:pt-16 sm:pb-12">
           <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-white/60" style={{ fontFamily: 'var(--font-heading)' }}>
             {isZh ? '香港持牌放債人查冊' : 'HK Licensed Money Lenders Registry'}
           </p>
@@ -88,15 +100,15 @@ export default async function HomePage({
         </div>
 
         {/* Stats strip — dark background, white text */}
-        <div className="border-t border-white/10">
+        <div className="relative border-t border-white/10">
           <div className="mx-auto flex max-w-4xl divide-x divide-white/10 px-4 sm:px-6">
             {[
-              { value: totalAll.toLocaleString(), label: isZh ? '間持牌放債人' : 'licensed lenders' },
-              { value: isZh ? '每日更新' : 'Daily updates', label: isZh ? '資料來源：HKMA' : 'Source: HKMA' },
-              { value: isZh ? '完全免費' : 'Completely free', label: isZh ? '無需登記' : 'No registration' },
+              { value: totalAll.toLocaleString(), label: isZh ? '間持牌放債人' : 'licensed lenders', numeric: true },
+              { value: isZh ? '每日更新' : 'Daily updates', label: isZh ? '資料來源：HKMA' : 'Source: HKMA', numeric: false },
+              { value: isZh ? '完全免費' : 'Completely free', label: isZh ? '無需登記' : 'No registration', numeric: false },
             ].map(stat => (
-              <div key={stat.label} className="flex-1 py-5 px-4 text-center">
-                <p className="text-2xl font-bold tabular-nums tracking-tight text-brand-amber" style={{ fontFamily: 'var(--font-heading)' }}>{stat.value}</p>
+              <div key={stat.label} className="flex-1 py-5 px-2 text-center">
+                <p className={`${stat.numeric ? 'text-2xl font-black' : 'text-base font-black'} tabular-nums tracking-tight text-brand-amber whitespace-nowrap`} style={{ fontFamily: 'var(--font-heading)' }}>{stat.value}</p>
                 <p className="mt-0.5 text-xs text-white/50" style={{ fontFamily: 'var(--font-heading)' }}>{stat.label}</p>
               </div>
             ))}
@@ -189,10 +201,10 @@ export default async function HomePage({
                 bodyEn: 'Contact the lender directly to enquire or apply — no intermediary, no commission.',
               },
             ].map((step, i) => (
-              <div key={step.n} className="relative flex gap-4 px-2 py-6 sm:flex-col sm:items-center sm:text-center sm:px-6">
-                {/* connector line between steps */}
+              <div key={step.n} className={`relative flex gap-4 px-2 py-6 sm:flex-col sm:items-center sm:text-center sm:px-6 ${i < 2 ? 'border-b border-brand-amber/25 sm:border-b-0' : ''}`}>
+                {/* connector line between steps — desktop only */}
                 {i < 2 && (
-                  <div className="absolute right-0 top-1/2 hidden h-px w-8 -translate-y-1/2 bg-border sm:block" />
+                  <div className="absolute right-0 top-1/2 hidden h-px w-8 -translate-y-1/2 bg-brand-amber/40 sm:block" />
                 )}
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white sm:mb-3">
                   {step.n}
@@ -222,7 +234,7 @@ export default async function HomePage({
       </div>
 
       {/* ── Calculator ── */}
-      <div className="border-t border-border bg-gray-50">
+      <div className="border-t border-border bg-brand-card">
         <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
           <h2 className="mb-2 text-center">
             {isZh ? '供款試算' : 'Loan Calculator'}

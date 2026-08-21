@@ -237,24 +237,24 @@ export function CalculatorPage() {
       {result && (
         <div className="mt-6 space-y-6">
           {/* Summary */}
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="rounded-xl border border-border bg-white p-5 shadow-sm">
             <h2 className="mb-4 text-base font-semibold text-gray-900">計算結果</h2>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="rounded-lg bg-blue-50 p-4 text-center">
-                <p className="text-xs text-gray-500">月供</p>
-                <p className="mt-1 text-lg font-bold text-brand-navy">
+            <div className="divide-y divide-border rounded-lg border border-border sm:divide-y-0 sm:grid sm:grid-cols-3 sm:divide-x">
+              <div className="flex items-center justify-between px-4 py-3 sm:flex-col sm:items-start sm:gap-1 sm:py-4">
+                <p className="text-xs text-muted-foreground">月供</p>
+                <p className="text-base font-bold text-primary tabular-nums">
                   {fmt(result.monthlyPayment)}
                 </p>
               </div>
-              <div className="rounded-lg bg-amber-50 p-4 text-center">
-                <p className="text-xs text-gray-500">總利息</p>
-                <p className="mt-1 text-lg font-bold text-amber-700">
+              <div className="flex items-center justify-between px-4 py-3 sm:flex-col sm:items-start sm:gap-1 sm:py-4">
+                <p className="text-xs text-muted-foreground">總利息</p>
+                <p className="text-base font-bold text-brand-amber tabular-nums">
                   {fmt(result.totalInterest)}
                 </p>
               </div>
-              <div className="rounded-lg bg-green-50 p-4 text-center">
-                <p className="text-xs text-gray-500">實際年利率</p>
-                <p className="mt-1 text-lg font-bold text-green-700">
+              <div className="flex items-center justify-between px-4 py-3 sm:flex-col sm:items-start sm:gap-1 sm:py-4">
+                <p className="text-xs text-muted-foreground">實際年利率</p>
+                <p className="text-base font-bold text-brand-coral-text tabular-nums">
                   {result.aprPercent.toFixed(2)}%
                 </p>
               </div>
@@ -270,27 +270,27 @@ export function CalculatorPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-gray-50 text-xs text-gray-500">
-                    <th className="px-4 py-3 text-right font-medium">期數</th>
-                    <th className="px-4 py-3 text-right font-medium">月供</th>
-                    <th className="px-4 py-3 text-right font-medium">利息</th>
-                    <th className="px-4 py-3 text-right font-medium">本金</th>
-                    <th className="px-4 py-3 text-right font-medium">餘額</th>
+                    <th className="px-2 py-3 text-right font-medium">期</th>
+                    <th className="px-2 py-3 text-right font-medium">月供</th>
+                    <th className="px-2 py-3 text-right font-medium">利息</th>
+                    <th className="px-2 py-3 text-right font-medium">本金</th>
+                    <th className="px-2 py-3 text-right font-medium">餘額</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {scheduleRows.map(row => (
                     <tr key={row.period} className="hover:bg-gray-50">
-                      <td className="px-4 py-2.5 text-right text-gray-600">{row.period}</td>
-                      <td className="px-4 py-2.5 text-right font-medium text-gray-900">
+                      <td className="px-2 py-2.5 text-right text-gray-600">{row.period}</td>
+                      <td className="px-2 py-2.5 text-right font-medium text-gray-900">
                         {fmt(row.payment)}
                       </td>
-                      <td className="px-4 py-2.5 text-right text-amber-700">
+                      <td className="px-2 py-2.5 text-right text-brand-amber">
                         {fmt(row.interest)}
                       </td>
-                      <td className="px-4 py-2.5 text-right text-blue-700">
+                      <td className="px-2 py-2.5 text-right text-primary">
                         {fmt(row.principal)}
                       </td>
-                      <td className="px-4 py-2.5 text-right text-gray-500">
+                      <td className="px-2 py-2.5 text-right text-gray-500">
                         {fmt(row.balance)}
                       </td>
                     </tr>

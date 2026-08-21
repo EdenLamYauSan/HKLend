@@ -92,7 +92,7 @@ export function LenderCard({ lender, locale }: LenderCardProps) {
   }
 
   return (
-    <li className={`rounded-xl border border-border bg-white shadow-sm transition-all hover:border-primary/30 hover:shadow-md ${isWarning ? 'opacity-75' : ''}`}>
+    <li className={`rounded-xl border border-border bg-white shadow-sm transition-all hover:border-brand-amber/50 hover:shadow-md ${isWarning ? 'opacity-75' : ''}`}>
       {/* Card info — full clickable link target */}
       <a
         href={`/${locale}/lenders/${lender.slug}`}
@@ -156,7 +156,7 @@ export function LenderCard({ lender, locale }: LenderCardProps) {
                 .join('–')
             : null
           return (
-            <p className="text-xs font-medium text-[#264a58]">
+            <p className="text-xs font-medium text-primary">
               {rateText ?? (
                 <span className="font-normal text-gray-400">
                   {isZh ? '利率資料待更新' : 'Rate data pending'}
@@ -177,7 +177,7 @@ export function LenderCard({ lender, locale }: LenderCardProps) {
       </a>
 
       {/* Action row — outside <a> to avoid nested interactive elements */}
-      <div className="border-t border-gray-100 px-4 py-2 flex items-center justify-between gap-2">
+      <div className="border-t border-border px-4 py-2 flex items-center justify-between gap-2">
         {hasValue(websiteDisplay) ? (
           <a
             href={lender.websiteUrl!}

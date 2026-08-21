@@ -195,9 +195,12 @@ export default async function BlogDetailPage({ params, searchParams }: PageProps
         {/* Back link */}
         <Link
           href={`/${locale}/blog`}
-          className="mb-6 inline-flex items-center text-sm text-gray-500 hover:text-brand-navy transition-colors"
+          className="mb-8 inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-primary hover:text-primary transition-colors"
         >
-          ← {isZh ? '返回專欄' : 'Back to Blog'}
+          <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M7.5 2L3.5 6l4 4" />
+          </svg>
+          {isZh ? '返回專欄' : 'Back to Blog'}
         </Link>
 
         {/* Article header */}
@@ -235,12 +238,15 @@ export default async function BlogDetailPage({ params, searchParams }: PageProps
         </div>
 
         {/* Footer */}
-        <div className="mt-10 border-t border-gray-200 pt-6">
+        <div className="mt-10 border-t border-border pt-6">
           <Link
             href={`/${locale}/blog`}
-            className="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-primary hover:text-primary transition-colors"
           >
-            {isZh ? '← 返回專欄' : '← Back to Blog'}
+            <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M7.5 2L3.5 6l4 4" />
+            </svg>
+            {isZh ? '返回專欄' : 'Back to Blog'}
           </Link>
         </div>
       </div>

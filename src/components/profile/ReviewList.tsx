@@ -330,16 +330,7 @@ export function ReviewList({
       {/* Review list */}
       {reviews.length === 0 ? (
         <div className="rounded-xl border border-dashed border-gray-300 p-6 text-center">
-          <p className="text-sm text-gray-500 mb-3">{copy.emptyState}</p>
-          {!showForm && (
-            <Button
-              variant="outline"
-              size="touch"
-              onClick={() => setShowForm(true)}
-            >
-              {copy.writeReview}
-            </Button>
-          )}
+          <p className="text-sm text-gray-500">{copy.emptyState}</p>
         </div>
       ) : (
         <div className="space-y-4">

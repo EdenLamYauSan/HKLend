@@ -16,16 +16,16 @@ export function DirectoryTabNav({ locale }: DirectoryTabNavProps) {
     { labelZh: '首頁', labelEn: 'Home', href: `/${locale}` },
     { labelZh: '放債人名冊', labelEn: 'Registry', href: `/${locale}/lenders` },
     { labelZh: '新聞', labelEn: 'News', href: `/${locale}/news` },
-    { labelZh: '計算機', labelEn: 'Calc', href: `/${locale}/calculator` },
     { labelZh: '專欄', labelEn: 'Blog', href: `/${locale}/blog` },
     { labelZh: '討論區', labelEn: 'Forum', href: `/${locale}/forum` },
+    { labelZh: '計算機', labelEn: 'Calc', href: `/${locale}/calculator` },
   ]
 
   const isHome = pathname === `/${locale}`
 
   return (
     <div className={isHome ? 'bg-brand-navy' : 'border-b border-border bg-white'}>
-      <nav className="flex w-full" aria-label={isZh ? '頁面導航' : 'Page navigation'}>
+      <nav className="flex w-full overflow-x-auto scrollbar-none" aria-label={isZh ? '頁面導航' : 'Page navigation'}>
         {tabs.map(tab => {
           const isActive = pathname === tab.href || (tab.href !== `/${locale}` && pathname.startsWith(tab.href))
           return (
@@ -33,7 +33,7 @@ export function DirectoryTabNav({ locale }: DirectoryTabNavProps) {
               key={tab.href}
               href={tab.href}
               className={`
-                relative flex-1 text-center py-3 text-xs font-medium transition-colors
+                relative shrink-0 flex-1 min-w-[4.5rem] text-center py-3 text-xs font-medium transition-colors
                 ${isHome
                   ? isActive
                     ? 'text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-white'

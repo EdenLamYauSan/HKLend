@@ -25,9 +25,9 @@ export function Footer({ locale }: FooterProps) {
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
           {/* Brand + tagline */}
           <div className="min-w-0">
-            <p className="text-sm font-bold text-primary">
-              <span>HK</span>
-              <span className="text-white">Lend</span>
+            <p className="text-sm font-bold">
+              <span className="text-brand-amber">HK</span>
+              <span className="text-primary">Lend</span>
             </p>
             <p className="mt-1 max-w-xs text-xs text-muted-foreground leading-relaxed">
               {isZh

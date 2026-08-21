@@ -89,7 +89,7 @@ export function HeroSearch({ locale, targetPath }: HeroSearchProps) {
 
       {/* Hot-search chips — single scrollable row, no wrap */}
       <div
-        className="flex gap-2 overflow-x-auto pb-1 justify-center scrollbar-none"
+        className="flex gap-2 overflow-x-auto pb-1 pl-1 scrollbar-none"
         style={{ scrollbarWidth: 'none' }}
         aria-label={isZh ? '熱門搜尋' : 'Popular searches'}
       >
