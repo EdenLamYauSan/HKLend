@@ -177,21 +177,6 @@ export function LenderCard({ lender, locale }: LenderCardProps) {
       </a>
 
       {/* Action row — outside <a> to avoid nested interactive elements */}
-      <div className="border-t border-border px-4 py-2 flex items-center justify-between gap-2">
-        {hasValue(websiteDisplay) ? (
-          <a
-            href={lender.websiteUrl!}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="min-w-0 truncate text-xs text-primary/70 hover:text-primary hover:underline"
-          >
-            {websiteDisplay}
-          </a>
-        ) : (
-          <span />
-        )}
-        {/* <AddToCompareButton lender={compareLender} locale={locale} /> */}
-      </div>
     </li>
   )
 }
