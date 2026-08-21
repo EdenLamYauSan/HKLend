@@ -42,8 +42,26 @@ export function ProfileActions({ lender, locale, onOpenCalc }: ProfileActionsPro
 
   return (
     <div className="flex flex-wrap gap-2 mt-3">
-      {/* Add to Compare — hidden until compare feature re-enabled */}
-      {/* <button ... /> */}
+      {/* Add to Compare */}
+      <button
+        type="button"
+        onClick={() => add(lender)}
+        disabled={isAdded}
+        className={`min-h-[44px] rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+          isAdded
+            ? 'border-[#264a58]/30 bg-[#264a58]/10 text-[#264a58]/60 cursor-default'
+            : 'border-[#264a58] text-[#264a58] hover:bg-[#264a58] hover:text-white'
+        }`}
+        aria-label={
+          isAdded
+            ? (isZh ? `已加入比較：${lender.companyNameZh}` : `Added to compare: ${lender.companyNameEn ?? lender.companyNameZh}`)
+            : (isZh ? `加入比較：${lender.companyNameZh}` : `Add to compare: ${lender.companyNameEn ?? lender.companyNameZh}`)
+        }
+      >
+        {isAdded
+          ? (isZh ? '已加入比較' : 'Added to Compare')
+          : (isZh ? '加入比較' : 'Add to Compare')}
+      </button>
 
       {/* Calculate APR — mobile only; desktop sidebar is always visible */}
       <button
