@@ -77,11 +77,16 @@ export async function searchLenders(params: {
   const skip = (page - 1) * pageSize
   const trimmedSearch = search.trim()
 
-  // ── Search path: pg_trgm similarity on aliases_text ───────────────────────
+  // ── Search path: pg_trgm word_similarity on aliases_text ─────────────────
+  // word_similarity(query, text) scores the best-matching substring of text,
+  // so partial queries and typos score much higher than full similarity().
   if (trimmedSearch.length > 0) {
+    // Collapse multiple spaces so "grand  finance" == "grand finance"
+    const normSearch = trimmedSearch.replace(/\s+/g, ' ')
     // Positional args for $queryRawUnsafe.
     // $1 = licenceNumber ILIKE pattern  $2 = trigram term  $3 = threshold
-    const whereArgs: unknown[] = [`%${trimmedSearch}%`, trimmedSearch, 0.1]
+    const whereArgs: unknown[] = [`%${normSearch}%`, normSearch, 0.15]
+
     let letterFilter = ''
     let loanTypeFilter = ''
     let statusFilter = ''
@@ -104,7 +109,7 @@ export async function searchLenders(params: {
        FROM "Lender"
        WHERE (
          "licenceNumber" ILIKE $1
-         OR similarity(aliases_text, $2) > $3
+         OR word_similarity($2, aliases_text) > $3
        )
        ${letterFilter}
        ${loanTypeFilter}
@@ -126,14 +131,14 @@ export async function searchLenders(params: {
        FROM "Lender"
        WHERE (
          "licenceNumber" ILIKE $1
-         OR similarity(aliases_text, $2) > $3
+         OR word_similarity($2, aliases_text) > $3
        )
        ${letterFilter}
        ${loanTypeFilter}
        ${statusFilter}
        ORDER BY
          CASE WHEN "licenceNumber" ILIKE $1 THEN 1 ELSE 0 END DESC,
-         similarity(aliases_text, $2) DESC
+         word_similarity($2, aliases_text) DESC
        LIMIT ${pageSize} OFFSET ${skip}`,
       ...whereArgs
     )
