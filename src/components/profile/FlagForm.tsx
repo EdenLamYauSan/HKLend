@@ -217,11 +217,11 @@ export function FlagForm({ lenderSlug, locale }: Props) {
         onClick={handleOpen}
         className="
           inline-flex items-center gap-1.5
-          rounded-md border border-amber-300
-          bg-amber-50 px-3 py-2
-          text-sm font-medium text-amber-800
-          hover:bg-amber-100
-          focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500
+          rounded-md border border-border
+          bg-white px-3 py-2
+          text-sm font-medium text-muted-foreground
+          hover:border-primary hover:text-primary
+          focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary
           min-h-[44px] min-w-[44px]
           transition-colors
         "
