@@ -23,6 +23,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Turnstile } from '@marsidev/react-turnstile'
 import type { TurnstileInstance } from '@marsidev/react-turnstile'
+import { Flag } from 'lucide-react'
 import { FLAG_CATEGORIES, type FlagCategory } from '@/types/flag.schema'
 import type { Locale } from '@/locales'
 
@@ -197,7 +198,8 @@ export function FlagForm({ lenderSlug, locale }: Props) {
     return (
       <div className="flex items-center gap-2">
         <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800">
-          ⚑ {alreadyFlaggedLabel}
+          <Flag className="h-3 w-3" aria-hidden="true" />
+          {alreadyFlaggedLabel}
         </span>
         <button
           onClick={handleOpen}
@@ -211,23 +213,15 @@ export function FlagForm({ lenderSlug, locale }: Props) {
 
   return (
     <>
-      {/* Trigger button */}
+      {/* Trigger button — matches 加入比較 sibling in ProfileActions */}
       <button
         type="button"
         onClick={handleOpen}
-        className="
-          inline-flex items-center gap-1.5
-          rounded-md border border-border
-          bg-white px-3 py-2
-          text-sm font-medium text-muted-foreground
-          hover:border-primary hover:text-primary
-          focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary
-          min-h-[44px] min-w-[44px]
-          transition-colors
-        "
+        className="inline-flex items-center gap-1 h-7 rounded-md border border-[#264a58] px-2.5 text-[0.8rem] font-medium text-[#264a58] hover:bg-[#264a58] hover:text-white transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         aria-label={triggerLabel}
       >
-        ⚑ {triggerLabel}
+        <Flag className="h-3.5 w-3.5" aria-hidden="true" />
+        {triggerLabel}
       </button>
 
       {/* Modal overlay */}
