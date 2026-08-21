@@ -136,28 +136,18 @@ export default async function ForumListPage({ params, searchParams }: PageProps)
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900">討論區</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            香港貸款社群：推薦放債人、提問、分享經驗
-          </p>
-        </div>
-        <Link
-          href={`/${locale}/forum/new`}
-          className="rounded-lg bg-brand-navy px-4 py-2 text-sm font-medium text-white hover:opacity-90 transition-opacity min-h-[44px] flex items-center"
-        >
-          發帖
-        </Link>
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold text-gray-900">討論區</h1>
+        <p className="mt-1 text-sm text-gray-500">
+          香港貸款社群：推薦放債人、提問、分享經驗
+        </p>
       </div>
 
       {/* Filters */}
-      <div className="mb-6 flex flex-wrap items-center gap-3">
-        {/* Category tabs */}
+      <div className="mb-6 space-y-3">
+        {/* Category chips */}
         <div className="flex flex-wrap gap-2">
-          {/* All */}
           <Link
-            key="all"
             href={buildUrl({ category: undefined, sort, page: '1' })}
             className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
               !validCategory ? 'bg-brand-navy text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -183,21 +173,30 @@ export default async function ForumListPage({ params, searchParams }: PageProps)
           })}
         </div>
 
-        {/* Sort toggle */}
-        <div className="ml-auto flex rounded-lg border border-gray-200 overflow-hidden">
-          {(['latest', 'top'] as const).map(s => (
-            <Link
-              key={s}
-              href={buildUrl({ category: validCategory, sort: s, page: '1' })}
-              className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                sort === s
-                  ? 'bg-brand-navy text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              {s === 'latest' ? '最新' : '最多投票'}
-            </Link>
-          ))}
+        {/* Post button + sort row */}
+        <div className="flex items-center justify-between">
+          <Link
+            href={`/${locale}/forum/new`}
+            className="inline-flex items-center gap-1.5 rounded-full bg-brand-navy px-4 py-1.5 text-sm font-semibold text-white hover:opacity-80 transition-opacity"
+          >
+            <span aria-hidden="true" className="text-sm leading-none">+</span>
+            發帖
+          </Link>
+          <div className="flex rounded-lg border border-gray-200 overflow-hidden">
+            {(['latest', 'top'] as const).map(s => (
+              <Link
+                key={s}
+                href={buildUrl({ category: validCategory, sort: s, page: '1' })}
+                className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+                  sort === s
+                    ? 'bg-brand-navy text-white'
+                    : 'bg-white text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                {s === 'latest' ? '最新' : '最多讚'}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
 
