@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 320" fill="none">
+  <defs>
+    <linearGradient id="hlbg" x1="0" y1="0" x2="800" y2="320">
+      <stop offset="0%" stop-color="#faf6f1"/>
+      <stop offset="100%" stop-color="#f0e8dc"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="320" rx="16" fill="url(#hlbg)"/>
+  <text x="400" y="45" text-anchor="middle" font-family="serif" font-size="20" fill="#4a3520" font-weight="bold">業主貸款 vs 私人貸款</text>
+  <!-- Left column -->
+  <rect x="60" y="65" width="300" height="200" rx="12" fill="#fff8f0" stroke="#c9b99a" stroke-width="1.5"/>
+  <rect x="60" y="65" width="300" height="42" rx="12" fill="#c9b99a"/>
+  <rect x="60" y="88" width="300" height="20" rx="0" fill="#c9b99a"/>
+  <text x="210" y="92" text-anchor="middle" font-family="serif" font-size="15" fill="#4a3520" font-weight="bold">業主貸款</text>
+  <text x="210" y="130" text-anchor="middle" font-family="serif" font-size="12" fill="#4a3520">針對物業持有人</text>
+  <text x="210" y="155" text-anchor="middle" font-family="serif" font-size="12" fill="#4a3520">可能涉及物業條款</text>
+  <text x="210" y="180" text-anchor="middle" font-family="serif" font-size="12" fill="#4a3520">批核睇物業＋收入＋信貸</text>
+  <line x1="90" y1="198" x2="330" y2="198" stroke="#e0d5c3" stroke-width="1"/>
+  <text x="210" y="220" text-anchor="middle" font-family="serif" font-size="11" fill="#b5402a">⚠ 注意物業相關責任</text>
+  <text x="210" y="242" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">務必細閱合約</text>
+  <!-- Right column -->
+  <rect x="440" y="65" width="300" height="200" rx="12" fill="#f0f7f2" stroke="#4a7c59" stroke-width="1.5"/>
+  <rect x="440" y="65" width="300" height="42" rx="12" fill="#4a7c59"/>
+  <rect x="440" y="88" width="300" height="20" rx="0" fill="#4a7c59"/>
+  <text x="590" y="92" text-anchor="middle" font-family="serif" font-size="15" fill="#fff8f0" font-weight="bold">私人貸款</text>
+  <text x="590" y="130" text-anchor="middle" font-family="serif" font-size="12" fill="#4a3520">有收入及信貸紀錄人士</text>
+  <text x="590" y="155" text-anchor="middle" font-family="serif" font-size="12" fill="#4a3520">無抵押，不涉及物業</text>
+  <text x="590" y="180" text-anchor="middle" font-family="serif" font-size="12" fill="#4a3520">批核主要睇收入同信貸</text>
+  <line x1="470" y1="198" x2="710" y2="198" stroke="#c8ddd0" stroke-width="1"/>
+  <text x="590" y="220" text-anchor="middle" font-family="serif" font-size="11" fill="#4a7c59">逾期影響信貸紀錄</text>
+  <text x="590" y="242" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">比較 APR 及總還款額</text>
+  <!-- Bottom note -->
+  <rect x="160" y="280" width="480" height="28" rx="8" fill="#fff8f0" stroke="#c9b99a" stroke-width="1"/>
+  <text x="400" y="299" text-anchor="middle" font-family="serif" font-size="11" fill="#6b4226">兩者都要睇 APR、總還款額同條款，唔係只比較宣傳利率</text>
+  <circle cx="50" cy="40" r="16" fill="none" stroke="#c9b99a" stroke-width="0.8"/>
+  <circle cx="750" cy="40" r="16" fill="none" stroke="#c9b99a" stroke-width="0.8"/>
+</svg>

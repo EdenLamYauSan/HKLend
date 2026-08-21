@@ -125,10 +125,12 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization)
      * - favicon.ico, robots.txt, sitemap.xml (public assets)
+     * - Paths ending in static asset extensions (.svg, .png, .jpg, etc.)
+     *   so /public/blog/*.svg files are served directly without locale redirect.
      *
      * Unlike Story 1.3, we now INCLUDE /admin/* and /api/admin/* so the
      * auth gate above runs on every admin request.
      */
-    '/((?!_next/static|_next/image|favicon\\.ico|robots\\.txt|sitemap\\.xml).*)',
+    '/((?!_next/static|_next/image|favicon\\.ico|robots\\.txt|sitemap\\.xml)(?!.*\\.(?:svg|png|jpg|jpeg|webp|gif|ico|pdf|woff2?|ttf|eot)).*)',
   ],
 }

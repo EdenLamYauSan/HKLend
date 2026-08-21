@@ -242,7 +242,7 @@ export default async function ForumListPage({ params, searchParams }: PageProps)
                   </Link>
                   <div className="mt-2 flex items-center gap-4 text-xs text-gray-400">
                     <span>▲ {post.upvotes} 贊</span>
-                    <span>💬 {post._count.replies} 回覆</span>
+                    <span>❝ {post._count.replies} 回覆</span>
                   </div>
                 </div>
               </div>

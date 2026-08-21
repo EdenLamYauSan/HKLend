@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 320" fill="none">
+  <defs>
+    <linearGradient id="selbg" x1="0" y1="0" x2="800" y2="320">
+      <stop offset="0%" stop-color="#faf6f1"/>
+      <stop offset="100%" stop-color="#f0e8dc"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="320" rx="16" fill="url(#selbg)"/>
+  <text x="400" y="45" text-anchor="middle" font-family="serif" font-size="20" fill="#4a3520" font-weight="bold">自僱人士：收入文件準備</text>
+  <!-- Income chart - variable bars -->
+  <text x="160" y="80" text-anchor="middle" font-family="serif" font-size="12" fill="#8b7355">月入變化（示意）</text>
+  <!-- Bars -->
+  <rect x="80" y="180" width="30" height="60" rx="3" fill="#4a7c59" opacity="0.7"/>
+  <rect x="120" y="150" width="30" height="90" rx="3" fill="#4a7c59" opacity="0.7"/>
+  <rect x="160" y="200" width="30" height="40" rx="3" fill="#c4956a" opacity="0.8"/>
+  <rect x="200" y="130" width="30" height="110" rx="3" fill="#4a7c59" opacity="0.7"/>
+  <rect x="240" y="170" width="30" height="70" rx="3" fill="#4a7c59" opacity="0.7"/>
+  <!-- Average line -->
+  <line x1="75" y1="168" x2="280" y2="168" stroke="#b5402a" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="290" y="172" font-family="serif" font-size="10" fill="#b5402a">平均</text>
+  <line x1="75" y1="240" x2="280" y2="240" stroke="#c9b99a" stroke-width="1"/>
+  <!-- Right: Document checklist -->
+  <rect x="350" y="68" width="390" height="210" rx="12" fill="#fff8f0" stroke="#c9b99a" stroke-width="1.5"/>
+  <text x="545" y="95" text-anchor="middle" font-family="serif" font-size="13" fill="#4a3520" font-weight="bold">可準備嘅文件</text>
+  <!-- Items -->
+  <circle cx="380" cy="122" r="6" fill="#4a7c59"/>
+  <text x="398" y="127" font-family="serif" font-size="11" fill="#4a3520">銀行月結單（真實入帳）</text>
+  <circle cx="380" cy="148" r="6" fill="#4a7c59"/>
+  <text x="398" y="153" font-family="serif" font-size="11" fill="#4a3520">稅單或報稅紀錄</text>
+  <circle cx="380" cy="174" r="6" fill="#4a7c59"/>
+  <text x="398" y="179" font-family="serif" font-size="11" fill="#4a3520">發票及合約</text>
+  <circle cx="380" cy="200" r="6" fill="#4a7c59"/>
+  <text x="398" y="205" font-family="serif" font-size="11" fill="#4a3520">公司財務資料</text>
+  <circle cx="380" cy="226" r="6" fill="#c9b99a"/>
+  <text x="398" y="231" font-family="serif" font-size="11" fill="#8b7355">越完整，審批越順利</text>
+  <!-- Bottom note -->
+  <rect x="120" y="292" width="560" height="18" rx="6" fill="#fff0ee" stroke="#b5402a" stroke-width="1"/>
+  <text x="400" y="305" text-anchor="middle" font-family="serif" font-size="10" fill="#b5402a">⚠ 批到最高額唔代表應該借到最高額——用保守收入計供款</text>
+  <circle cx="50" cy="40" r="16" fill="none" stroke="#c9b99a" stroke-width="0.8"/>
+  <circle cx="750" cy="40" r="16" fill="none" stroke="#c9b99a" stroke-width="0.8"/>
+</svg>

@@ -7,7 +7,8 @@
  *
  * - Section absent entirely when no events exist.
  * - Shows 10 most recent events; "查看全部 {N} 條記錄" expands all inline.
- * - Event type icons: 🔄 STATUS_CHANGE, 📍 ADDRESS_CHANGE, ✏️ NAME_CHANGE.
+ * - Event type icons (typography symbols, not emoji):
+ *   ↻ STATUS_CHANGE, ⌂ ADDRESS_CHANGE, ¶ NAME_CHANGE, • default.
  * - descriptionEn fallback → descriptionZh when EN value is null.
  * - Locale read from props (URL-segment) — never from cookies.
  *
@@ -38,12 +39,12 @@ interface Props {
 const INITIAL_DISPLAY = 10
 
 const EVENT_ICONS: Record<string, string> = {
-  STATUS_CHANGE: '🔄',
-  ADDRESS_CHANGE: '📍',
-  NAME_CHANGE: '✏️',
+  STATUS_CHANGE: '↻',
+  ADDRESS_CHANGE: '⌂',
+  NAME_CHANGE: '¶',
 }
 
-const DEFAULT_ICON = '📋'
+const DEFAULT_ICON = '•'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

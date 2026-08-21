@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 320" fill="none">
+  <defs>
+    <linearGradient id="urlbg" x1="0" y1="0" x2="800" y2="320">
+      <stop offset="0%" stop-color="#faf6f1"/>
+      <stop offset="100%" stop-color="#f0e8dc"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="320" rx="16" fill="url(#urlbg)"/>
+  <text x="400" y="45" text-anchor="middle" font-family="serif" font-size="20" fill="#4a3520" font-weight="bold">還唔起錢：四個步驟</text>
+  <!-- Step 1 -->
+  <circle cx="130" cy="130" r="34" fill="#c9b99a"/>
+  <text x="130" y="124" text-anchor="middle" font-family="serif" font-size="18" fill="#fff8f0" font-weight="bold">1</text>
+  <text x="130" y="142" text-anchor="middle" font-family="serif" font-size="10" fill="#fff8f0">盤點</text>
+  <text x="130" y="182" text-anchor="middle" font-family="serif" font-size="11" fill="#4a3520">列出所有欠款</text>
+  <text x="130" y="198" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">餘額、利率、還款日</text>
+  <!-- Arrow -->
+  <line x1="170" y1="130" x2="215" y2="130" stroke="#c9b99a" stroke-width="1.5" stroke-dasharray="3,3"/>
+  <!-- Step 2 -->
+  <circle cx="255" cy="130" r="34" fill="#c4956a"/>
+  <text x="255" y="124" text-anchor="middle" font-family="serif" font-size="18" fill="#fff8f0" font-weight="bold">2</text>
+  <text x="255" y="142" text-anchor="middle" font-family="serif" font-size="10" fill="#fff8f0">生活先</text>
+  <text x="255" y="182" text-anchor="middle" font-family="serif" font-size="11" fill="#4a3520">保住基本支出</text>
+  <text x="255" y="198" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">住屋、食物、交通</text>
+  <!-- Arrow -->
+  <line x1="295" y1="130" x2="340" y2="130" stroke="#c9b99a" stroke-width="1.5" stroke-dasharray="3,3"/>
+  <!-- Step 3 -->
+  <circle cx="380" cy="130" r="34" fill="#4a7c59"/>
+  <text x="380" y="124" text-anchor="middle" font-family="serif" font-size="18" fill="#fff8f0" font-weight="bold">3</text>
+  <text x="380" y="142" text-anchor="middle" font-family="serif" font-size="10" fill="#fff8f0">聯絡</text>
+  <text x="380" y="182" text-anchor="middle" font-family="serif" font-size="11" fill="#4a3520">主動聯絡機構</text>
+  <text x="380" y="198" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">提前、誠實、留紀錄</text>
+  <!-- Arrow -->
+  <line x1="420" y1="130" x2="465" y2="130" stroke="#c9b99a" stroke-width="1.5" stroke-dasharray="3,3"/>
+  <!-- Step 4 -->
+  <circle cx="505" cy="130" r="34" fill="#4a3520"/>
+  <text x="505" y="124" text-anchor="middle" font-family="serif" font-size="18" fill="#fff8f0" font-weight="bold">4</text>
+  <text x="505" y="142" text-anchor="middle" font-family="serif" font-size="10" fill="#fff8f0">唔好再借</text>
+  <text x="505" y="182" text-anchor="middle" font-family="serif" font-size="11" fill="#4a3520">避免高息新貸款</text>
+  <text x="505" y="198" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">冇計劃唔好冚舊債</text>
+  <!-- Warning box -->
+  <rect x="580" y="95" width="170" height="80" rx="10" fill="#fff0ee" stroke="#b5402a" stroke-width="1.5"/>
+  <text x="665" y="122" text-anchor="middle" font-family="serif" font-size="12" fill="#b5402a" font-weight="bold">⚠ 避免</text>
+  <text x="665" y="142" text-anchor="middle" font-family="serif" font-size="10" fill="#4a3520">高息貸款冚舊債</text>
+  <text x="665" y="158" text-anchor="middle" font-family="serif" font-size="10" fill="#4a3520">交出銀行密碼</text>
+  <text x="665" y="174" text-anchor="middle" font-family="serif" font-size="10" fill="#4a3520">忽略催款通知</text>
+  <!-- Bottom note -->
+  <rect x="120" y="222" width="560" height="36" rx="8" fill="#fff8f0" stroke="#c9b99a" stroke-width="1"/>
+  <text x="400" y="246" text-anchor="middle" font-family="serif" font-size="11" fill="#6b4226">面對數字比逃避訊息更有用。早啲行動，選擇通常更多。</text>
+  <circle cx="50" cy="40" r="16" fill="none" stroke="#c9b99a" stroke-width="0.8"/>
+  <circle cx="750" cy="40" r="16" fill="none" stroke="#c9b99a" stroke-width="0.8"/>
+</svg>

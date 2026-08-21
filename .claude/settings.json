@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 -c \"import sys,json,os; p=os.environ.get('CLAUDE_TOOL_INPUT','{}'); d=json.loads(p); path=d.get('file_path',''); blocked=['.env.local','prisma/migrations']; found=[x for x in blocked if x in path]; print('BLOCKED: do not edit '+found[0]) if found else None; exit(2 if found else 0)\""
+            "command": "python3 -c \"import sys,json,os; p=os.environ.get('CLAUDE_TOOL_INPUT','{}'); d=json.loads(p); path=d.get('file_path',''); blocked=['.env.local','prisma/migrations','pnpm-lock.yaml']; found=[x for x in blocked if x in path]; print('BLOCKED: do not edit '+found[0]) if found else None; exit(2 if found else 0)\""
           }
         ]
       }

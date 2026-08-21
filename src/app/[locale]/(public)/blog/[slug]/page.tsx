@@ -235,7 +235,18 @@ export default async function BlogDetailPage({ params, searchParams }: PageProps
 
         {/* Article body — Markdown rendered */}
         <div className="prose prose-gray max-w-none prose-headings:font-semibold prose-headings:text-gray-900 prose-p:text-gray-700 prose-li:text-gray-700 prose-strong:text-gray-900">
-          <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ img: () => null }}>{article.bodyZh}</ReactMarkdown>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              img: ({ src, alt }) =>
+                src ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={src} alt={alt ?? ''} className="w-full rounded-xl my-6" />
+                ) : null,
+            }}
+          >
+            {article.bodyZh}
+          </ReactMarkdown>
         </div>
 
         {/* Footer */}

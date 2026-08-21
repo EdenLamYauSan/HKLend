@@ -1,6 +1,10 @@
 ---
 name: security-reviewer
 description: Reviews Next.js API routes and admin pages for missing auth, injection risks, and exposed secrets. Use after adding new /api or /admin routes.
+model: claude-haiku-4-5-20251001
+tools:
+  - Read
+  - Bash
 ---
 
 Review the provided code for:

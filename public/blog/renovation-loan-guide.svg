@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 320" fill="none">
+  <defs>
+    <linearGradient id="rlbg" x1="0" y1="0" x2="800" y2="320">
+      <stop offset="0%" stop-color="#faf6f1"/>
+      <stop offset="100%" stop-color="#f0e8dc"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="320" rx="16" fill="url(#rlbg)"/>
+  <text x="400" y="45" text-anchor="middle" font-family="serif" font-size="20" fill="#4a3520" font-weight="bold">裝修預算四大類別</text>
+  <!-- Four budget boxes -->
+  <!-- Box 1 -->
+  <rect x="55" y="70" width="155" height="160" rx="10" fill="#fff8f0" stroke="#c9b99a" stroke-width="1.5"/>
+  <text x="132" y="100" text-anchor="middle" font-family="serif" font-size="13" fill="#4a3520" font-weight="bold">基本工程</text>
+  <text x="132" y="130" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">拆卸</text>
+  <text x="132" y="150" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">水電</text>
+  <text x="132" y="170" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">泥水</text>
+  <text x="132" y="190" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">油漆</text>
+  <text x="132" y="218" text-anchor="middle" font-family="serif" font-size="13" fill="#c4956a" font-weight="bold">~50%</text>
+  <!-- Box 2 -->
+  <rect x="225" y="70" width="155" height="160" rx="10" fill="#fff8f0" stroke="#c9b99a" stroke-width="1.5"/>
+  <text x="302" y="100" text-anchor="middle" font-family="serif" font-size="13" fill="#4a3520" font-weight="bold">傢俬家電</text>
+  <text x="302" y="130" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">訂造櫃</text>
+  <text x="302" y="150" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">門窗</text>
+  <text x="302" y="170" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">傢俬</text>
+  <text x="302" y="190" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">家電</text>
+  <text x="302" y="218" text-anchor="middle" font-family="serif" font-size="13" fill="#c4956a" font-weight="bold">~30%</text>
+  <!-- Box 3 -->
+  <rect x="395" y="70" width="155" height="160" rx="10" fill="#fff8f0" stroke="#c9b99a" stroke-width="1.5"/>
+  <text x="472" y="100" text-anchor="middle" font-family="serif" font-size="13" fill="#4a3520" font-weight="bold">雜項開支</text>
+  <text x="472" y="130" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">搬運</text>
+  <text x="472" y="150" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">清潔</text>
+  <text x="472" y="170" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">管理費</text>
+  <text x="472" y="190" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">其他</text>
+  <text x="472" y="218" text-anchor="middle" font-family="serif" font-size="13" fill="#c4956a" font-weight="bold">~10%</text>
+  <!-- Box 4: buffer -->
+  <rect x="565" y="70" width="180" height="160" rx="10" fill="#f0f7f2" stroke="#4a7c59" stroke-width="2"/>
+  <text x="655" y="100" text-anchor="middle" font-family="serif" font-size="13" fill="#4a7c59" font-weight="bold">預留緩衝金</text>
+  <text x="655" y="135" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">突發工程</text>
+  <text x="655" y="155" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">加項</text>
+  <text x="655" y="175" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">延誤開支</text>
+  <text x="655" y="210" text-anchor="middle" font-family="serif" font-size="15" fill="#4a7c59" font-weight="bold">≥ 10%</text>
+  <!-- Bottom note -->
+  <rect x="160" y="250" width="480" height="50" rx="8" fill="#fff8f0" stroke="#c9b99a" stroke-width="1"/>
+  <text x="400" y="272" text-anchor="middle" font-family="serif" font-size="11" fill="#6b4226">先完成詳細報價，再決定借多少</text>
+  <text x="400" y="290" text-anchor="middle" font-family="serif" font-size="11" fill="#6b4226">唔好以最高獲批額為目標</text>
+  <circle cx="50" cy="40" r="16" fill="none" stroke="#c9b99a" stroke-width="0.8"/>
+  <circle cx="750" cy="40" r="16" fill="none" stroke="#c9b99a" stroke-width="0.8"/>
+</svg>

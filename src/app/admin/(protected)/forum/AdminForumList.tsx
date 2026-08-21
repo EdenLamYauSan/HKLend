@@ -179,7 +179,7 @@ export function AdminForumList({
                   </div>
                   <p className="text-sm font-medium text-gray-900 truncate">{post.titleZh}</p>
                   <p className="text-xs text-gray-500 mt-0.5">
-                    {post.authorName} · {formatDate(post.createdAt)} · ▲{post.upvotes} · 💬{post._count.replies}
+                    {post.authorName} · {formatDate(post.createdAt)} · ▲{post.upvotes} · {post._count.replies} 回覆
                   </p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">

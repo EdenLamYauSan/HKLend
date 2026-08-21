@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 320" fill="none">
+  <defs>
+    <linearGradient id="rrbg" x1="0" y1="0" x2="800" y2="320">
+      <stop offset="0%" stop-color="#faf6f1"/>
+      <stop offset="100%" stop-color="#f0e8dc"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="320" rx="16" fill="url(#rrbg)"/>
+  <text x="400" y="45" text-anchor="middle" font-family="serif" font-size="20" fill="#4a3520" font-weight="bold">固定利率 vs 浮動利率</text>
+  <!-- Left: Fixed rate -->
+  <rect x="60" y="70" width="290" height="190" rx="12" fill="#fff8f0" stroke="#4a7c59" stroke-width="2"/>
+  <text x="205" y="100" text-anchor="middle" font-family="serif" font-size="15" fill="#4a7c59" font-weight="bold">固定利率</text>
+  <!-- Flat line chart -->
+  <line x1="90" y1="170" x2="320" y2="170" stroke="#e0d5c3" stroke-width="1" stroke-dasharray="3,2"/>
+  <polyline points="90,155 150,155 210,155 270,155 320,155" fill="none" stroke="#4a7c59" stroke-width="2.5" stroke-linecap="round"/>
+  <text x="205" y="200" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">指定期內供款穩定</text>
+  <text x="205" y="218" text-anchor="middle" font-family="serif" font-size="11" fill="#4a3520">✓ 預測性較高</text>
+  <text x="205" y="238" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">留意合約期及提早還款條款</text>
+  <!-- Right: Floating rate -->
+  <rect x="450" y="70" width="290" height="190" rx="12" fill="#fff8f0" stroke="#c4956a" stroke-width="2"/>
+  <text x="595" y="100" text-anchor="middle" font-family="serif" font-size="15" fill="#c4956a" font-weight="bold">浮動利率</text>
+  <!-- Wavy line chart -->
+  <polyline points="480,145 530,165 580,135 630,160 680,130 730,155" fill="none" stroke="#c4956a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="480" y1="170" x2="730" y2="170" stroke="#e0d5c3" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="595" y="200" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">供款可能隨基準調整</text>
+  <text x="595" y="218" text-anchor="middle" font-family="serif" font-size="11" fill="#4a3520">⚠ 需做壓力測試</text>
+  <text x="595" y="238" text-anchor="middle" font-family="serif" font-size="11" fill="#8b7355">了解調整機制及上限</text>
+  <!-- Bottom note -->
+  <rect x="160" y="275" width="480" height="34" rx="8" fill="#fff8f0" stroke="#c9b99a" stroke-width="1"/>
+  <text x="400" y="297" text-anchor="middle" font-family="serif" font-size="11" fill="#6b4226">問自己：供款升 20% 我仲頂唔頂到？先借先問。</text>
+  <circle cx="50" cy="40" r="16" fill="none" stroke="#c9b99a" stroke-width="0.8"/>
+  <circle cx="750" cy="40" r="16" fill="none" stroke="#c9b99a" stroke-width="0.8"/>
+</svg>

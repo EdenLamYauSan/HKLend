@@ -101,9 +101,11 @@ function categoryLabel(category: 'LENDING' | 'PERSONAL_FINANCE', locale: Locale)
 }
 
 function categoryClass(category: 'LENDING' | 'PERSONAL_FINANCE'): string {
+  // Editorial palette: warm gold for lending, slate for personal finance —
+  // both harmonise with the brand navy / amber tokens.
   return category === 'LENDING'
-    ? 'bg-blue-50 text-blue-700'
-    : 'bg-purple-50 text-purple-700'
+    ? 'bg-amber-50 text-amber-800'
+    : 'bg-slate-100 text-slate-700'
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -167,7 +169,7 @@ export default async function BlogListPage({ params, searchParams }: PageProps) 
                     {formatDate(item.publishedAt, lang)}
                   </span>
                 </div>
-                <h2 className="text-lg font-medium text-gray-900 group-hover:text-brand-navy transition-colors">
+                <h2 className="text-lg font-semibold text-gray-900 group-hover:text-brand-navy transition-colors">
                   {item.titleZh}
                 </h2>
                 <p className="mt-1 text-sm text-gray-600 line-clamp-2">{item.excerpt}</p>
