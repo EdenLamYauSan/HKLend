@@ -31,7 +31,7 @@ interface ProfilePageClientProps {
 }
 
 export function ProfilePageClient({ lender, locale, children }: ProfilePageClientProps) {
-  const [calcOpen, setCalcOpen] = useState(true)
+  const [calcOpen, setCalcOpen] = useState(false)
 
   // Listen for bottom-bar trigger (dispatched by BottomActions outside this component)
   useEffect(() => {

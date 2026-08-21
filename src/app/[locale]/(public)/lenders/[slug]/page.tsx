@@ -37,7 +37,7 @@ import { EligibilityChips } from '@/components/profile/EligibilityChips'
 import { ReviewSection } from '@/components/profile/ReviewSection'
 import { ActivityFeed } from '@/components/profile/ActivityFeed'
 import { FlagsSection } from '@/components/profile/FlagsSection'
-import { CalcTriggerButton } from '@/components/profile/CalcTriggerButton'
+import { CalculatorPage } from '@/components/calculator/CalculatorPage'
 import { RatePanel } from '@/components/profile/RatePanel'
 import { ProfilePageClient } from '@/components/profile/ProfilePageClient'
 import type { Decimal } from '@prisma/client/runtime/client'
@@ -443,9 +443,9 @@ export default async function LenderProfilePage({
         locale={locale}
       />
 
-      {/* Rate calculator — below reviews */}
-      <div className="flex items-center justify-start gap-3">
-        <CalcTriggerButton label={isZh ? '計算利率' : 'Calculate APR'} />
+      {/* Inline rate calculator (mobile) — desktop has sidebar calc */}
+      <div className="md:hidden">
+        <CalculatorPage />
       </div>
     </div>
   )
