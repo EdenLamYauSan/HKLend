@@ -13,14 +13,6 @@
 import { useState } from 'react'
 import { calculateApr } from '@/lib/calculators/apr'
 
-// ─── Suggested lenders ───────────────────────────────────────────────────────
-
-const SUGGESTED_LENDERS = [
-  { slug: 'gao-sheng-cai-wu-you-xian-gong-si',          nameZh: '高昇財務', nameEn: 'Grand Finance' },
-  { slug: 'kk-credit-limited',                            nameZh: 'KK Credit', nameEn: 'KK Credit Limited' },
-  { slug: 'hua-wei-xin-dai-you-xian-gong-si',            nameZh: '華唯信貸', nameEn: 'Wahwei Credit' },
-  { slug: 'xi-da-xin-yong-cai-zi-you-xian-gong-si',     nameZh: '熙達信用財資', nameEn: 'Every Success' },
-]
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -311,26 +303,6 @@ export function CalculatorPage() {
         </div>
       )}
 
-      {/* Suggested lenders — shown once user has a result */}
-      {result && (
-        <div className="mt-8">
-          <h2 className="mb-4 text-base font-semibold text-gray-700">
-            查看持牌放債人
-          </h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {SUGGESTED_LENDERS.map(l => (
-              <a
-                key={l.slug}
-                href={`/zh/lenders/${l.slug}`}
-                className="flex flex-col rounded-lg border border-gray-200 bg-white p-4 hover:shadow-sm transition-shadow"
-              >
-                <span className="text-sm font-medium text-gray-900 leading-tight">{l.nameZh}</span>
-                <span className="mt-1 text-xs text-gray-400">{l.nameEn}</span>
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   )
 }
