@@ -110,7 +110,9 @@ function getTopRated(): Promise<RankedLender[]> {
           select: {
             id: true, slug: true, licenceNumber: true, licenceStatus: true,
             companyNameZh: true, companyNameEn: true,
+            addressZh: true, addressEn: true,
             districtZh: true, districtEn: true,
+            phone: true, websiteUrl: true,
             loanTypeTags: true, eligibilityTags: true,
           },
         })
@@ -163,7 +165,9 @@ function getMostReviewed(): Promise<RankedLender[]> {
           select: {
             id: true, slug: true, licenceNumber: true, licenceStatus: true,
             companyNameZh: true, companyNameEn: true,
+            addressZh: true, addressEn: true,
             districtZh: true, districtEn: true,
+            phone: true, websiteUrl: true,
             loanTypeTags: true, eligibilityTags: true,
           },
         })
@@ -200,7 +204,9 @@ function getRecentlyActive(): Promise<RankedLender[]> {
         select: {
           id: true, slug: true, licenceNumber: true, licenceStatus: true,
           companyNameZh: true, companyNameEn: true,
+          addressZh: true, addressEn: true,
           districtZh: true, districtEn: true,
+          phone: true, websiteUrl: true,
           loanTypeTags: true, eligibilityTags: true,
         },
       })
