@@ -161,8 +161,8 @@ export function LenderFilters({
         </p>
       )}
 
-      {/* A–Z alphabet filter */}
-      <div role="group" aria-label={isZh ? '按字母篩選' : 'Filter by letter'}>
+      {/* A–Z alphabet filter — hidden until useful */}
+      {false && <div role="group" aria-label={isZh ? '按字母篩選' : 'Filter by letter'}>
         <p className="mb-2 text-xs font-medium text-gray-500">
           {isZh ? '首字母' : 'Letter'}
         </p>
@@ -195,7 +195,7 @@ export function LenderFilters({
             </button>
           ))}
         </div>
-      </div>
+      </div>}
 
       {/* Loan type filter chips */}
       {loanTypeOptions.length > 0 && (
