@@ -180,9 +180,9 @@ export default async function ForumListPage({ params, searchParams }: PageProps)
         <div className="flex items-center justify-between">
           <Link
             href={`/${locale}/forum/new`}
-            className="inline-flex items-center gap-1.5 rounded-full bg-brand-amber px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-amber/90 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-full bg-brand-amber px-4 py-1.5 text-sm font-semibold text-white hover:opacity-80 transition-opacity"
           >
-            <SquarePen className="h-4 w-4" aria-hidden="true" />
+            <span aria-hidden="true" className="text-sm leading-none">+</span>
             發帖
           </Link>
           <div className="flex rounded-lg border border-gray-200 overflow-hidden">
