@@ -20,6 +20,7 @@ import type { ReviewItem } from './ReviewSection'
 import { ReviewForm } from './ReviewForm'
 import { StarDisplay } from './StarPicker'
 import { Button } from '@/components/ui/button'
+import { Pencil } from 'lucide-react'
 import type { Locale } from '@/locales'
 
 // ─── Vote state ───────────────────────────────────────────────────────────────
@@ -307,10 +308,11 @@ export function ReviewList({
       {/* Write-review toggle */}
       {!showForm && (
         <Button
-          variant="outline"
           size="sm"
           onClick={() => setShowForm(true)}
+          className="bg-[#264a58] text-white hover:bg-[#264a58]/90"
         >
+          <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
           {copy.writeReview}
         </Button>
       )}

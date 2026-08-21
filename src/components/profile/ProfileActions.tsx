@@ -47,7 +47,7 @@ export function ProfileActions({ lender, locale, onOpenCalc }: ProfileActionsPro
         type="button"
         onClick={() => add(lender)}
         disabled={isAdded}
-        className={`min-h-[44px] rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+        className={`h-7 rounded-md border px-2.5 text-[0.8rem] font-medium transition-colors ${
           isAdded
             ? 'border-[#264a58]/30 bg-[#264a58]/10 text-[#264a58]/60 cursor-default'
             : 'border-[#264a58] text-[#264a58] hover:bg-[#264a58] hover:text-white'

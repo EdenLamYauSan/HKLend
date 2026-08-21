@@ -150,43 +150,29 @@ export default async function BlogListPage({ params, searchParams }: PageProps) 
       ) : (
         <div className="space-y-4">
           {items.map((item) => (
-            <article
+            <Link
               key={item.id}
-              className="rounded-lg border border-gray-200 bg-white p-5 hover:shadow-sm transition-shadow"
+              href={`/${locale}/blog/${item.slug}`}
+              className="block rounded-lg border border-gray-200 bg-white p-5 hover:shadow-sm hover:border-brand-navy/40 transition-all"
+              aria-label={`${isZh ? '閱讀' : 'Read'}: ${item.titleZh}`}
             >
-              <div className="flex items-center gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span
-                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${categoryClass(item.category)}`}
-                    >
-                      {categoryLabel(item.category, lang)}
-                    </span>
-                    <span className="text-xs text-gray-400">
-                      {formatDate(item.publishedAt, lang)}
-                    </span>
-                  </div>
-                  <Link
-                    href={`/${locale}/blog/${item.slug}`}
-                    className="block text-lg font-medium text-gray-900 hover:text-brand-navy transition-colors"
+              <article>
+                <div className="flex items-center gap-2 mb-2">
+                  <span
+                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${categoryClass(item.category)}`}
                   >
-                    {item.titleZh}
-                  </Link>
-                  <p className="mt-1 text-sm text-gray-600 line-clamp-2">{item.excerpt}</p>
+                    {categoryLabel(item.category, lang)}
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    {formatDate(item.publishedAt, lang)}
+                  </span>
                 </div>
-                <Link
-                  href={`/${locale}/blog/${item.slug}`}
-                  className="shrink-0 rounded-md bg-brand-navy px-3 py-2 text-xs font-medium text-white hover:opacity-90 flex flex-col items-center gap-1"
-                  aria-label={`${isZh ? '閱讀' : 'Read'}: ${item.titleZh}`}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-                  </svg>
-                  <span>{isZh ? '閱讀' : 'Read'}</span>
-                </Link>
-              </div>
-            </article>
+                <h2 className="text-lg font-medium text-gray-900 group-hover:text-brand-navy transition-colors">
+                  {item.titleZh}
+                </h2>
+                <p className="mt-1 text-sm text-gray-600 line-clamp-2">{item.excerpt}</p>
+              </article>
+            </Link>
           ))}
         </div>
       )}

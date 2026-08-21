@@ -165,7 +165,7 @@ export default async function NewsPage({ params, searchParams }: PageProps) {
       <div className="mb-6 flex flex-wrap gap-2" role="group" aria-label="Filter by category">
         <Link
           href={categoryUrl(undefined)}
-          className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
+          className={`rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors ${
             !category
               ? 'bg-brand-navy text-white'
               : 'bg-brand-card text-gray-700 hover:bg-gray-200'
@@ -177,7 +177,7 @@ export default async function NewsPage({ params, searchParams }: PageProps) {
           <Link
             key={cat}
             href={categoryUrl(cat)}
-            className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
+            className={`rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors ${
               category === cat
                 ? 'bg-brand-navy text-white'
                 : 'bg-brand-card text-gray-700 hover:bg-gray-200'

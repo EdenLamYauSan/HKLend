@@ -141,7 +141,7 @@ export function LicencePanel({ lender, locale }: Props) {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-lg bg-[#264a58] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#1e3a45] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#264a58]"
           >
-            {isZh ? '向此放債人查詢' : 'Apply / Enquire'}
+            {isZh ? '查詢放債人' : 'Apply / Enquire'}
             {/* External-link icon */}
             <svg
               xmlns="http://www.w3.org/2000/svg"

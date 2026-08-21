@@ -193,7 +193,7 @@ export default async function ForumListPage({ params, searchParams }: PageProps)
                     : 'bg-white text-gray-600 hover:bg-gray-50'
                 }`}
               >
-                {s === 'latest' ? '最新' : '最多讚'}
+                {s === 'latest' ? '最新' : '熱門'}
               </Link>
             ))}
           </div>
