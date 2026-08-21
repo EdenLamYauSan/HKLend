@@ -37,15 +37,15 @@ export function ProfilePageClient({ lender, locale, children }: ProfilePageClien
     <div className="flex gap-8 items-start">
       {/* ── Left column: server-rendered content + action buttons ── */}
       <div className="flex-1 min-w-0 space-y-6">
-        {/* Action buttons go at the top, before the server-rendered children */}
+        {/* Server-rendered profile sections */}
+        {children}
+
+        {/* Action buttons below licence/rate info */}
         <ProfileActions
           lender={lender}
           locale={locale}
           onOpenCalc={() => setCalcOpen(true)}
         />
-
-        {/* Server-rendered profile sections */}
-        {children}
       </div>
 
       {/*
