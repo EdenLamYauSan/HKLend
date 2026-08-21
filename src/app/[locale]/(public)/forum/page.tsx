@@ -15,7 +15,7 @@ export const revalidate = 60
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { PencilPlus } from 'lucide-react'
+import { SquarePen } from 'lucide-react'
 import { isLocale } from '@/locales'
 import type { Locale } from '@/locales'
 import { db } from '@/lib/db'
@@ -182,7 +182,7 @@ export default async function ForumListPage({ params, searchParams }: PageProps)
             href={`/${locale}/forum/new`}
             className="inline-flex items-center gap-1.5 rounded-full bg-brand-amber px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-amber/90 transition-colors"
           >
-            <PencilPlus className="h-4 w-4" aria-hidden="true" />
+            <SquarePen className="h-4 w-4" aria-hidden="true" />
             發帖
           </Link>
           <div className="flex rounded-lg border border-gray-200 overflow-hidden">
@@ -285,7 +285,7 @@ export default async function ForumListPage({ params, searchParams }: PageProps)
         aria-label="發帖"
         className="fixed bottom-6 right-6 z-40 inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-amber text-white shadow-lg hover:bg-brand-amber/90 transition-colors"
       >
-        <PencilPlus className="h-6 w-6" aria-hidden="true" />
+        <SquarePen className="h-6 w-6" aria-hidden="true" />
       </Link>
     </div>
   )
