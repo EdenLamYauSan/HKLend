@@ -32,7 +32,7 @@ export function DirectoryTabNav({ locale }: DirectoryTabNavProps) {
               key={tab.href}
               href={tab.href}
               className={`
-                relative shrink-0 flex-1 min-w-[4.5rem] text-center py-3 text-xs font-medium transition-colors
+                relative shrink-0 flex-1 min-w-[3.5rem] text-center py-2.5 text-[11px] sm:text-xs font-medium transition-colors
                 ${isHome
                   ? isActive
                     ? 'text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-white'

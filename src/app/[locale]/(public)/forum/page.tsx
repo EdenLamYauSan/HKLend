@@ -31,7 +31,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params
   return {
-    title: '討論區 — hklend',
+    title: '討論區 — HK Lend',
     description: '香港貸款社群討論區：推薦放債人、提問、分享經驗',
     alternates: {
       canonical: `/${locale}/forum`,

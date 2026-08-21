@@ -24,6 +24,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { Turnstile } from '@marsidev/react-turnstile'
 import type { TurnstileInstance } from '@marsidev/react-turnstile'
 import { Flag } from 'lucide-react'
+import { toast } from 'sonner'
 import { FLAG_CATEGORIES, type FlagCategory } from '@/types/flag.schema'
 import type { Locale } from '@/locales'
 
@@ -76,7 +77,6 @@ export function FlagForm({ lenderSlug, locale }: Props) {
   const [details, setDetails] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [submitted, setSubmitted] = useState(false)
   const [alreadyFlagged, setAlreadyFlagged] = useState(false)
 
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
@@ -136,7 +136,12 @@ export function FlagForm({ lenderSlug, locale }: Props) {
     setCategory('')
     setDetails('')
     setError(null)
-    setSubmitted(false)
+  }
+
+  // Small helper so every error path also surfaces a toast.
+  const showError = (msg: string) => {
+    setError(msg)
+    toast.error(msg)
   }
 
   const canSubmit = hasScrolledDisclaimer && category !== '' && !busy
@@ -148,7 +153,7 @@ export function FlagForm({ lenderSlug, locale }: Props) {
     // Ensure Turnstile token is present; trigger execution if needed
     if (!turnstileToken) {
       turnstileRef.current?.execute()
-      setError(isZh ? '人機驗證失敗，請重試。' : 'Verification failed. Please try again.')
+      showError(isZh ? '人機驗證失敗，請重試。' : 'Verification failed. Please try again.')
       return
     }
 
@@ -163,28 +168,33 @@ export function FlagForm({ lenderSlug, locale }: Props) {
       })
 
       if (res.status === 429) {
-        setError(isZh ? '你已對此放債人提交過標記，請稍後再試。' : 'You have already flagged this lender. Please wait before submitting again.')
+        showError(isZh ? '你已對此放債人提交過標記，請稍後再試。' : 'You have already flagged this lender. Please wait before submitting again.')
         return
       }
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({})) as { message?: string; error?: string }
         if (res.status === 400 && data.error === 'TURNSTILE_FAILED') {
-          setError(isZh ? '人機驗證失敗，請重試。' : 'Verification failed. Please try again.')
+          showError(isZh ? '人機驗證失敗，請重試。' : 'Verification failed. Please try again.')
           turnstileRef.current?.reset()
           setTurnstileToken(null)
         } else {
-          setError(data.message ?? (isZh ? '提交失敗，請稍後再試。' : 'Submission failed. Please try again.'))
+          showError(data.message ?? (isZh ? '提交失敗，請稍後再試。' : 'Submission failed. Please try again.'))
         }
         return
       }
 
-      // Success: persist localStorage chip + update state
+      // Success: persist localStorage chip, close modal, surface toast.
       localStorage.setItem(flaggedKey(lenderSlug), '1')
       setAlreadyFlagged(true)
-      setSubmitted(true)
+      toast.success(
+        isZh
+          ? '已收到你的標記，我們將於 48 小時內審核。'
+          : 'Report received. We will review it within 48 hours.'
+      )
+      handleClose()
     } catch {
-      setError(isZh ? '網絡錯誤，請稍後再試。' : 'Network error. Please try again.')
+      showError(isZh ? '網絡錯誤，請稍後再試。' : 'Network error. Please try again.')
     } finally {
       setBusy(false)
     }
@@ -266,34 +276,7 @@ export function FlagForm({ lenderSlug, locale }: Props) {
 
             {/* Scrollable body */}
             <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
-              {submitted ? (
-                // Success state
-                <div className="text-center py-8 space-y-3">
-                  <div className="text-3xl">✓</div>
-                  <p className="font-semibold text-[#264a58]">
-                    {isZh ? '已收到你的標記' : 'Report received'}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {isZh
-                      ? '我們將於 48 小時內審核。感謝你協助維護社區安全。'
-                      : 'We will review it within 48 hours. Thank you for helping keep the community safe.'}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={handleClose}
-                    className="
-                      mt-2 rounded-md bg-[#264a58] px-4 py-2
-                      text-sm font-medium text-white
-                      hover:bg-[#1d3a47]
-                      focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#264a58]
-                      min-h-[44px]
-                    "
-                  >
-                    {isZh ? '關閉' : 'Close'}
-                  </button>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+              <form onSubmit={handleSubmit} className="space-y-5" noValidate>
                   {/* Legal disclaimer — user must scroll past */}
                   <div>
                     <div
@@ -427,7 +410,6 @@ export function FlagForm({ lenderSlug, locale }: Props) {
                       : (isZh ? '提交舉報' : 'Submit Report')}
                   </button>
                 </form>
-              )}
             </div>
           </div>
         </div>

@@ -65,7 +65,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const post = await getPost(id)
   if (!post) return { title: '帖子不存在' }
   return {
-    title: `${post.titleZh} — hklend 討論區`,
+    title: `${post.titleZh} — HK Lend 討論區`,
     description: post.bodyZh.slice(0, 150),
   }
 }

@@ -21,6 +21,7 @@ import { useState, useRef, useCallback } from 'react'
 import { z } from 'zod'
 import { Turnstile } from '@marsidev/react-turnstile'
 import type { TurnstileInstance } from '@marsidev/react-turnstile'
+import { toast } from 'sonner'
 import { StarPicker } from './StarPicker'
 import { Button } from '@/components/ui/button'
 import { reviewSubmissionSchema } from '@/types/review.schema'
@@ -110,7 +111,6 @@ export function ReviewForm({ lenderSlug, locale, turnstileSiteKey, onCancel }: P
   })
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [serverError, setServerError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
 
@@ -137,6 +137,12 @@ export function ReviewForm({ lenderSlug, locale, turnstileSiteKey, onCancel }: P
     e.preventDefault()
     setServerError(null)
 
+    // Small helper so every error path also surfaces a toast.
+    const showError = (msg: string) => {
+      setServerError(msg)
+      toast.error(msg)
+    }
+
     // Client-side validation
     const errors: Record<string, string> = {}
     const dims: (keyof FormState)[] = [
@@ -160,7 +166,7 @@ export function ReviewForm({ lenderSlug, locale, turnstileSiteKey, onCancel }: P
     // Ensure Turnstile token is present; trigger execution if needed
     if (!turnstileToken) {
       turnstileRef.current?.execute()
-      setServerError(copy.turnstileFailed)
+      showError(copy.turnstileFailed)
       return
     }
 
@@ -195,37 +201,27 @@ export function ReviewForm({ lenderSlug, locale, turnstileSiteKey, onCancel }: P
       })
 
       if (res.ok) {
-        setSuccess(true)
+        toast.success(copy.success)
+        onCancel?.()
       } else {
         const data = (await res.json()) as { message?: string; error?: string }
         if (res.status === 429) {
-          setServerError(locale === 'zh'
+          showError(locale === 'zh'
             ? '你已在過去 24 小時內提交了評論，請稍後再試。'
             : 'You have already submitted a review in the last 24 hours. Please try again later.')
         } else if (res.status === 400 && data.error === 'TURNSTILE_FAILED') {
-          setServerError(copy.turnstileFailed)
+          showError(copy.turnstileFailed)
           turnstileRef.current?.reset()
           setTurnstileToken(null)
         } else {
-          setServerError(data.message ?? (locale === 'zh' ? '提交失敗，請重試。' : 'Submission failed. Please try again.'))
+          showError(data.message ?? (locale === 'zh' ? '提交失敗，請重試。' : 'Submission failed. Please try again.'))
         }
       }
     } catch {
-      setServerError(locale === 'zh' ? '網絡錯誤，請重試。' : 'Network error. Please try again.')
+      showError(locale === 'zh' ? '網絡錯誤，請重試。' : 'Network error. Please try again.')
     } finally {
       setSubmitting(false)
     }
-  }
-
-  if (success) {
-    return (
-      <div
-        role="status"
-        className="rounded-xl bg-green-50 border border-green-200 p-4 text-green-800 text-sm"
-      >
-        {copy.success}
-      </div>
-    )
   }
 
   return (

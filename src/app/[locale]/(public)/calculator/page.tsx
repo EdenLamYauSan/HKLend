@@ -20,7 +20,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params
   return {
-    title: '貸款計算機 — hklend',
+    title: '貸款計算機 — HK Lend',
     description: '免費計算月供、總利息及實際年利率',
     alternates: {
       canonical: `/${locale}/calculator`,

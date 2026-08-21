@@ -6,6 +6,7 @@
  * Server Component — no 'use client'.
  */
 
+import Link from 'next/link'
 import type { Locale } from '@/locales'
 
 const HKMA_REGISTER_URL =
@@ -50,6 +51,39 @@ export function Footer({ locale }: FooterProps) {
               {isZh ? '香港金融管理局放債人名冊' : 'HKMA Money Lenders Register'}
               <span className="sr-only"> (opens in new tab)</span>
             </a>
+          </div>
+
+          {/* Legal links */}
+          <div className="text-xs text-muted-foreground space-y-2">
+            <p className="font-medium text-foreground">
+              {isZh ? '關於本站' : 'About this site'}
+            </p>
+            <ul className="space-y-1">
+              <li>
+                <Link
+                  href={`/${locale}/about`}
+                  className="underline underline-offset-2 hover:text-primary transition-colors"
+                >
+                  {isZh ? '關於我們' : 'About'}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={`/${locale}/privacy`}
+                  className="underline underline-offset-2 hover:text-primary transition-colors"
+                >
+                  {isZh ? '私隱政策' : 'Privacy Policy'}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={`/${locale}/terms`}
+                  className="underline underline-offset-2 hover:text-primary transition-colors"
+                >
+                  {isZh ? '使用條款' : 'Terms of Use'}
+                </Link>
+              </li>
+            </ul>
           </div>
 
           {/* Disclaimer */}

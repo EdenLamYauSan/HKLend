@@ -23,8 +23,13 @@ export async function generateMetadata({
   const { locale } = await params
   if (!isLocale(locale)) return {}
   const t = getTranslations(locale)
+  const description =
+    locale === 'zh'
+      ? '儲存及管理你關注的持牌放債人 — 資料儲存於本機瀏覽器。'
+      : 'Save and manage the licensed lenders you are watching — stored in your local browser.'
   return {
     title: `${t.bookmarks.pageTitle} — HK Lend`,
+    description,
     robots: { index: false, follow: false },
   }
 }
