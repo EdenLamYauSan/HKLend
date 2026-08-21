@@ -140,7 +140,7 @@ export function LicenceBadge({
     return (
       <details className="relative inline-block group">
         <summary
-          className="list-none cursor-pointer"
+          className="block list-none cursor-pointer [&::marker]:hidden [&::-webkit-details-marker]:hidden"
           aria-label={`牌照狀態：${label}（點擊查看詳情）`}
         >
           {badgeSpan}
