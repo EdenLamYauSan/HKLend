@@ -209,9 +209,12 @@ export default async function NewsDetailPage({ params }: PageProps) {
         {/* Back link */}
         <Link
           href={`/${locale}/news`}
-          className="mb-6 inline-flex items-center text-sm text-gray-500 hover:text-gray-700"
+          className="mb-8 inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-primary hover:text-primary transition-colors"
         >
-          ← {locale === 'zh' ? '返回消息列表' : 'Back to news'}
+          <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M7.5 2L3.5 6l4 4" />
+          </svg>
+          {locale === 'zh' ? '返回消息' : 'Back to news'}
         </Link>
 
         {/* Article header */}

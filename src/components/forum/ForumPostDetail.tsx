@@ -176,6 +176,17 @@ export function ForumPostDetail({
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+      {/* Back link */}
+      <a
+        href={`/${locale}/forum`}
+        className="mb-8 inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+      >
+        <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M7.5 2L3.5 6l4 4" />
+        </svg>
+        返回討論區
+      </a>
+
       {/* Post */}
       <article className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <div className="flex items-center gap-2 mb-3">

@@ -19,6 +19,7 @@
  * ARCH-9: TC (/zh/) is canonical — all canonical links point to the zh URL.
  */
 
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { unstable_cache } from 'next/cache'
 import type { Metadata } from 'next'
@@ -314,6 +315,17 @@ export default async function LenderProfilePage({
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 space-y-5">
+      {/* Back link */}
+      <Link
+        href={`/${locale}/lenders`}
+        className="inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+      >
+        <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M7.5 2L3.5 6l4 4" />
+        </svg>
+        {isZh ? '返回放債人名冊' : 'Back to directory'}
+      </Link>
+
       {/* S-11: Share recipient banner — shown when ?ref=share is present */}
       <Suspense fallback={null}>
         <ShareRecipientBanner locale={locale as 'zh' | 'en'} />

@@ -19,6 +19,7 @@ import { notFound } from 'next/navigation'
 import { unstable_cache } from 'next/cache'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { isLocale } from '@/locales'
 import type { Locale } from '@/locales'
 import { db } from '@/lib/db'
@@ -234,7 +235,7 @@ export default async function BlogDetailPage({ params, searchParams }: PageProps
 
         {/* Article body — Markdown rendered */}
         <div className="prose prose-gray max-w-none prose-headings:font-semibold prose-headings:text-gray-900 prose-p:text-gray-700 prose-li:text-gray-700 prose-strong:text-gray-900">
-          <ReactMarkdown>{article.bodyZh}</ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{article.bodyZh}</ReactMarkdown>
         </div>
 
         {/* Footer */}

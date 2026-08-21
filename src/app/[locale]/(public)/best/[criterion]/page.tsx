@@ -18,6 +18,7 @@
 export const runtime = 'nodejs'
 
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { unstable_cache } from 'next/cache'
 import { isLocale } from '@/locales'
@@ -298,6 +299,17 @@ export default async function BestPage({ params }: PageProps) {
       />
 
       <div className="mx-auto max-w-5xl px-4 py-8 md:px-6 lg:px-8">
+        {/* Back link */}
+        <Link
+          href={`/${locale}/lenders`}
+          className="mb-8 inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+        >
+          <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M7.5 2L3.5 6l4 4" />
+          </svg>
+          {locale === 'zh' ? '返回放債人名冊' : 'Back to directory'}
+        </Link>
+
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-semibold text-brand-navy">{heading}</h1>
