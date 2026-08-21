@@ -351,7 +351,7 @@ export default async function LenderProfilePage({
             removeAriaLabel={t.bookmarks.removeAriaLabel}
           />
         </div>
-        <h1 className="text-2xl font-bold text-primary leading-snug">
+        <h1 className="text-xl font-semibold text-primary leading-snug">
           {primaryName}
         </h1>
         {secondaryName && (
