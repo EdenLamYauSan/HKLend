@@ -44,32 +44,26 @@ function fmt(n: number): string {
 }
 
 /**
- * Generate a flat-rate repayment schedule.
- * Interest per month = totalInterest / termMonths (constant).
+ * Generate a reducing-balance repayment schedule.
+ * Each period: interest = remaining balance × monthly rate.
  */
 function buildSchedule(
   principal: number,
   termMonths: number,
   monthlyPayment: number,
-  totalInterest: number,
+  monthlyRate: number,
 ): ScheduleRow[] {
-  const monthlyInterest = Math.round(totalInterest / termMonths)
   const rows: ScheduleRow[] = []
   let balance = principal
 
   for (let i = 1; i <= termMonths; i++) {
     const isLast = i === termMonths
-    const principalThisPeriod = isLast ? balance : monthlyPayment - monthlyInterest
-    const interestThisPeriod = isLast ? monthlyPayment - principalThisPeriod : monthlyInterest
+    const interestThisPeriod = Math.round(balance * monthlyRate)
+    const principalThisPeriod = isLast ? balance : Math.min(monthlyPayment - interestThisPeriod, balance)
+    const payment = isLast ? balance + interestThisPeriod : monthlyPayment
     balance = Math.max(0, balance - principalThisPeriod)
 
-    rows.push({
-      period: i,
-      payment: isLast ? principalThisPeriod + interestThisPeriod : monthlyPayment,
-      interest: interestThisPeriod,
-      principal: principalThisPeriod,
-      balance,
-    })
+    rows.push({ period: i, payment, interest: interestThisPeriod, principal: principalThisPeriod, balance })
   }
 
   return rows
@@ -96,13 +90,14 @@ function calculate(
 
   if (Object.keys(errors).length > 0) return { result: null, errors }
 
+  const monthlyRate = rate / 12 / 100
   const calc = calculateApr({
     principal,
     tenorMonths: termMonths,
     monthlyFlatRate: rate / 12,
   })
 
-  const schedule = buildSchedule(principal, termMonths, calc.monthlyPayment, calc.totalInterest)
+  const schedule = buildSchedule(principal, termMonths, calc.monthlyPayment, monthlyRate)
 
   return {
     result: {
