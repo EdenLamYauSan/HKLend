@@ -43,6 +43,7 @@ import { ProfilePageClient } from '@/components/profile/ProfilePageClient'
 import type { Decimal } from '@prisma/client/runtime/client'
 import { WhatsAppShareButton } from '@/components/profile/WhatsAppShareButton'
 import { BookmarkButton } from '@/components/bookmarks/BookmarkButton'
+import { BackButton } from '@/components/ui/BackButton'
 import { getTranslations } from '@/locales'
 
 // ─── Site config ──────────────────────────────────────────────────────────────
@@ -316,16 +317,11 @@ export default async function LenderProfilePage({
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 space-y-5">
-      {/* Back link */}
-      <Link
-        href={`/${locale}/lenders`}
-        className="inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-primary hover:text-primary transition-colors"
-      >
-        <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M7.5 2L3.5 6l4 4" />
-        </svg>
-        {isZh ? '返回放債人名冊' : 'Back to directory'}
-      </Link>
+      {/* Back link — returns to previous page (search results, filter, etc.) */}
+      <BackButton
+        fallbackHref={`/${locale}/lenders`}
+        label={isZh ? '返回放債人名冊' : 'Back to directory'}
+      />
 
       {/* S-11: Share recipient banner — shown when ?ref=share is present */}
       <Suspense fallback={null}>
@@ -341,8 +337,8 @@ export default async function LenderProfilePage({
       />
 
       {/* Verdict Card — UX-DR: badge hero, name, secondary name */}
-      <div className="rounded-xl border border-border bg-white p-5 shadow-sm">
-        <div className="mb-3 flex items-center justify-between gap-3 flex-wrap">
+      <div className="rounded-xl border border-border bg-white px-4 py-3 shadow-sm">
+        <div className="mb-2 flex items-center justify-between gap-2 flex-wrap">
           <LicenceBadge licenceStatus={lender.licenceStatus} locale={locale} size="lg" />
           {/* Story 7.2: Bookmark toggle */}
           <BookmarkButton
@@ -352,11 +348,11 @@ export default async function LenderProfilePage({
             removeAriaLabel={t.bookmarks.removeAriaLabel}
           />
         </div>
-        <h1 className="text-xl font-semibold text-primary leading-snug">
+        <h1 className="text-lg font-semibold text-primary leading-snug">
           {primaryName}
         </h1>
         {secondaryName && (
-          <p className="mt-1 text-sm text-muted-foreground">{secondaryName}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">{secondaryName}</p>
         )}
       </div>
 
