@@ -37,6 +37,7 @@ if (DRY_RUN) console.log('[dry-run] No DB writes.\n')
 
 interface Extracted {
   licenceNumber: string
+  companyName: string | null
   phone: string | null
   websiteUrl: string | null
   address: string | null
@@ -92,13 +93,29 @@ function extractData(html: string, pageUrl: string): Extracted | null {
   // Detect if address is Chinese (has CJK characters)
   const addressIsZh = address ? /[一-龥]/.test(address) : false
 
+  // Company name — from FinancialService JSON-LD block (not Organization, that's the site itself)
+  const nameMatch = html.match(/"@type"\s*:\s*"FinancialService"[\s\S]*?"name"\s*:\s*"([^"]+)"/)
+  const companyName = nameMatch?.[1] ?? null
+
   return {
     licenceNumber: licenceMatch[1],
+    companyName,
     phone: phone && phone.length >= 4 ? phone : null,
     websiteUrl,
     address,
     addressIsZh,
   }
+}
+
+// Normalise a HK company name for fuzzy matching
+function normaliseName(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/[-]/g, '')  // control chars
+    .replace(/[\s.,()\-'&]/g, '')            // punctuation + whitespace
+    .replace(/limited$/, 'ltd')
+    .replace(/company$/, 'co')
+    .replace(/有限公司$/, '')
 }
 
 // ─── HTTP ─────────────────────────────────────────────────────────────────────
@@ -163,6 +180,8 @@ async function main() {
     select: {
       id: true,
       licenceNumber: true,
+      companyNameZh: true,
+      companyNameEn: true,
       phone: true,
       websiteUrl: true,
       addressZh: true,
@@ -171,7 +190,13 @@ async function main() {
   })
 
   const byLicence = new Map(lenders.map(l => [l.licenceNumber, l]))
-  console.log(`Loaded ${byLicence.size} lenders from Neon.\n`)
+  // Also build a name→lender index for fallback matching
+  const byName = new Map<string, typeof lenders[0]>()
+  for (const l of lenders) {
+    if (l.companyNameZh) byName.set(normaliseName(l.companyNameZh), l)
+    if (l.companyNameEn) byName.set(normaliseName(l.companyNameEn), l)
+  }
+  console.log(`Loaded ${byLicence.size} lenders from Neon (${byName.size} name keys).\n`)
 
   const allUrls = await fetchUrls()
 
@@ -219,7 +244,14 @@ async function main() {
       continue
     }
 
-    const lender = byLicence.get(data.licenceNumber)
+    // Prefer NAME match — ECEC licence numbers are old/stale, our HKMA data is fresher.
+    // Fall back to licence match (with leading-zero normalisation) if name has no hit.
+    const nameKey = data.companyName ? normaliseName(data.companyName) : ''
+    const normLicence = data.licenceNumber.replace(/^0+(\d)/, '$1')
+    const lender =
+      (nameKey && byName.get(nameKey)) ??
+      byLicence.get(data.licenceNumber) ??
+      byLicence.get(normLicence)
     if (!lender) {
       process.stdout.write(`NO DB MATCH ${data.licenceNumber} (${url.split('/').pop()})\n`)
       stats.noMatch++
@@ -231,13 +263,13 @@ async function main() {
 
     stats.matched++
 
-    // Only update null fields
+    // ECEC is primary source — overwrite existing values
     const updates: Record<string, string | null> = {}
-    if (data.phone && !lender.phone) updates.phone = data.phone
-    if (data.websiteUrl && !lender.websiteUrl) updates.websiteUrl = data.websiteUrl
+    if (data.phone) updates.phone = data.phone
+    if (data.websiteUrl) updates.websiteUrl = data.websiteUrl
     if (data.address) {
-      if (data.addressIsZh && !lender.addressZh) updates.addressZh = data.address
-      else if (!data.addressIsZh && !lender.addressEn) updates.addressEn = data.address
+      if (data.addressIsZh) updates.addressZh = data.address
+      else updates.addressEn = data.address
     }
 
     const slug = url.split('/').pop()!

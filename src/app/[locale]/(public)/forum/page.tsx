@@ -19,7 +19,7 @@ import { isLocale } from '@/locales'
 import type { Locale } from '@/locales'
 import { db } from '@/lib/db'
 
-type ForumCategory = 'LENDER_RECO' | 'LOAN_QUESTION' | 'REPAYMENT' | 'INDUSTRY'
+type ForumCategory = 'LENDER_RECO' | 'LOAN_QUESTION' | 'REPAYMENT' | 'DEBT_CLEARANCE' | 'INDUSTRY'
 const FORUM_CATEGORIES: ForumCategory[] = ['LENDER_RECO', 'LOAN_QUESTION', 'REPAYMENT', 'DEBT_CLEARANCE', 'INDUSTRY']
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
