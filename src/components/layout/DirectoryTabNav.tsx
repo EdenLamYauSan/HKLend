@@ -18,7 +18,6 @@ export function DirectoryTabNav({ locale }: DirectoryTabNavProps) {
     { labelZh: '新聞', labelEn: 'News', href: `/${locale}/news` },
     { labelZh: '專欄', labelEn: 'Blog', href: `/${locale}/blog` },
     { labelZh: '討論區', labelEn: 'Forum', href: `/${locale}/forum` },
-    { labelZh: '計算機', labelEn: 'Calc', href: `/${locale}/calculator` },
   ]
 
   const isHome = pathname === `/${locale}`

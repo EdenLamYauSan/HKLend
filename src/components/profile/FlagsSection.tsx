@@ -108,9 +108,9 @@ export async function FlagsSection({ lenderId, lenderSlug, locale }: Props) {
       )}
 
       {/* Section header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <h2 className="text-lg font-semibold text-[#264a58]">{sectionTitle}</h2>
-        {/* FlagForm moved to bottom of page, below reviews */}
+        <FlagForm lenderSlug={lenderSlug} locale={locale} />
       </div>
 
       {/* Approved flags list */}
