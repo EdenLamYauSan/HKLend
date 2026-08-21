@@ -44,7 +44,7 @@ function formatHKD(value: number) {
 type ValidationErrors = {
   principal?: string
   tenorMonths?: string
-  monthlyFlatRate?: string
+  annualRate?: string
 }
 
 function validate(
@@ -66,11 +66,11 @@ function validate(
     errors.tenorMonths = '還款期為 1–360 個月'
   }
   if (rate === null || isNaN(rate)) {
-    errors.monthlyFlatRate = '請輸入月息'
+    errors.annualRate = '請輸入年利率'
   } else if (rate <= 0) {
-    errors.monthlyFlatRate = '月息必須大於 0%'
-  } else if (rate > 10) {
-    errors.monthlyFlatRate = '月息上限為 10%'
+    errors.annualRate = '年利率必須大於 0%'
+  } else if (rate > 120) {
+    errors.annualRate = '年利率上限為 120%'
   }
   return errors
 }
@@ -101,13 +101,16 @@ export function CalculatorSheet({
   // ── Controlled inputs ──
   const [principalStr, setPrincipalStr] = useState('100000')
   const [tenorMonths, setTenorMonths] = useState(24)
+  // defaultRate from DB is monthly flat rate — convert to annual for display
+  const defaultAnnualRate = defaultRate != null ? +(defaultRate * 12).toFixed(1) : null
   const [rateStr, setRateStr] = useState(
-    defaultRate != null ? String(defaultRate) : '1.0'
+    defaultAnnualRate != null ? String(defaultAnnualRate) : '12.0'
   )
 
   // Re-sync when defaultRate prop changes (e.g. different lender)
   useEffect(() => {
-    if (defaultRate != null) setRateStr(String(defaultRate))
+    if (defaultAnnualRate != null) setRateStr(String(defaultAnnualRate))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultRate])
 
   // ── Parsed values ──
@@ -122,9 +125,9 @@ export function CalculatorSheet({
   )
   const isValid = Object.keys(errors).length === 0
 
-  // ── Calculation (client-side) ──
+  // ── Calculation (client-side) — rate input is annual; convert to monthly flat rate ──
   const result = isValid
-    ? calculateApr({ principal, tenorMonths, monthlyFlatRate: rate })
+    ? calculateApr({ principal, tenorMonths, monthlyFlatRate: rate / 12 })
     : null
 
   // ── Focus trap on mobile ──
@@ -159,7 +162,7 @@ export function CalculatorSheet({
     [onClose]
   )
 
-  const useDefaultRateChip = defaultRate != null && rate !== defaultRate
+  const useDefaultRateChip = defaultAnnualRate != null && rate !== defaultAnnualRate
 
   // Two separate ID bases so the desktop sidebar and mobile sheet each get
   // unique form-element IDs — rendering both in the same DOM would otherwise
@@ -235,13 +238,13 @@ export function CalculatorSheet({
         )}
       </div>
 
-      {/* Monthly flat rate */}
+      {/* Annual interest rate */}
       <div>
         <label
           htmlFor={`rate-${idBase}`}
           className="block text-xs font-medium text-gray-500 mb-1"
         >
-          {isZh ? '月息 (%)' : 'Monthly Flat Rate (%)'}
+          {isZh ? '年利率 (%)' : 'Annual Rate (%)'}
         </label>
         <div className="flex gap-2 items-center">
           <input
@@ -249,20 +252,20 @@ export function CalculatorSheet({
             type="number"
             inputMode="decimal"
             min={0.1}
-            max={10}
+            max={120}
             step={0.1}
             value={rateStr}
             onChange={e => setRateStr(e.target.value)}
             className={`flex-1 rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#e8a219] ${
-              errors.monthlyFlatRate ? 'border-red-400' : 'border-gray-300'
+              errors.annualRate ? 'border-red-400' : 'border-gray-300'
             }`}
-            aria-describedby={errors.monthlyFlatRate ? `rate-err-${idBase}` : undefined}
+            aria-describedby={errors.annualRate ? `rate-err-${idBase}` : undefined}
           />
           {/* "Use lender's rate" chip — only shown when defaultRate is set */}
-          {defaultRate != null && (
+          {defaultAnnualRate != null && (
             <button
               type="button"
-              onClick={() => setRateStr(String(defaultRate))}
+              onClick={() => setRateStr(String(defaultAnnualRate))}
               disabled={!useDefaultRateChip}
               className="shrink-0 rounded-full bg-white/10 border border-white/30 px-2 py-1 text-xs text-white/80 hover:bg-white/20 disabled:opacity-40 disabled:cursor-default transition-colors"
               title={isZh ? '使用此放債人最低利率' : "Use lender's lowest rate"}
@@ -271,16 +274,16 @@ export function CalculatorSheet({
             </button>
           )}
         </div>
-        {errors.monthlyFlatRate && (
+        {errors.annualRate && (
           <p id={`rate-err-${idBase}`} className="mt-1 text-xs text-red-500">
-            {errors.monthlyFlatRate}
+            {errors.annualRate}
           </p>
         )}
-        {defaultRate != null && (
+        {defaultAnnualRate != null && (
           <p className="mt-1 text-xs text-gray-400">
             {isZh
-              ? `此放債人最低月息：${defaultRate}%`
-              : `This lender's min monthly rate: ${defaultRate}%`}
+              ? `此放債人最低年利率：${defaultAnnualRate}%`
+              : `This lender's min annual rate: ${defaultAnnualRate}%`}
           </p>
         )}
       </div>
