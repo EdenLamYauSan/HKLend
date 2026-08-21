@@ -384,12 +384,14 @@ export default async function LenderProfilePage({
         <LoanTypeTags tags={lender.loanTypeTags} locale={locale} />
 
         {/* Lender Pulse — most recent activity event + rating trend signal */}
-        <LenderPulse
-          events={lender.activityEvents.slice(0, 1)}
-          lenderId={lender.id}
-          lenderSlug={lender.slug}
-          locale={locale}
-        />
+        <Suspense fallback={<div className="h-24 rounded-xl bg-brand-card/50 animate-pulse" />}>
+          <LenderPulse
+            events={lender.activityEvents.slice(0, 1)}
+            lenderId={lender.id}
+            lenderSlug={lender.slug}
+            locale={locale}
+          />
+        </Suspense>
 
         {/* Advertised rates panel — shows "pending" when no rate scraped yet (Story 5.1) */}
         <RatePanel
@@ -408,18 +410,22 @@ export default async function LenderProfilePage({
       </ProfilePageClient>
 
       {/* Community flags — warning banner + list */}
-      <FlagsSection
-        lenderId={lender.id}
-        lenderSlug={lender.slug}
-        locale={locale}
-      />
+      <Suspense fallback={<div className="h-40 rounded-xl bg-brand-card/50 animate-pulse" />}>
+        <FlagsSection
+          lenderId={lender.id}
+          lenderSlug={lender.slug}
+          locale={locale}
+        />
+      </Suspense>
 
       {/* Community reviews (Stories 3.1–3.5) */}
-      <ReviewSection
-        lenderSlug={lender.slug}
-        lenderId={lender.id}
-        locale={locale}
-      />
+      <Suspense fallback={<div className="h-64 rounded-xl bg-brand-card/50 animate-pulse" />}>
+        <ReviewSection
+          lenderSlug={lender.slug}
+          lenderId={lender.id}
+          locale={locale}
+        />
+      </Suspense>
 
       {/* Story 7.3: WhatsApp share button */}
       <div className="flex flex-wrap gap-3">
