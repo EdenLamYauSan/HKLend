@@ -155,7 +155,7 @@ export function CalculatorPage() {
               className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy ${
                 errors.principal ? 'border-red-400' : 'border-gray-300'
               }`}
-              placeholder="例如 100000"
+              placeholder=""
             />
             {errors.principal && (
               <p className="mt-1 text-xs text-red-600">{errors.principal}</p>
@@ -177,7 +177,7 @@ export function CalculatorPage() {
               className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy ${
                 errors.term ? 'border-red-400' : 'border-gray-300'
               }`}
-              placeholder="例如 24"
+              placeholder=""
             />
             {errors.term && (
               <p className="mt-1 text-xs text-red-600">{errors.term}</p>
@@ -199,7 +199,7 @@ export function CalculatorPage() {
               className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy ${
                 errors.rate ? 'border-red-400' : 'border-gray-300'
               }`}
-              placeholder="例如 12"
+              placeholder=""
             />
             {errors.rate && (
               <p className="mt-1 text-xs text-red-600">{errors.rate}</p>
