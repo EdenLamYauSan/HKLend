@@ -343,7 +343,7 @@ export default async function LenderProfilePage({
       {/* Verdict Card — UX-DR: badge hero, name, secondary name */}
       <div className="rounded-xl border border-border bg-white p-5 shadow-sm">
         <div className="mb-3 flex items-center justify-between gap-3 flex-wrap">
-          <LicenceBadge licenceStatus={lender.licenceStatus} locale={locale} size="lg" />
+          <LicenceBadge licenceStatus={lender.licenceStatus} locale={locale} size="sm" />
           {/* Story 7.2: Bookmark toggle */}
           <BookmarkButton
             slug={lender.slug}
