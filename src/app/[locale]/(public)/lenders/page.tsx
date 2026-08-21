@@ -145,15 +145,11 @@ export default async function LendersPage({
     <div>
       {/* ── Directory ── */}
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-        <div className="mb-4 flex items-baseline justify-between">
-          <div>
-            <h1 className="text-lg font-semibold text-primary">
-              {isZh ? '持牌放債人名冊' : 'Licensed Money Lenders Registry'}
-            </h1>
-            {/* S-10: data source attribution */}
-            <DataSourceAttribution lastChecked={lastChecked} locale={locale as 'zh' | 'en'} />
-          </div>
-          <span className="text-sm text-muted-foreground">
+        <div className="mb-4 flex items-center justify-between gap-2">
+          <h1 className="text-lg font-semibold text-primary shrink-0">
+            {isZh ? '持牌放債人名冊' : 'Licensed Money Lenders Registry'}
+          </h1>
+          <span className="text-sm text-muted-foreground whitespace-nowrap">
             {search || letter || loanType
               ? (isZh ? `${total.toLocaleString()} 個結果` : `${total.toLocaleString()} results`)
               : (isZh ? `共 ${total.toLocaleString()} 間` : `${total.toLocaleString()} total`)}
