@@ -154,7 +154,7 @@ export default async function BlogListPage({ params, searchParams }: PageProps) 
               key={item.id}
               className="rounded-lg border border-gray-200 bg-white p-5 hover:shadow-sm transition-shadow"
             >
-              <div className="flex items-start gap-4">
+              <div className="flex items-center gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-2">
                     <span
@@ -176,10 +176,14 @@ export default async function BlogListPage({ params, searchParams }: PageProps) 
                 </div>
                 <Link
                   href={`/${locale}/blog/${item.slug}`}
-                  className="shrink-0 rounded-md bg-brand-navy px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 min-h-[44px] flex items-center"
+                  className="shrink-0 rounded-md bg-brand-navy px-3 py-2 text-xs font-medium text-white hover:opacity-90 flex flex-col items-center gap-1"
                   aria-label={`${isZh ? '閱讀' : 'Read'}: ${item.titleZh}`}
                 >
-                  {isZh ? '閱讀' : 'Read'}
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                  </svg>
+                  <span>{isZh ? '閱讀' : 'Read'}</span>
                 </Link>
               </div>
             </article>
