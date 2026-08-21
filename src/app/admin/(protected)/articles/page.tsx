@@ -43,7 +43,7 @@ export default async function AdminArticlesPage() {
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">文章管理</h1>
           <p className="mt-1 text-sm text-gray-500">
-            AI 生成草稿，審核後發佈至公開部落格。
+            AI 生成草稿，審核後發佈至公開專欄。
           </p>
         </div>
         <div className="flex gap-2">

@@ -80,7 +80,7 @@ export async function generateMetadata({
   const isZh = locale === 'zh'
 
   return {
-    title: isZh ? '財務知識部落格 — HK Lend' : 'Finance Blog — HK Lend',
+    title: isZh ? '財務專欄 — HK Lend' : 'Finance Blog — HK Lend',
     description: isZh
       ? '香港個人財務教育文章：借貸指南、利率分析、信貸知識。'
       : 'Hong Kong personal finance articles: borrowing guides, interest rate analysis, credit knowledge.',
@@ -134,7 +134,7 @@ export default async function BlogListPage({ params, searchParams }: PageProps) 
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
       <div className="mb-8">
         <h1 className="text-2xl font-semibold text-gray-900">
-          {isZh ? '財務知識部落格' : 'Finance Blog'}
+          {isZh ? '財務專欄' : 'Finance Blog'}
         </h1>
         <p className="mt-1 text-sm text-gray-500">
           {isZh

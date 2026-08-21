@@ -17,7 +17,7 @@ export function DirectoryTabNav({ locale }: DirectoryTabNavProps) {
     { labelZh: '放債人名冊', labelEn: 'Registry', href: `/${locale}/lenders` },
     { labelZh: '新聞', labelEn: 'News', href: `/${locale}/news` },
     { labelZh: '計算機', labelEn: 'Calc', href: `/${locale}/calculator` },
-    { labelZh: '部落格', labelEn: 'Blog', href: `/${locale}/blog` },
+    { labelZh: '專欄', labelEn: 'Blog', href: `/${locale}/blog` },
     { labelZh: '討論區', labelEn: 'Forum', href: `/${locale}/forum` },
   ]
 

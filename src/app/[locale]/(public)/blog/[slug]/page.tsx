@@ -197,7 +197,7 @@ export default async function BlogDetailPage({ params, searchParams }: PageProps
           href={`/${locale}/blog`}
           className="mb-6 inline-flex items-center text-sm text-gray-500 hover:text-brand-navy transition-colors"
         >
-          ← {isZh ? '返回部落格' : 'Back to Blog'}
+          ← {isZh ? '返回專欄' : 'Back to Blog'}
         </Link>
 
         {/* Article header */}
@@ -240,7 +240,7 @@ export default async function BlogDetailPage({ params, searchParams }: PageProps
             href={`/${locale}/blog`}
             className="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
           >
-            {isZh ? '← 返回部落格' : '← Back to Blog'}
+            {isZh ? '← 返回專欄' : '← Back to Blog'}
           </Link>
         </div>
       </div>
