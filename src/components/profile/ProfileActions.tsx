@@ -20,6 +20,7 @@
 import { useEffect, useState } from 'react'
 import { useCompareStore } from '@/store/compare.store'
 import type { CompareLender } from '@/store/compare.store'
+import { FlagForm } from './FlagForm'
 
 interface ProfileActionsProps {
   lender: CompareLender & { interestRateMin: number | null }
@@ -63,7 +64,8 @@ export function ProfileActions({ lender, locale, onOpenCalc }: ProfileActionsPro
           : (isZh ? '加入比較' : 'Add to Compare')}
       </button>
 
-      {/* 計算利率 moved to bottom bar next to 舉報問題 */}
+      {/* Report a problem — grouped next to 加入比較 */}
+      <FlagForm lenderSlug={lender.slug} locale={locale} />
     </div>
   )
 }

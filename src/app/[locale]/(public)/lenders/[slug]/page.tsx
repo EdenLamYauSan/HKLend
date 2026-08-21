@@ -37,7 +37,6 @@ import { EligibilityChips } from '@/components/profile/EligibilityChips'
 import { ReviewSection } from '@/components/profile/ReviewSection'
 import { ActivityFeed } from '@/components/profile/ActivityFeed'
 import { FlagsSection } from '@/components/profile/FlagsSection'
-import { FlagForm } from '@/components/profile/FlagForm'
 import { CalcTriggerButton } from '@/components/profile/CalcTriggerButton'
 import { RatePanel } from '@/components/profile/RatePanel'
 import { ProfilePageClient } from '@/components/profile/ProfilePageClient'
@@ -444,10 +443,9 @@ export default async function LenderProfilePage({
         locale={locale}
       />
 
-      {/* Report a problem — below reviews */}
-      <div className="flex items-center justify-between gap-3">
+      {/* Rate calculator — below reviews */}
+      <div className="flex items-center justify-start gap-3">
         <CalcTriggerButton label={isZh ? '計算利率' : 'Calculate APR'} />
-        <FlagForm lenderSlug={lender.slug} locale={locale as 'zh' | 'en'} />
       </div>
     </div>
   )
