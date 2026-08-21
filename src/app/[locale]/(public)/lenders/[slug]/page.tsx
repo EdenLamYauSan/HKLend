@@ -406,6 +406,13 @@ export default async function LenderProfilePage({
         locale={locale}
       />
 
+      {/* Community reviews (Stories 3.1–3.5) */}
+      <ReviewSection
+        lenderSlug={lender.slug}
+        lenderId={lender.id}
+        locale={locale}
+      />
+
       {/* Story 7.3: WhatsApp share button */}
       <div className="flex flex-wrap gap-3">
         <WhatsAppShareButton
@@ -421,13 +428,6 @@ export default async function LenderProfilePage({
 
       {/* S-10: Data source attribution */}
       <DataSourceAttribution lastChecked={lender.lastScrapedAt} locale={locale as 'zh' | 'en'} />
-
-      {/* Community reviews (Stories 3.1–3.5) */}
-      <ReviewSection
-        lenderSlug={lender.slug}
-        lenderId={lender.id}
-        locale={locale}
-      />
 
       {/* Activity feed (Story 3.7) */}
       <ActivityFeed
