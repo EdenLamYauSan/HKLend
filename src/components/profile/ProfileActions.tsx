@@ -63,14 +63,7 @@ export function ProfileActions({ lender, locale, onOpenCalc }: ProfileActionsPro
           : (isZh ? '加入比較' : 'Add to Compare')}
       </button>
 
-      {/* Calculate APR — mobile only; desktop sidebar is always visible */}
-      <button
-        type="button"
-        onClick={onOpenCalc}
-        className="md:hidden min-h-[44px] rounded-lg bg-[#264a58] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a3a46] transition-colors"
-      >
-        {isZh ? '計算利率' : 'Calculate APR'}
-      </button>
+      {/* 計算利率 moved to bottom bar next to 舉報問題 */}
     </div>
   )
 }

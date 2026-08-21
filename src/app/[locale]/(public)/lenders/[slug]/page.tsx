@@ -38,6 +38,7 @@ import { ReviewSection } from '@/components/profile/ReviewSection'
 import { ActivityFeed } from '@/components/profile/ActivityFeed'
 import { FlagsSection } from '@/components/profile/FlagsSection'
 import { FlagForm } from '@/components/profile/FlagForm'
+import { CalcTriggerButton } from '@/components/profile/CalcTriggerButton'
 import { RatePanel } from '@/components/profile/RatePanel'
 import { ProfilePageClient } from '@/components/profile/ProfilePageClient'
 import type { Decimal } from '@prisma/client/runtime/client'
@@ -432,7 +433,8 @@ export default async function LenderProfilePage({
       />
 
       {/* Report a problem — below reviews */}
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between gap-3">
+        <CalcTriggerButton label={isZh ? '計算利率' : 'Calculate APR'} />
         <FlagForm lenderSlug={lender.slug} locale={locale as 'zh' | 'en'} />
       </div>
     </div>

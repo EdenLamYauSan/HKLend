@@ -18,7 +18,7 @@
  *   - Mobile:  renders as a fixed bottom sheet (md:hidden), open/closed by calcOpen state
  */
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ProfileActions } from './ProfileActions'
 import { CalculatorSheet } from '@/components/CalculatorSheet'
 import type { CompareLender } from '@/store/compare.store'
@@ -32,6 +32,13 @@ interface ProfilePageClientProps {
 
 export function ProfilePageClient({ lender, locale, children }: ProfilePageClientProps) {
   const [calcOpen, setCalcOpen] = useState(false)
+
+  // Listen for bottom-bar trigger (dispatched by BottomActions outside this component)
+  useEffect(() => {
+    const handler = () => setCalcOpen(true)
+    window.addEventListener('hklend:openCalc', handler)
+    return () => window.removeEventListener('hklend:openCalc', handler)
+  }, [])
 
   return (
     <div className="flex gap-8 items-start">
