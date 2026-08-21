@@ -166,14 +166,6 @@ export function LenderCard({ lender, locale }: LenderCardProps) {
           )
         })()}
 
-        {/* Eligibility note — only shown when eligibilityTags is empty */}
-        {lender.eligibilityTags.length === 0 && (
-          <p className="text-xs text-muted-foreground">
-            {isZh
-              ? '資格待確認，請直接查詢'
-              : 'Eligibility unconfirmed — check with lender'}
-          </p>
-        )}
       </a>
 
       {/* Action row — outside <a> to avoid nested interactive elements */}
