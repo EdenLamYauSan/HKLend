@@ -27,7 +27,7 @@ interface ScheduleRow {
 interface CalcResult {
   monthlyPayment: number
   totalInterest: number
-  aprPercent: number
+  totalRepayable: number
   schedule: ScheduleRow[]
 }
 
@@ -109,7 +109,7 @@ function calculate(
     result: {
       monthlyPayment: calc.monthlyPayment,
       totalInterest: calc.totalInterest,
-      aprPercent: calc.apr,
+      totalRepayable: calc.totalRepayable,
       schedule,
     },
     errors: {},
@@ -241,9 +241,9 @@ export function CalculatorPage() {
                 </p>
               </div>
               <div className="flex items-center justify-between px-4 py-3 sm:flex-col sm:items-start sm:gap-1 sm:py-4">
-                <p className="text-xs text-muted-foreground">實際年利率</p>
+                <p className="text-xs text-muted-foreground">總還款額</p>
                 <p className="text-base font-bold text-brand-coral-text tabular-nums">
-                  {result.aprPercent.toFixed(2)}%
+                  {fmt(result.totalRepayable)}
                 </p>
               </div>
             </div>
