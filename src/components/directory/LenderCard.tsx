@@ -19,6 +19,7 @@
  * AddToCompareButton is a Client Component; this card is a Server Component.
  */
 
+import Link from 'next/link'
 import { hasValue } from '@/lib/utils/has-value'
 import { formatPhone } from '@/lib/utils/format'
 import { LicenceBadge } from './LicenceBadge'
@@ -95,8 +96,9 @@ export function LenderCard({ lender, locale }: LenderCardProps) {
   return (
     <li className={`rounded-xl border border-border bg-white shadow-sm transition-all hover:border-brand-amber/50 hover:shadow-md ${isWarning ? 'opacity-75' : ''}`}>
       {/* Card info — full clickable link target */}
-      <a
+      <Link
         href={`/${locale}/lenders/${lender.slug}`}
+        prefetch={true}
         className="flex min-h-[44px] flex-col gap-2 p-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       >
         {/* Header row: name + badge */}
@@ -162,9 +164,7 @@ export function LenderCard({ lender, locale }: LenderCardProps) {
           )
         })()}
 
-      </a>
-
-      {/* Action row — outside <a> to avoid nested interactive elements */}
+      </Link>
     </li>
   )
 }
