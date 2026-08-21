@@ -13,7 +13,7 @@
 'use client'
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { useCallback, useTransition, useRef } from 'react'
+import { useCallback, useTransition, useRef, useState } from 'react'
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 
@@ -44,6 +44,7 @@ export function LenderFilters({
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
+  const [showAlphabet, setShowAlphabet] = useState(false)
 
   const currentSearch = searchParams.get('search') ?? ''
   const currentLetter = searchParams.get('letter') ?? ''
@@ -161,41 +162,50 @@ export function LenderFilters({
         </p>
       )}
 
-      {/* A–Z alphabet filter — hidden until useful */}
-      {false && <div role="group" aria-label={isZh ? '按字母篩選' : 'Filter by letter'}>
-        <p className="mb-2 text-xs font-medium text-gray-500">
-          {isZh ? '首字母' : 'Letter'}
-        </p>
-        <div className="flex flex-wrap gap-1">
-          <button
-            type="button"
-            onClick={() => updateParams({ letter: null })}
-            aria-pressed={currentLetter === ''}
-            className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${
-              currentLetter === ''
-                ? 'bg-primary text-white'
-                : 'border border-border bg-white text-foreground hover:bg-secondary/50'
-            }`}
-          >
-            {isZh ? '全部' : 'All'}
-          </button>
-          {ALPHABET.map(letter => (
+      {/* A–Z alphabet filter — collapsible */}
+      <div>
+        <button
+          type="button"
+          onClick={() => setShowAlphabet(v => !v)}
+          className="flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors"
+        >
+          {isZh ? '首字母篩選' : 'Filter by letter'}
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ transform: showAlphabet ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>
+            <path d="M2 4l4 4 4-4"/>
+          </svg>
+        </button>
+        {showAlphabet && (
+          <div role="group" aria-label={isZh ? '按字母篩選' : 'Filter by letter'} className="mt-2 flex flex-wrap gap-1">
             <button
-              key={letter}
               type="button"
-              onClick={() => updateParams({ letter })}
-              aria-pressed={currentLetter === letter}
+              onClick={() => updateParams({ letter: null })}
+              aria-pressed={currentLetter === ''}
               className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${
-                currentLetter === letter
+                currentLetter === ''
                   ? 'bg-primary text-white'
                   : 'border border-border bg-white text-foreground hover:bg-secondary/50'
               }`}
             >
-              {letter}
+              {isZh ? '全部' : 'All'}
             </button>
-          ))}
-        </div>
-      </div>}
+            {ALPHABET.map(letter => (
+              <button
+                key={letter}
+                type="button"
+                onClick={() => updateParams({ letter })}
+                aria-pressed={currentLetter === letter}
+                className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${
+                  currentLetter === letter
+                    ? 'bg-primary text-white'
+                    : 'border border-border bg-white text-foreground hover:bg-secondary/50'
+                }`}
+              >
+                {letter}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Loan type filter chips */}
       {loanTypeOptions.length > 0 && (
