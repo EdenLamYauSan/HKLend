@@ -115,13 +115,14 @@ function solveMonthlyIrr(
 export function calculateApr(inputs: CalculatorInputs): CalculatorResult {
   const { principal, tenorMonths, monthlyFlatRate } = inputs
 
-  // Flat rate as decimal (e.g. 1.0% → 0.01)
+  // Monthly rate as decimal (e.g. 1.0% → 0.01)
   const r = monthlyFlatRate / 100
 
-  // Monthly payment under the flat-rate method:
-  // P = L * (1 + r*n) / n
-  const totalOwed = principal * (1 + r * tenorMonths)
-  const monthlyPaymentExact = totalOwed / tenorMonths
+  // Monthly payment under the reducing-balance (amortising) method:
+  // P = L * r / (1 - (1+r)^-n)
+  const monthlyPaymentExact = r > 0
+    ? principal * r / (1 - Math.pow(1 + r, -tenorMonths))
+    : principal / tenorMonths
   // Round to the nearest dollar — this is the actual payment the borrower makes.
   const monthlyPayment = Math.round(monthlyPaymentExact)
   // Total repayable is derived from the rounded payment so the displayed totals

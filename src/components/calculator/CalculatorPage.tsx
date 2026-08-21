@@ -52,33 +52,28 @@ function fmt(n: number): string {
 }
 
 /**
- * Generate a flat-rate repayment schedule.
- * Interest per month = total_interest / termMonths (constant under flat rate).
- * Principal per month = monthly_payment - interest_per_month.
+ * Generate a reducing-balance repayment schedule.
+ * Each period: interest = remaining balance × monthly rate.
  */
 function buildSchedule(
   principal: number,
   termMonths: number,
   monthlyPayment: number,
-  totalInterest: number,
+  monthlyRate: number,
 ): ScheduleRow[] {
-  const monthlyInterest = Math.round(totalInterest / termMonths)
-  const monthlyPrincipal = monthlyPayment - monthlyInterest
   const rows: ScheduleRow[] = []
   let balance = principal
 
   for (let i = 1; i <= termMonths; i++) {
     const isLast = i === termMonths
-    // On the last period, absorb rounding residuals so balance lands at 0.
-    const principalThisPeriod = isLast ? balance : monthlyPrincipal
-    const interestThisPeriod = isLast
-      ? monthlyPayment - principalThisPeriod
-      : monthlyInterest
+    const interestThisPeriod = Math.round(balance * monthlyRate)
+    const principalThisPeriod = isLast ? balance : Math.min(monthlyPayment - interestThisPeriod, balance)
+    const payment = isLast ? balance + interestThisPeriod : monthlyPayment
     balance = Math.max(0, balance - principalThisPeriod)
 
     rows.push({
       period: i,
-      payment: isLast ? principalThisPeriod + interestThisPeriod : monthlyPayment,
+      payment,
       interest: interestThisPeriod,
       principal: principalThisPeriod,
       balance,
@@ -104,18 +99,19 @@ function calculate(
   if (isNaN(termMonths) || termMonths < 3) errors.term = '還款期最少 3 個月'
   else if (termMonths > 120) errors.term = '還款期最多 120 個月'
 
-  if (isNaN(rate) || rate < 0.1) errors.rate = '月息最少 0.1%'
-  else if (rate > 4.0) errors.rate = '月息最多 4.0%'
+  if (isNaN(rate) || rate < 1) errors.rate = '年利率最少 1%'
+  else if (rate > 48) errors.rate = '年利率最多 48%'
 
   if (Object.keys(errors).length > 0) return { result: null, errors }
 
+  const monthlyRate = rate / 12 / 100
   const calc = calculateApr({
     principal,
     tenorMonths: termMonths,
-    monthlyFlatRate: rate,
+    monthlyFlatRate: rate / 12,
   })
 
-  const schedule = buildSchedule(principal, termMonths, calc.monthlyPayment, calc.totalInterest)
+  const schedule = buildSchedule(principal, termMonths, calc.monthlyPayment, monthlyRate)
 
   return {
     result: {
@@ -133,7 +129,7 @@ function calculate(
 export function CalculatorPage() {
   const [principal, setPrincipal] = useState('100000')
   const [term, setTerm] = useState('24')
-  const [rate, setRate] = useState('1.0')
+  const [rate, setRate] = useState('12')
   const [result, setResult] = useState<CalcResult | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [showFullSchedule, setShowFullSchedule] = useState(false)
@@ -205,19 +201,19 @@ export function CalculatorPage() {
           {/* Rate */}
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
-              月息（%）
+              年利率（%）
             </label>
             <input
               type="number"
               value={rate}
               onChange={e => setRate(e.target.value)}
-              min={0.1}
-              max={4.0}
-              step={0.1}
+              min={1}
+              max={48}
+              step={0.5}
               className={`w-full rounded-lg border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy ${
                 errors.rate ? 'border-red-400' : 'border-gray-300'
               }`}
-              placeholder="例如 1.0"
+              placeholder="例如 12"
             />
             {errors.rate && (
               <p className="mt-1 text-xs text-red-600">{errors.rate}</p>
