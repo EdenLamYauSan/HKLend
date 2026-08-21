@@ -37,6 +37,7 @@ import { EligibilityChips } from '@/components/profile/EligibilityChips'
 import { ReviewSection } from '@/components/profile/ReviewSection'
 import { ActivityFeed } from '@/components/profile/ActivityFeed'
 import { FlagsSection } from '@/components/profile/FlagsSection'
+import { FlagForm } from '@/components/profile/FlagForm'
 import { RatePanel } from '@/components/profile/RatePanel'
 import { ProfilePageClient } from '@/components/profile/ProfilePageClient'
 import type { Decimal } from '@prisma/client/runtime/client'
@@ -433,6 +434,11 @@ export default async function LenderProfilePage({
         events={lender.activityEvents}
         locale={locale}
       />
+
+      {/* Report a problem — below reviews */}
+      <div className="flex justify-end">
+        <FlagForm lenderSlug={lender.slug} locale={locale as 'zh' | 'en'} />
+      </div>
     </div>
   )
 }
