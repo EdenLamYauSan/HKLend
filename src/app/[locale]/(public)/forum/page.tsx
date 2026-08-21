@@ -20,7 +20,7 @@ import type { Locale } from '@/locales'
 import { db } from '@/lib/db'
 
 type ForumCategory = 'LENDER_RECO' | 'LOAN_QUESTION' | 'REPAYMENT' | 'INDUSTRY'
-const FORUM_CATEGORIES: ForumCategory[] = ['LENDER_RECO', 'LOAN_QUESTION', 'REPAYMENT', 'INDUSTRY']
+const FORUM_CATEGORIES: ForumCategory[] = ['LENDER_RECO', 'LOAN_QUESTION', 'REPAYMENT', 'DEBT_CLEARANCE', 'INDUSTRY']
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 
@@ -46,6 +46,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   LENDER_RECO: '放債人推薦',
   LOAN_QUESTION: '貸款問題',
   REPAYMENT: '還款問題',
+  DEBT_CLEARANCE: '清數討論',
   INDUSTRY: '行業討論',
 }
 
@@ -53,6 +54,7 @@ const CATEGORY_COLOURS: Record<string, string> = {
   LENDER_RECO: 'bg-green-50 text-green-700',
   LOAN_QUESTION: 'bg-blue-50 text-blue-700',
   REPAYMENT: 'bg-amber-50 text-amber-700',
+  DEBT_CLEARANCE: 'bg-rose-50 text-rose-700',
   INDUSTRY: 'bg-purple-50 text-purple-700',
 }
 

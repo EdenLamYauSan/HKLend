@@ -290,10 +290,11 @@ model NewsItem {
 // Flat threading: replies may reference another reply via replyToId (quote context).
 
 enum ForumCategory {
-  LENDER_RECO   // 放債人推薦
-  LOAN_QUESTION // 貸款問題
-  REPAYMENT     // 還款問題
-  INDUSTRY      // 行業討論
+  LENDER_RECO     // 放債人推薦
+  LOAN_QUESTION   // 貸款問題
+  REPAYMENT       // 還款問題
+  DEBT_CLEARANCE  // 清數討論
+  INDUSTRY        // 行業討論
 }
 
 model ForumPost {

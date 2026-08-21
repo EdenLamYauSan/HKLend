@@ -40,6 +40,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   LENDER_RECO: '放債人推薦',
   LOAN_QUESTION: '貸款問題',
   REPAYMENT: '還款問題',
+  DEBT_CLEARANCE: '清數討論',
   INDUSTRY: '行業討論',
 }
 

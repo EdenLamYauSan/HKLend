@@ -23,6 +23,7 @@ const CATEGORIES = [
   { value: 'LENDER_RECO', label: '放債人推薦' },
   { value: 'LOAN_QUESTION', label: '貸款問題' },
   { value: 'REPAYMENT', label: '還款問題' },
+  { value: 'DEBT_CLEARANCE', label: '清數討論' },
   { value: 'INDUSTRY', label: '行業討論' },
 ] as const
 
