@@ -119,9 +119,9 @@ function calculate(
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export function CalculatorPage() {
-  const [principal, setPrincipal] = useState('100000')
-  const [term, setTerm] = useState('24')
-  const [rate, setRate] = useState('12')
+  const [principal, setPrincipal] = useState('')
+  const [term, setTerm] = useState('')
+  const [rate, setRate] = useState('')
   const [result, setResult] = useState<CalcResult | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [showFullSchedule, setShowFullSchedule] = useState(false)
