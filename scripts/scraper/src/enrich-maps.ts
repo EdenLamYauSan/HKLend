@@ -259,6 +259,7 @@ async function main() {
     },
     select: {
       id: true,
+      slug: true,
       companyNameZh: true,
       companyNameEn: true,
       addressZh: true,
@@ -291,6 +292,7 @@ async function main() {
   let lowConfidence = 0
   let cursor = 0          // next index to hand out
   let done = 0            // total finished
+  const updatedSlugs: string[] = []
 
   async function processOne(page: Page) {
     while (cursor < lenders.length) {
@@ -326,6 +328,7 @@ async function main() {
             console.log(`[${i + 1}/${lenders.length}] ✓ ${displayName}: ${parts}`)
             if (!DRY_RUN) {
               await db.lender.update({ where: { id: lender.id }, data: updateData })
+              updatedSlugs.push(lender.slug)
             }
             updated++
             cp.updatedCount++
@@ -364,6 +367,24 @@ async function main() {
   console.log(`  Updated:        ${updated}`)
   console.log(`  No result:      ${noMatch}`)
   console.log(`  Low confidence: ${lowConfidence}`)
+
+  if (updatedSlugs.length > 0 && process.env.NEXT_PUBLIC_APP_URL && process.env.REVALIDATION_SECRET) {
+    console.log(`[enrich-maps] Revalidating ISR cache for ${updatedSlugs.length} lender(s)`)
+    for (const slug of updatedSlugs) {
+      try {
+        await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/revalidate`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-revalidation-secret': process.env.REVALIDATION_SECRET,
+          },
+          body: JSON.stringify({ tag: `lender:${slug}` }),
+        })
+      } catch (err) {
+        console.error(`[enrich-maps] Revalidation failed for ${slug}:`, err)
+      }
+    }
+  }
 }
 
 main().catch(err => {

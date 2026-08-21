@@ -47,14 +47,14 @@ const COPY = {
   zh: {
     title: '撰寫評論',
     bodyLabel: '評論內容',
-    bodyPlaceholder: '分享你的申請或借款經歷（50–500 字）',
+    bodyPlaceholder: '分享你的申請或借款經歷（20–500 字）',
     nameLabel: '顯示名稱（選填）',
     namePlaceholder: '最多 20 個字',
     submit: '提交評論',
     submitting: '提交中…',
     success: '感謝你的評論！待審核後公開。',
     charCount: (n: number) => `${n}/500 字`,
-    minChars: '最少需要 50 字',
+    minChars: '最少需要 20 字',
     allRatingsRequired: '請為所有項目評分',
     turnstileFailed: '人機驗證失敗，請重試。',
     cancel: '取消',
@@ -62,14 +62,14 @@ const COPY = {
   en: {
     title: 'Write a Review',
     bodyLabel: 'Review',
-    bodyPlaceholder: 'Share your application or loan experience (50–500 characters)',
+    bodyPlaceholder: 'Share your application or loan experience (20–500 characters)',
     nameLabel: 'Display Name (optional)',
     namePlaceholder: 'Max 20 characters',
     submit: 'Submit Review',
     submitting: 'Submitting…',
     success: 'Thank you for your review! It will be published after moderation.',
     charCount: (n: number) => `${n}/500 chars`,
-    minChars: 'Minimum 50 characters required',
+    minChars: 'Minimum 20 characters required',
     allRatingsRequired: 'Please rate all dimensions',
     turnstileFailed: 'Verification failed. Please try again.',
     cancel: 'Cancel',
@@ -149,7 +149,7 @@ export function ReviewForm({ lenderSlug, locale, turnstileSiteKey, onCancel }: P
       if (!form[d]) errors[d] = copy.allRatingsRequired
     })
 
-    const bodyResult = z.string().min(50).safeParse(form.body)
+    const bodyResult = z.string().min(20).safeParse(form.body)
     if (!bodyResult.success) errors.body = copy.minChars
 
     if (Object.keys(errors).length > 0) {
@@ -313,12 +313,11 @@ export function ReviewForm({ lenderSlug, locale, turnstileSiteKey, onCancel }: P
       )}
 
       {/* ── Actions ─────────────────────────────────────────────────────── */}
-      <div className="flex gap-3">
+      <div className="flex gap-2">
         <Button
           type="submit"
-          size="touch"
+          size="sm"
           disabled={submitting}
-          className="flex-1 sm:flex-none"
         >
           {submitting ? copy.submitting : copy.submit}
         </Button>
@@ -326,7 +325,7 @@ export function ReviewForm({ lenderSlug, locale, turnstileSiteKey, onCancel }: P
           <Button
             type="button"
             variant="outline"
-            size="touch"
+            size="sm"
             onClick={onCancel}
             disabled={submitting}
           >

@@ -31,14 +31,14 @@ export const reviewSubmissionSchema = z.object({
   ratingTransparency: starRatingSchema,
 
   /**
-   * Free-text review body (required, 50–500 chars).
+   * Free-text review body (required, 20–500 chars).
    *
    * NFR-6: must be rendered as plain text — never via dangerouslySetInnerHTML.
    * ESLint react/no-danger: error enforces this at CI.
    */
   body: z
     .string()
-    .min(50, '評論最少需要 50 字')
+    .min(20, '評論最少需要 20 字')
     .max(500, '評論最多 500 字'),
 
   /**

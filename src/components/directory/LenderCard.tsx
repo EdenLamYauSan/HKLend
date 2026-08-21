@@ -20,6 +20,7 @@
  */
 
 import { hasValue } from '@/lib/utils/has-value'
+import { formatPhone } from '@/lib/utils/format'
 import { LicenceBadge } from './LicenceBadge'
 import { AddToCompareButton } from './AddToCompareButton'
 
@@ -124,7 +125,7 @@ export function LenderCard({ lender, locale }: LenderCardProps) {
           <p className="text-xs text-muted-foreground leading-snug">{address}</p>
         )}
         {hasValue(lender.phone) && (
-          <p className="text-xs text-muted-foreground">{lender.phone}</p>
+          <p className="text-xs text-muted-foreground">{formatPhone(lender.phone)}</p>
         )}
 
         {/* Loan type tags */}

@@ -55,8 +55,25 @@ model Lender {
   activityEvents  ActivityEvent[]
   reviews         Review[]
   flags           Flag[]
+  slugAliases     LenderSlugAlias[]
 
   @@map("Lender")
+}
+
+// ─── LenderSlugAlias ─────────────────────────────────────────────────────────
+// Historical slugs kept alive as permanent redirects. Written by the slug
+// migration script when a lender's slug is regenerated. Looked up by the
+// lender detail page on 404 to permanent-redirect to the current slug.
+
+model LenderSlugAlias {
+  id        String   @id @default(cuid())
+  oldSlug   String   @unique
+  lenderId  String
+  lender    Lender   @relation(fields: [lenderId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([lenderId])
+  @@map("LenderSlugAlias")
 }
 
 // ─── ActivityEvent ───────────────────────────────────────────────────────────

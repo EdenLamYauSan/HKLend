@@ -20,7 +20,7 @@
  */
 
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import { unstable_cache } from 'next/cache'
 import type { Metadata } from 'next'
 import { db } from '@/lib/db'
@@ -285,7 +285,19 @@ export default async function LenderProfilePage({
 
   const lender = await getLenderBySlug(slug)
 
-  if (!lender) notFound()
+  if (!lender) {
+    // Slug may have been renamed by the slug migration — look up the alias table
+    // and permanent-redirect to the current slug. This preserves inbound links
+    // and search-engine equity after the pinyin→English slug switch.
+    const alias = await db.lenderSlugAlias.findUnique({
+      where: { oldSlug: slug },
+      select: { lender: { select: { slug: true } } },
+    })
+    if (alias?.lender?.slug) {
+      permanentRedirect(`/${locale}/lenders/${alias.lender.slug}`)
+    }
+    notFound()
+  }
 
   const isZh = locale === 'zh'
   const jsonLd = buildJsonLd(lender, isZh)
@@ -340,7 +352,7 @@ export default async function LenderProfilePage({
       {/* Verdict Card — UX-DR: badge hero, name, secondary name */}
       <div className="rounded-xl border border-border bg-white px-4 py-3 shadow-sm">
         <div className="mb-2 flex items-center justify-between gap-2 flex-wrap">
-          <LicenceBadge licenceStatus={lender.licenceStatus} locale={locale} size="lg" />
+          <LicenceBadge licenceStatus={lender.licenceStatus} locale={locale} size="sm" />
           {/* Story 7.2: Bookmark toggle */}
           <BookmarkButton
             slug={lender.slug}

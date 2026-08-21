@@ -201,7 +201,7 @@ async function runScraper() {
       const licenceExpiryDate = record.licenceExpiryDate ?? null
 
       // Generate collision-safe slug
-      const slug = generateSlug(companyNameZh, slugsInRun)
+      const slug = generateSlug(companyNameZh, companyNameEn, slugsInRun)
       slugsInRun.add(slug)
 
       // Check if this lender already exists

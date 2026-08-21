@@ -130,7 +130,7 @@ export async function ReviewSection({ lenderSlug, lenderId, locale }: Props) {
 
   return (
     <section className="space-y-4">
-      <h2 className="text-xl font-semibold text-[#264a58]">
+      <h2 className="text-lg font-semibold text-[#264a58]">
         {locale === 'zh' ? '用家評論' : 'Community Reviews'}
       </h2>
 

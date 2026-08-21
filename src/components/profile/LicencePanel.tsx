@@ -13,6 +13,7 @@
 import { CopyLicenceNumber } from './CopyLicenceNumber'
 import type { Locale } from '@/locales'
 import { getLocalizedField } from '@/lib/utils/get-localized-field'
+import { formatPhone } from '@/lib/utils/format'
 
 interface LenderPanelData {
   licenceNumber: string
@@ -91,10 +92,10 @@ export function LicencePanel({ lender, locale }: Props) {
             <dt className="text-muted-foreground">{isZh ? '電話' : 'Phone'}</dt>
             <dd className="mt-0.5">
               <a
-                href={`tel:${lender.phone}`}
+                href={`tel:${formatPhone(lender.phone)}`}
                 className="font-medium text-primary hover:underline"
               >
-                {lender.phone}
+                {formatPhone(lender.phone)}
               </a>
             </dd>
           </div>

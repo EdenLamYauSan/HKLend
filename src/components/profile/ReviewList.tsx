@@ -308,7 +308,7 @@ export function ReviewList({
       {!showForm && (
         <Button
           variant="outline"
-          size="touch"
+          size="sm"
           onClick={() => setShowForm(true)}
         >
           {copy.writeReview}

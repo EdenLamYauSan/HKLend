@@ -69,10 +69,18 @@ describe('AC-2: slug generation via pinyin-pro with collision resolution', () =>
     expect(slugSrc).toContain("toneType: 'none'")
   })
 
-  it('exports generateSlug(companyNameZh, slugsInRun)', () => {
+  it('exports generateSlug(companyNameZh, companyNameEn, slugsInRun)', () => {
     expect(slugSrc).toContain('export function generateSlug')
     expect(slugSrc).toContain('companyNameZh: string')
+    expect(slugSrc).toContain('companyNameEn: string | null | undefined')
     expect(slugSrc).toContain('slugsInRun: Set<string>')
+  })
+
+  it('prefers companyNameEn over pinyin when English name is present', () => {
+    // English name is the primary source for readable slugs.
+    expect(slugSrc).toMatch(/companyNameEn/)
+    // pinyin() is only invoked in the fallback branch.
+    expect(slugSrc).toMatch(/en\s*\?\s*en\s*:\s*pinyin\(/)
   })
 
   it('appends -2, -3, etc. for slug collisions', () => {
@@ -81,9 +89,8 @@ describe('AC-2: slug generation via pinyin-pro with collision resolution', () =>
     expect(slugSrc).toMatch(/`\$\{slug\}-\$\{suffix\}`/)
   })
 
-  it('scraper calls generateSlug and tracks slugsInRun set', () => {
-    expect(scraperSrc).toContain('generateSlug')
-    expect(scraperSrc).toContain('slugsInRun')
+  it('scraper calls generateSlug with companyNameEn and tracks slugsInRun set', () => {
+    expect(scraperSrc).toContain('generateSlug(companyNameZh, companyNameEn, slugsInRun)')
     expect(scraperSrc).toContain('slugsInRun.add(slug)')
   })
 })
