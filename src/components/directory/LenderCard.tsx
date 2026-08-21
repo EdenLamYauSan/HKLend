@@ -124,7 +124,7 @@ export function LenderCard({ lender, locale }: LenderCardProps) {
         {hasValue(address) && (
           <p className="text-xs text-muted-foreground leading-snug">{address}</p>
         )}
-        {hasValue(lender.phone) && (
+        {formatPhone(lender.phone) && (
           <p className="text-xs text-muted-foreground">{formatPhone(lender.phone)}</p>
         )}
 

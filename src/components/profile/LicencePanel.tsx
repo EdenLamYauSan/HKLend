@@ -87,19 +87,23 @@ export function LicencePanel({ lender, locale }: Props) {
           </div>
         )}
 
-        {lender.phone && (
-          <div>
-            <dt className="text-muted-foreground">{isZh ? '電話' : 'Phone'}</dt>
-            <dd className="mt-0.5">
-              <a
-                href={`tel:${formatPhone(lender.phone)}`}
-                className="font-medium text-primary hover:underline"
-              >
-                {formatPhone(lender.phone)}
-              </a>
-            </dd>
-          </div>
-        )}
+        {(() => {
+          const phone = formatPhone(lender.phone)
+          if (!phone) return null
+          return (
+            <div>
+              <dt className="text-muted-foreground">{isZh ? '電話' : 'Phone'}</dt>
+              <dd className="mt-0.5">
+                <a
+                  href={`tel:${phone}`}
+                  className="font-medium text-primary hover:underline"
+                >
+                  {phone}
+                </a>
+              </dd>
+            </div>
+          )
+        })()}
 
         {lender.websiteUrl && (
           <div>

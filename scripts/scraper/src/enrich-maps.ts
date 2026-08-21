@@ -162,6 +162,13 @@ async function extractPlaceData(page: Page): Promise<PlaceData> {
       const label = (await phoneEl.getAttribute('aria-label')) ?? ''
       phone = label.replace(/^[^:]+:\s*/, '').trim() || null
     }
+    // HK numbers are 8 digits (+ optional 852 country code). Anything longer
+    // is usually Google Maps returning multiple concatenated numbers.
+    if (phone) {
+      const digits = phone.replace(/\D/g, '')
+      const local = digits.startsWith('852') ? digits.slice(3) : digits
+      phone = local.length === 8 ? local : null
+    }
   }
 
   // Website — anchor with data-item-id="authority"

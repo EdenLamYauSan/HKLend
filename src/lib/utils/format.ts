@@ -99,15 +99,16 @@ export function formatPercent(value: number, decimalPlaces = 2): string {
 
 /**
  * Format a Hong Kong phone number for display.
- * Adds +852 country code prefix; leaves already-prefixed numbers unchanged.
- * Returns null for null/empty input.
+ * HK numbers are exactly 8 digits. Anything else is scraper garbage
+ * (Google Maps sometimes returns two concatenated numbers) — return null
+ * rather than render a nonsense +852-16-digit blob.
  */
 export function formatPhone(phone: string | null | undefined): string | null {
   if (!phone) return null
   const trimmed = phone.trim()
   if (!trimmed) return null
-  if (trimmed.startsWith('+')) return trimmed
   const digits = trimmed.replace(/\D/g, '')
-  if (digits.startsWith('852')) return `+${digits}`
-  return `+852 ${trimmed}`
+  const local = digits.startsWith('852') ? digits.slice(3) : digits
+  if (local.length !== 8) return null
+  return `+852 ${local}`
 }
