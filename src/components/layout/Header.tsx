@@ -41,6 +41,11 @@ export function Header({ locale }: HeaderProps) {
           "
           aria-label={nav.homepageAriaLabel}
         >
+          {/* Shield mark */}
+          <svg aria-hidden="true" width="22" height="26" viewBox="0 0 44 52" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2 shrink-0">
+            <path d="M22 0L44 8.5V25.5Q44 42 22 52Q0 42 0 25.5V8.5Z" fill="white"/>
+            <polyline points="9,25 18,36 36,14" stroke="#C8900C" strokeWidth="6.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
           <span aria-hidden="true" className="text-brand-amber">HK</span>
           <span aria-hidden="true" className="text-white">Lend</span>
         </Link>
