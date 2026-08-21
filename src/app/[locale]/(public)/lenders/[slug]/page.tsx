@@ -360,13 +360,6 @@ export default async function LenderProfilePage({
         )}
       </div>
 
-      {/* Community flags — warning banner + list (Stories 4.1–4.3, AC-2: above licence panel) */}
-      <FlagsSection
-        lenderId={lender.id}
-        lenderSlug={lender.slug}
-        locale={locale}
-      />
-
       {/*
        * ProfilePageClient owns the two-column layout (left content + right sidebar)
        * and the calculator open/close state. Server-rendered sections are passed as
@@ -405,6 +398,13 @@ export default async function LenderProfilePage({
           </div>
         )}
       </ProfilePageClient>
+
+      {/* Community flags — warning banner + list */}
+      <FlagsSection
+        lenderId={lender.id}
+        lenderSlug={lender.slug}
+        locale={locale}
+      />
 
       {/* Story 7.3: WhatsApp share button */}
       <div className="flex flex-wrap gap-3">
