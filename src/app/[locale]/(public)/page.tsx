@@ -56,7 +56,7 @@ export default async function HomePage({
   const isZh = lang === 'zh'
 
   const getLenderCount = unstable_cache(
-    () => db.lender.count(),
+    () => db.lender.count({ where: { licenceStatus: 'ACTIVE' } }),
     ['home:lender-count'],
     { tags: ['lenders:list'], revalidate: 86400 }
   )
