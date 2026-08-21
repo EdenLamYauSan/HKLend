@@ -119,8 +119,8 @@ export default async function LocaleLayout({
          */}
         <Analytics />
 
-        {/* Floating comparison tray — fixed at bottom; hidden when <2 lenders selected */}
-        <CompareTray locale={lang} />
+        {/* Floating comparison tray — hidden until compare feature re-enabled */}
+        {/* <CompareTray locale={lang} /> */}
       </body>
     </html>
   )

@@ -190,7 +190,7 @@ export function LenderCard({ lender, locale }: LenderCardProps) {
         ) : (
           <span />
         )}
-        <AddToCompareButton lender={compareLender} locale={locale} />
+        {/* <AddToCompareButton lender={compareLender} locale={locale} /> */}
       </div>
     </li>
   )
