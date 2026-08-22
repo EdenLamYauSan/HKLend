@@ -491,6 +491,8 @@ export type Translation = {
         confirmButton: string
         cancel: string
         mismatchError: string
+        internalError: string
+        unauthorizedError: string
         // AC-6 step 5: "a small toast confirms" after landing back on
         // `/[locale]?deleted=1`.
         deletedToast: string

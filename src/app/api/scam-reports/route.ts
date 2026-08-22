@@ -43,6 +43,7 @@ import { env } from '@/lib/env'
 import { apiError } from '@/types/api-error'
 import { scamReportSubmissionSchema } from '@/types/scam-report.schema'
 import { submissionGuard } from '@/lib/utils/submission-guard'
+import { getClientIp } from '@/lib/utils/client-ip'
 import { auth } from '@/lib/auth/config'
 
 // Story 8.2, AC-5: two new sliding-window limiters, in addition to the
@@ -140,10 +141,7 @@ export async function POST(request: NextRequest) {
     request.headers.get('x-fingerprint') ??
     request.headers.get('x-real-ip') ??
     '0.0.0.0'
-  const ip =
-    request.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
-    request.headers.get('x-real-ip') ??
-    '0.0.0.0'
+  const ip = getClientIp(request)
 
   // ── 1. Rate limit + Turnstile (ARCH-8) ──────────────────────────────────
   // Rate limit: 2 reports per (fingerprint+IP) per 24h.

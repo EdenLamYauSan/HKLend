@@ -33,6 +33,7 @@ import { env } from '@/lib/env'
 import { apiError } from '@/types/api-error'
 import { reviewReportSubmissionSchema } from '@/types/review-report.schema'
 import { auth } from '@/lib/auth/config'
+import { getClientIp } from '@/lib/utils/client-ip'
 
 // Story 8.2, AC-3: per-account rate limit — 5 reports per 24h.
 const reviewReportRedis = new Redis({
@@ -55,8 +56,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
-  const ip =
-    request.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? '0.0.0.0'
+  const ip = getClientIp(request)
 
   // ── 1. Auth gate (AC-3) ───────────────────────────────────────────────────
   const session = await auth()

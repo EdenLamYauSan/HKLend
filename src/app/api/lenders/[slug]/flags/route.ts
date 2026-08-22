@@ -36,6 +36,7 @@ import { env } from '@/lib/env'
 import { apiError } from '@/types/api-error'
 import { flagSubmissionSchema } from '@/types/flag.schema'
 import { submissionGuard } from '@/lib/utils/submission-guard'
+import { getClientIp } from '@/lib/utils/client-ip'
 import { auth } from '@/lib/auth/config'
 
 // Story 8.2, AC-4: per-account rate limit — 2 flags per 7 days, in addition
@@ -105,10 +106,7 @@ export async function POST(
     request.headers.get('x-fingerprint') ??
     request.headers.get('x-real-ip') ??
     '0.0.0.0'
-  const ip =
-    request.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
-    request.headers.get('x-real-ip') ??
-    '0.0.0.0'
+  const ip = getClientIp(request)
 
   const guard = await submissionGuard({
     fingerprint,

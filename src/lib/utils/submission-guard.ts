@@ -50,8 +50,9 @@ export interface SubmissionGuardOptions {
 
   /**
    * Client IP address — backstop signal.
-   * Pass the value of the `x-forwarded-for` header (first entry) or
-   * `x-real-ip`. Required.
+   * Use `getClientIp(request)` from `@/lib/utils/client-ip` — do NOT read
+   * `x-forwarded-for.split(',')[0]` directly; that entry is attacker-
+   * controlled on Vercel (the platform APPENDS the real IP). Required.
    */
   ip: string
 
@@ -125,13 +126,21 @@ const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/sit
  * Times out after 3 seconds — no fallback that silently skips verification.
  * A timeout results in the submission being rejected (fail-closed).
  *
+ * Short-circuits to `true` when `TURNSTILE_SECRET_KEY` is unset (typical in
+ * local dev). Mirrors `submissionGuard`'s existing behaviour so callers see
+ * the same "Turnstile is optional in dev" contract everywhere. In production
+ * the key MUST be set — env validation does not require it, but ops policy
+ * does.
+ *
  * ARCH-8: exported so other modules (e.g. the Story 8.1 borrower sign-in
  * server action) can reuse this single Turnstile code path instead of
  * calling the Cloudflare siteverify endpoint from a second place.
  */
 export async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
+  if (!env.TURNSTILE_SECRET_KEY) return true
+
   const body = new URLSearchParams()
-  body.append('secret', env.TURNSTILE_SECRET_KEY ?? '')
+  body.append('secret', env.TURNSTILE_SECRET_KEY)
   body.append('response', token)
   body.append('remoteip', ip)
 
@@ -156,7 +165,7 @@ export async function verifyTurnstile(token: string, ip: string): Promise<boolea
  * ```ts
  * const guard = await submissionGuard({
  *   fingerprint: req.headers.get('x-fingerprint') ?? '',
- *   ip: req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? '0.0.0.0',
+ *   ip: getClientIp(req),
  *   turnstileToken: body.turnstileToken,
  *   namespace: 'review',
  *   limit: 3,

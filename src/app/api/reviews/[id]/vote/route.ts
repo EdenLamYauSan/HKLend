@@ -21,6 +21,7 @@ import { db } from '@/lib/db'
 import { env } from '@/lib/env'
 import { apiError } from '@/types/api-error'
 import { reviewVoteSchema } from '@/types/review.schema'
+import { getClientIp } from '@/lib/utils/client-ip'
 
 // Upstash rate limiter: 10 votes per IP per hour
 const redis = new Redis({
@@ -41,8 +42,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
-  const ip =
-    request.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? '0.0.0.0'
+  const ip = getClientIp(request)
 
   // Server-side rate limit: 10 votes per IP per hour
   const { success: withinLimit } = await voteLimiter.limit(ip)

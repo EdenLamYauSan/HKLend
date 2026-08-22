@@ -202,7 +202,17 @@ export function FlagForm({ lenderSlug, locale }: Props) {
       }
 
       if (res.status === 429) {
-        showError(isZh ? '你已對此放債人提交過標記，請稍後再試。' : 'You have already flagged this lender. Please wait before submitting again.')
+        // Two paths can 429 (Story 8.2 AC-4): per-lender IP limit (1/lender/30d)
+        // or the new per-user cross-lender limit (2/user/7d). The server
+        // sets a distinct message on each; use it directly rather than
+        // guessing which limit fired.
+        const data = await res.json().catch(() => ({})) as { message?: string }
+        showError(
+          data.message ??
+            (isZh
+              ? '提交次數已達上限，請稍後再試。'
+              : 'You have hit the submission limit. Please wait before trying again.')
+        )
         return
       }
 

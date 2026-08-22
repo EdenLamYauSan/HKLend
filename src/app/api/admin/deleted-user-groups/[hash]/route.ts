@@ -32,8 +32,11 @@ export async function GET(
   }
 
   const { hash } = await params
-  if (!hash) {
-    return Response.json(apiError('VALIDATION_ERROR', 'Missing hash'), { status: 400 })
+  // Guard: hash MUST be a 64-char lowercase hex string (sha256 output).
+  // Prevents unbounded scans, SQL wildcards leaking into a `where` clause,
+  // and admin-side path enumeration probing.
+  if (!/^[a-f0-9]{64}$/.test(hash)) {
+    return Response.json(apiError('VALIDATION_ERROR', 'Invalid hash format'), { status: 400 })
   }
 
   const [reviews, flags, scamReports, reviewReports] = await Promise.all([

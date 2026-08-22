@@ -487,6 +487,8 @@ export const zh: Translation = {
         confirmButton: '永久刪除我的帳戶',
         cancel: '取消',
         mismatchError: '電郵地址不符，請重新輸入。',
+        internalError: '系統發生錯誤，請稍後再試。如問題持續，請聯絡管理員。',
+        unauthorizedError: '登入狀態已過期，請重新登入後再試。',
         deletedToast: '你的帳戶已刪除。',
       },
     },

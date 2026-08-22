@@ -491,6 +491,8 @@ export const en: Translation = {
         confirmButton: 'Permanently delete my account',
         cancel: 'Cancel',
         mismatchError: "That email doesn't match. Please try again.",
+        internalError: 'Something went wrong. Please try again. If this keeps happening, contact the admin.',
+        unauthorizedError: 'Your session has expired. Please sign in again and try once more.',
         deletedToast: 'Your account has been deleted.',
       },
     },

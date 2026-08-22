@@ -74,12 +74,25 @@ function getLimiters(): { email: Ratelimit; ip: Ratelimit } | null {
 }
 
 async function getClientIp(): Promise<string> {
+  // Prefer x-real-ip. Fall back to the LAST entry of x-forwarded-for.
+  // On Vercel the platform APPENDS the real client IP to x-forwarded-for,
+  // so the first entry is attacker-controlled and cannot be trusted for
+  // rate-limit keying. Mirrors src/lib/utils/client-ip.ts (which takes a
+  // Request; this variant reads next/headers because server actions get
+  // headers via the async helper).
   const h = await headers()
-  return (
-    h.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-    h.get('x-real-ip') ??
-    '0.0.0.0'
-  )
+  const realIp = h.get('x-real-ip')
+  if (realIp) return realIp.trim()
+
+  const xff = h.get('x-forwarded-for')
+  if (xff) {
+    const parts = xff
+      .split(',')
+      .map((p) => p.trim())
+      .filter(Boolean)
+    if (parts.length > 0) return parts[parts.length - 1]
+  }
+  return '0.0.0.0'
 }
 
 // ─── Input shape ──────────────────────────────────────────────────────────────
@@ -103,7 +116,13 @@ export async function submitSignIn(formData: FormData): Promise<SignInActionResu
   if (!emailParsed.success || typeof turnstileToken !== 'string' || turnstileToken.length === 0) {
     return { ok: false, code: 'VALIDATION_ERROR' }
   }
-  const email = emailParsed.data
+  // Normalise once (lowercase + trim) so the rate-limit key and the value
+  // handed to signIn() agree. Auth.js's Resend provider internally normalises
+  // to NFKC + lowercase + trim before creating the VerificationToken — if we
+  // key the limiter on the raw case, `Foo@Bar.com` and `foo@bar.com` land in
+  // separate buckets but target the same account, letting an attacker send
+  // >3 sign-in emails/hour to a target by rotating case.
+  const email = emailParsed.data.trim().toLowerCase()
 
   const ip = await getClientIp()
 

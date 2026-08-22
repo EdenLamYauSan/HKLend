@@ -53,6 +53,8 @@ export function SignInPromptModal({ open, onClose, locale, t, actionsT, reason, 
   const [success, setSuccess] = useState(false)
   const [pending, startTransition] = useTransition()
   const turnstileRef = useRef<TurnstileInstance>(null)
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const previouslyFocusedRef = useRef<HTMLElement | null>(null)
 
   // Reset transient state whenever the modal is (re)opened.
   useEffect(() => {
@@ -73,6 +75,61 @@ export function SignInPromptModal({ open, onClose, locale, t, actionsT, reason, 
     document.addEventListener('keydown', handleKey)
     return () => document.removeEventListener('keydown', handleKey)
   }, [open, onClose])
+
+  // A11y: focus trap, focus return, body-scroll lock.
+  // Snapshots the previously-focused element on open, focuses the first
+  // focusable element in the dialog, keeps Tab/Shift+Tab inside the dialog,
+  // and restores focus + scroll on close. Fixes the medium-severity
+  // 8.1 review finding — Story 8.2 mounts this on 4 surfaces so the a11y
+  // regression multiplied.
+  useEffect(() => {
+    if (!open) return
+    previouslyFocusedRef.current = document.activeElement as HTMLElement | null
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    const dialog = dialogRef.current
+    const focusableSelector =
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
+    function getFocusable(): HTMLElement[] {
+      if (!dialog) return []
+      return Array.from(dialog.querySelectorAll<HTMLElement>(focusableSelector)).filter(
+        (el) => !el.hasAttribute('disabled') && el.offsetParent !== null
+      )
+    }
+
+    // Defer first-focus to next tick so React has rendered content + Turnstile
+    // hasn't yet stolen focus back.
+    const focusTimer = setTimeout(() => {
+      const focusables = getFocusable()
+      focusables[0]?.focus()
+    }, 0)
+
+    function handleTab(e: KeyboardEvent) {
+      if (e.key !== 'Tab') return
+      const focusables = getFocusable()
+      if (focusables.length === 0) return
+      const first = focusables[0]
+      const last = focusables[focusables.length - 1]
+      const active = document.activeElement as HTMLElement | null
+      if (e.shiftKey && active === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+    document.addEventListener('keydown', handleTab)
+
+    return () => {
+      clearTimeout(focusTimer)
+      document.removeEventListener('keydown', handleTab)
+      document.body.style.overflow = previousOverflow
+      previouslyFocusedRef.current?.focus?.()
+    }
+  }, [open])
 
   if (!open) return null
 
@@ -114,6 +171,7 @@ export function SignInPromptModal({ open, onClose, locale, t, actionsT, reason, 
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-labelledby="sign-in-prompt-title"
@@ -121,7 +179,7 @@ export function SignInPromptModal({ open, onClose, locale, t, actionsT, reason, 
     >
       <div
         className="absolute inset-0 bg-black/40"
-        onClick={onClose}
+        onClick={pending ? undefined : onClose}
         aria-hidden="true"
       />
 

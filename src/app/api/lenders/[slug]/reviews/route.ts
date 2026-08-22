@@ -44,6 +44,7 @@ import { env } from '@/lib/env'
 import { apiError } from '@/types/api-error'
 import { reviewSubmissionSchema } from '@/types/review.schema'
 import { submissionGuard } from '@/lib/utils/submission-guard'
+import { getClientIp } from '@/lib/utils/client-ip'
 import { auth } from '@/lib/auth/config'
 import { getVoteSortedReviews } from '@/lib/votes'
 
@@ -128,8 +129,7 @@ export async function POST(
   const { slug } = await params
 
   // Extract IP and fingerprint for rate limiting
-  const ip =
-    request.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? '0.0.0.0'
+  const ip = getClientIp(request)
   const fingerprint = request.headers.get('x-fingerprint') ?? 'unknown'
 
   // Parse request body

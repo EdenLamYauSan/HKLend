@@ -74,7 +74,16 @@ export function AccountDeletionModal({ open, onClose, locale, email, t, actionsT
         onDeleted()
         return
       }
-      setError(deletion.mismatchError)
+      // Distinguish the three server error codes so a Prisma failure or an
+      // expired session doesn't render as "email mismatch" — undiagnosable
+      // for the user and misleading for support.
+      if (result.code === 'EMAIL_MISMATCH') {
+        setError(deletion.mismatchError)
+      } else if (result.code === 'UNAUTHORIZED') {
+        setError(deletion.unauthorizedError)
+      } else {
+        setError(deletion.internalError)
+      }
     })
   }
 

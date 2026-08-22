@@ -14,6 +14,7 @@
  */
 
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { DeletedUserGroupPanel } from '@/components/admin/DeletedUserGroupPanel'
 
@@ -177,9 +178,12 @@ function FlagRow({
       <td className="py-3 px-4 text-sm text-gray-500 whitespace-nowrap">
         {formatDate(flag.createdAt)}
       </td>
-      {showGroupPanel && flag.deletedUserHash && (
-        <DeletedUserGroupPanel hash={flag.deletedUserHash} onClose={() => setShowGroupPanel(false)} />
-      )}
+      {showGroupPanel && flag.deletedUserHash &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <DeletedUserGroupPanel hash={flag.deletedUserHash} onClose={() => setShowGroupPanel(false)} />,
+          document.body
+        )}
       <td className="py-3 px-4">
         <div className="flex items-center gap-2">
           <button
