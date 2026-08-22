@@ -55,8 +55,8 @@ interface RssItem {
 interface FeedConfig {
   url: string
   source: 'hkma' | 'sfc'
-  /** 'rss' = standard RSS/Atom XML; 'api' = HKMA Open API (JSON) */
-  type: 'rss' | 'api'
+  /** 'rss' = standard RSS/Atom XML; 'api' = HKMA press-release API; 'api-scams' = HKMA fraud-alert API */
+  type: 'rss' | 'api' | 'api-scams'
   category: string
   labelZh: string
   labelEn: string
@@ -70,6 +70,16 @@ const FEEDS: FeedConfig[] = [
     source: 'hkma',
     type: 'api',
     category: 'regulatory',
+    labelZh: '金管局',
+    labelEn: 'HKMA',
+  },
+  {
+    // Fraudulent bank websites, phishing e-mails and similar scams.
+    // API docs: https://apidocs.hkma.gov.hk/documentation/bank-svf-info/fraudulent-bank-scams
+    url: 'https://api.hkma.gov.hk/public/bank-svf-info/fraudulent-bank-scams?offset=0&limit=100&lang=en',
+    source: 'hkma',
+    type: 'api-scams',
+    category: 'enforcement',
     labelZh: '金管局',
     labelEn: 'HKMA',
   },
@@ -131,6 +141,47 @@ async function fetchHkmaApi(url: string): Promise<RssItem[]> {
       // API returns YYYY-MM-DD; append time so Date parsing is unambiguous
       pubDate: `${r.date}T00:00:00+08:00`,
     }))
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
+interface HkmaScamsApiResponse {
+  header: { success: boolean; err_code: string; err_msg: string }
+  result: {
+    datasize: number
+    records: Array<{
+      issue_date: string
+      alleged_name: string
+      scam_type: string
+      pr_url: string | null
+      fraud_website_address: string | null
+    }>
+  }
+}
+
+async function fetchHkmaScamsApi(url: string): Promise<RssItem[]> {
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 15_000)
+
+  try {
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: { 'User-Agent': 'HKLend-NewsBot/1.0' },
+    })
+    if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`)
+    const data = (await res.json()) as HkmaScamsApiResponse
+    if (!data.header.success) throw new Error(`HKMA scams API error: ${data.header.err_msg}`)
+
+    return data.result.records
+      .filter((r) => r.pr_url) // dedup key uses link; skip anything without one
+      .map((r) => ({
+        // Synthetic title so users see who's being impersonated and how
+        title: `Fraud alert: ${r.alleged_name} (${r.scam_type})`,
+        link: r.pr_url as string,
+        description: r.fraud_website_address ?? '',
+        pubDate: `${r.issue_date}T00:00:00+08:00`,
+      }))
   } finally {
     clearTimeout(timeout)
   }
@@ -227,7 +278,12 @@ async function main(): Promise<void> {
   for (const feed of FEEDS) {
     let items: RssItem[]
     try {
-      items = feed.type === 'api' ? await fetchHkmaApi(feed.url) : await fetchRssFeed(feed.url)
+      items =
+        feed.type === 'api'
+          ? await fetchHkmaApi(feed.url)
+          : feed.type === 'api-scams'
+            ? await fetchHkmaScamsApi(feed.url)
+            : await fetchRssFeed(feed.url)
       console.log(`[scrape-news] ${feed.source}: fetched ${items.length} items`)
     } catch (err) {
       console.error(`[scrape-news] Failed to fetch ${feed.url}:`, err)
