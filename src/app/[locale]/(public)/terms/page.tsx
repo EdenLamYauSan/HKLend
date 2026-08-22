@@ -222,7 +222,7 @@ export default async function TermsPage({ params }: PageProps) {
           {copy.contactBefore}
           <a
             href={`mailto:${copy.contactEmail}`}
-            className="text-primary underline underline-offset-2 hover:text-brand-navy"
+            className="text-primary underline underline-offset-2 hover:opacity-80"
           >
             {copy.contactEmail}
           </a>
@@ -233,7 +233,7 @@ export default async function TermsPage({ params }: PageProps) {
       <nav className="border-t border-border pt-6 text-sm text-gray-500">
         <Link
           href={`/${locale}`}
-          className="text-primary underline underline-offset-2 hover:text-brand-navy"
+          className="text-primary underline underline-offset-2 hover:opacity-80"
         >
           {lang === 'zh' ? '← 返回首頁' : '← Back to home'}
         </Link>

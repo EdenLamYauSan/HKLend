@@ -275,7 +275,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
         {/* Related lenders */}
         {linkedLenders.length > 0 && (
           <section className="mt-10 border-t border-gray-200 pt-8">
-            <h2 className="mb-4 text-xl font-semibold text-gray-900">{t.news.relatedLenders}</h2>
+            <h2 className="mb-4 text-lg font-semibold text-gray-900">{t.news.relatedLenders}</h2>
             <div className="grid gap-3 sm:grid-cols-2">
               {linkedLenders.map((lender) => {
                 const name = getLocalizedField(lender, 'companyName', locale)
