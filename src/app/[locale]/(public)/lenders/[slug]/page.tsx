@@ -142,9 +142,15 @@ function getLenderBySlug(slug: string): Promise<LenderData | null> {
   )()
 }
 
-// ISR: pages are generated on first request and cached for 24h.
-// Tag-based purge (lender:{slug}) via admin actions still works as before.
-export const revalidate = 86400
+// Dynamic rendering: Story 8.3's ReviewSection and FlagsSection both call
+// await auth() (via next/headers cookies) to hide the self-vote button on
+// the viewer's own submissions. That opts the whole route segment out of
+// ISR — a stale `revalidate = 86400` here would be a lie a maintainer would
+// misread. If you need this page back on ISR, either (a) hoist the
+// vote-state fetch to a client boundary that runs after hydration and keep
+// the RSC tree cookie-free, or (b) drop the per-viewer self-vote check on
+// the SSR pass and let it hydrate in from a client fetch.
+export const dynamic = 'force-dynamic'
 export const dynamicParams = true
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────

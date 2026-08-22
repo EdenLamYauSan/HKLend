@@ -40,9 +40,16 @@ describe('AC-1/AC-2: review submission gated behind sign-in, per-account rate li
     expect(route).toMatch(/Ratelimit\.slidingWindow\(3,\s*['"]24 h['"]\)/)
   })
 
-  it('still imports and calls submissionGuard (existing per-IP limit preserved)', () => {
+  it('still imports the shared Turnstile + rate-limit helpers (ARCH-8)', () => {
+    // ORD-1 fix: submissionGuard() was split into its two internal steps —
+    // verifyTurnstile (fail-closed) and checkRateLimit (per-IP INCR). The
+    // route now calls them in the correct order (Turnstile → auth →
+    // per-user 429 → per-IP INCR) so a 401 or per-user 429 no longer burns
+    // the per-lender IP counter. The single Turnstile + rate-limit code
+    // path is still enforced.
     expect(route).toContain('submission-guard')
-    expect(route).toContain('submissionGuard(')
+    expect(route).toContain('verifyTurnstile(')
+    expect(route).toContain('checkRateLimit(')
   })
 
   it('persists userId on the Review row via upsert (one review per user+lender)', () => {
@@ -50,15 +57,15 @@ describe('AC-1/AC-2: review submission gated behind sign-in, per-account rate li
     expect(route).toContain('userId: session.user.id')
   })
 
-  it('places the auth gate after submissionGuard (Turnstile runs first, FR-13 order)', () => {
-    // Search within the POST handler body only — the file header comment
-    // also mentions both phrases while describing the pipeline, which would
-    // otherwise produce a false ordering match.
+  it('runs Turnstile first, then auth, then per-user, then per-IP INCR (ORD-1)', () => {
+    // Search within the POST handler body only.
     const postBody = route.slice(route.indexOf('export async function POST'))
-    const guardCallIndex = postBody.indexOf('await submissionGuard(')
+    const turnstileIndex = postBody.indexOf('verifyTurnstile(')
     const authCallIndex = postBody.indexOf('await auth()')
-    expect(guardCallIndex).toBeGreaterThan(-1)
-    expect(authCallIndex).toBeGreaterThan(guardCallIndex)
+    const rateLimitIndex = postBody.indexOf('checkRateLimit(')
+    expect(turnstileIndex).toBeGreaterThan(-1)
+    expect(authCallIndex).toBeGreaterThan(turnstileIndex)
+    expect(rateLimitIndex).toBeGreaterThan(authCallIndex)
   })
 })
 
@@ -116,9 +123,13 @@ describe('AC-4: red flag submission gated behind sign-in, per-account rate limit
     expect(route).toMatch(/Ratelimit\.slidingWindow\(2,\s*['"]7 d['"]\)/)
   })
 
-  it('still imports and calls submissionGuard (existing per-lender IP limit preserved)', () => {
+  it('still imports the shared Turnstile + rate-limit helpers (ORD-1 refactor)', () => {
+    // submissionGuard() split into verifyTurnstile + checkRateLimit so the
+    // per-lender IP INCR only runs after auth + per-user pass. The 30-day
+    // flag-lockout bug that motivated ORD-1 is closed by this ordering.
     expect(route).toContain('submission-guard')
-    expect(route).toContain('submissionGuard(')
+    expect(route).toContain('verifyTurnstile(')
+    expect(route).toContain('checkRateLimit(')
   })
 
   it('persists userId, submissionIp, and ipPurgeAt on the Flag row', () => {

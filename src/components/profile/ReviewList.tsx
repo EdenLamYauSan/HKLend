@@ -324,7 +324,7 @@ function ReviewCard({
           targetId={review.id}
           initialCount={review.voteCount}
           initialVoted={review.votedByCurrentUser}
-          isOwnContent={!!session?.user?.id && review.userId === session.user.id}
+          isOwnContent={review.isOwnContent}
           locale={locale}
           t={authT}
           actionsT={actionsT}

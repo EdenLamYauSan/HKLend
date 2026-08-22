@@ -42,7 +42,7 @@ import { db } from '@/lib/db'
 import { env } from '@/lib/env'
 import { apiError } from '@/types/api-error'
 import { scamReportSubmissionSchema } from '@/types/scam-report.schema'
-import { submissionGuard } from '@/lib/utils/submission-guard'
+import { verifyTurnstile, checkRateLimit } from '@/lib/utils/submission-guard'
 import { getClientIp } from '@/lib/utils/client-ip'
 import { auth } from '@/lib/auth/config'
 
@@ -143,18 +143,17 @@ export async function POST(request: NextRequest) {
     '0.0.0.0'
   const ip = getClientIp(request)
 
-  // ── 1. Rate limit + Turnstile (ARCH-8) ──────────────────────────────────
-  // Rate limit: 2 reports per (fingerprint+IP) per 24h.
-  const guard = await submissionGuard({
-    fingerprint,
-    ip,
-    turnstileToken,
-    namespace: 'scam-report',
-    limit: 2,
-    windowSeconds: 86400, // 24h
-  })
-
-  if (!guard.ok) return guard.response
+  // Guard order (fixes ORD-1): Turnstile → auth → per-user + per-IP → per-fingerprint+IP INCR.
+  // ── 1. Turnstile (fail-closed, no side effect) ────────────────────────────
+  let turnstilePassed: boolean
+  try {
+    turnstilePassed = await verifyTurnstile(turnstileToken, ip)
+  } catch {
+    return Response.json(apiError('TURNSTILE_FAILED', '人機驗證失敗，請重試'), { status: 400 })
+  }
+  if (!turnstilePassed) {
+    return Response.json(apiError('TURNSTILE_FAILED', '人機驗證失敗，請重試'), { status: 400 })
+  }
 
   // ── 2. Auth gate (Story 8.2, AC-5) ────────────────────────────────────────
   const session = await auth()
@@ -162,7 +161,7 @@ export async function POST(request: NextRequest) {
     return Response.json(apiError('UNAUTHORIZED', '請先登入後再繼續。'), { status: 401 })
   }
 
-  // ── 3. Per-account AND per-IP rate limits (AC-5), on top of #1 above ──────
+  // ── 3. Per-account AND per-IP rate limits (AC-5) ─────────────────────────
   const [userLimit, ipLimit] = await Promise.all([
     scamReportUserLimiter.limit(session.user.id),
     scamReportIpLimiter.limit(ip),
@@ -170,6 +169,15 @@ export async function POST(request: NextRequest) {
   if (!userLimit.success || !ipLimit.success) {
     return Response.json(
       apiError('RATE_LIMITED', '你在 7 天內的舉報次數已達上限，請稍後再試。'),
+      { status: 429, headers: { 'X-RateLimit-Remaining': '0' } }
+    )
+  }
+
+  // ── 4. Per-(fingerprint+IP) counter (INCR happens here) — the 2/24h shape ─
+  const rl = await checkRateLimit(fingerprint, ip, 'scam-report', 2, 86400)
+  if (!rl.allowed) {
+    return Response.json(
+      apiError('RATE_LIMITED', '此網絡在 24 小時內的舉報次數已達上限，請稍後再試'),
       { status: 429, headers: { 'X-RateLimit-Remaining': '0' } }
     )
   }

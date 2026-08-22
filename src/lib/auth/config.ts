@@ -30,6 +30,7 @@
 
 export const runtime = 'nodejs'
 
+import { cache } from 'react'
 import NextAuth from 'next-auth'
 import Resend from 'next-auth/providers/resend'
 import { PrismaAdapter } from '@auth/prisma-adapter'
@@ -235,3 +236,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
 })
+
+/**
+ * Per-request-cached wrapper around `auth()`. Two sibling Server Components
+ * that both call `getSession()` share one DB session lookup and one cookie
+ * decrypt per request. Story 8.3 lands ReviewSection AND FlagsSection on the
+ * lender profile, so without this dedup the same request paid for the same
+ * lookup twice, doubling load on the Neon Dev-tier max:1 pg pool.
+ *
+ * Use this in Server Components for the read-only "who is the current user"
+ * question. Server actions and route handlers can still call `auth()`
+ * directly — React's `cache` only dedupes within a single React render tree,
+ * which is exactly the RSC boundary.
+ */
+export const getSession = cache(async () => auth())

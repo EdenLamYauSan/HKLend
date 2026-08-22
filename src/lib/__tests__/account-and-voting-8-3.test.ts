@@ -208,14 +208,21 @@ describe('AC-6: deleteAccount server action', () => {
     expect(actions).toContain('env.ACCOUNT_HASH_SALT')
   })
 
-  it('runs every row-touching operation inside a single $transaction', () => {
-    expect(fnBody).toMatch(/await db\.\$transaction\(\[/)
-    expect(fnBody).toContain('db.review.updateMany')
-    expect(fnBody).toContain('db.flag.updateMany')
-    expect(fnBody).toContain('db.scamReport.updateMany')
-    expect(fnBody).toContain('db.reviewReport.updateMany')
-    expect(fnBody).toContain('db.vote.deleteMany')
-    expect(fnBody).toContain('db.user.delete')
+  it('runs every row-touching operation inside a single $transaction at SERIALIZABLE (DEL-4)', () => {
+    // DEL-4 fix: converted from db.$transaction([...]) array form to
+    // db.$transaction(async (tx) => {...}, {isolationLevel:'Serializable'})
+    // callback form. SERIALIZABLE prevents a concurrent Review/Flag/etc
+    // insert from committing between our updateMany snapshot and
+    // user.delete — the race that would otherwise leave a row with
+    // userId=NULL AND deletedUserHash=NULL, breaking the FR-68 invariant.
+    expect(fnBody).toMatch(/await db\.\$transaction\(\s*async\s*\(tx\)\s*=>/)
+    expect(fnBody).toContain("isolationLevel: 'Serializable'")
+    expect(fnBody).toContain('tx.review.updateMany')
+    expect(fnBody).toContain('tx.flag.updateMany')
+    expect(fnBody).toContain('tx.scamReport.updateMany')
+    expect(fnBody).toContain('tx.reviewReport.updateMany')
+    expect(fnBody).toContain('tx.vote.deleteMany')
+    expect(fnBody).toContain('tx.user.delete')
   })
 
   it('does NOT onDelete: CASCADE Review/Flag/ScamReport/ReviewReport from User — SET NULL only', () => {
@@ -338,9 +345,16 @@ describe('AC-4: review-list DB query is vote-sorted', () => {
   })
 
   it('the review query contains an ORDER BY driven by the recency window and vote count', () => {
+    // PERF-1 fix: the vote-count subquery was rewritten from a derived-table
+    // aggregate (WHERE target_type='review' GROUP BY target_id — full-table
+    // scan) to a correlated scalar subquery (COUNT(*) WHERE target_id = r.id
+    // AND target_type = 'review' — index-driven, K point lookups). "vote_count"
+    // no longer appears as an alias; the query now references voteCount as
+    // the SELECT alias and inlines the COUNT(*) subquery.
     expect(votesLib).toContain('ORDER BY')
     expect(votesLib).toContain('make_interval(days => ${VOTE_SORT_RECENCY_DAYS})')
-    expect(votesLib).toContain('vote_count')
+    expect(votesLib).toContain('voteCount')
+    expect(votesLib).toMatch(/SELECT COUNT\(\*\) FROM votes/)
   })
 
   it('ties within the recent window break by createdAt DESC, and the older bucket also ends on createdAt DESC', () => {

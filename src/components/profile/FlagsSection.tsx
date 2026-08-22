@@ -19,7 +19,7 @@
  */
 
 import { db } from '@/lib/db'
-import { auth } from '@/lib/auth/config'
+import { getSession } from '@/lib/auth/config'
 import type { Locale } from '@/locales'
 import { getTranslations } from '@/locales'
 import { getFlagVoteData } from '@/lib/votes'
@@ -96,7 +96,7 @@ export async function FlagsSection({ lenderId, lenderSlug, locale }: Props) {
   const isZh = locale === 'zh'
   const [{ flags, flags90dCount }, session] = await Promise.all([
     getFlagsData(lenderId),
-    auth(),
+    getSession(),
   ])
   const currentUserId = session?.user?.id ?? null
   const { counts: voteCounts, votedByCurrentUser } = await getFlagVoteData(

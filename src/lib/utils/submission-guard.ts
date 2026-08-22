@@ -86,7 +86,17 @@ export type SubmissionGuardResult =
 
 // ─── Rate limit ───────────────────────────────────────────────────────────────
 
-async function checkRateLimit(
+/**
+ * IP + fingerprint rate limit only (no Turnstile, no wrapper). Exported so
+ * callers that need a different guard order — e.g. run Turnstile + auth +
+ * per-user check FIRST, and only apply the per-IP counter after those all
+ * pass — can invoke it directly. submissionGuard() still bundles Turnstile
+ * with the same call for the common case.
+ *
+ * Fixes ORD-1 (rate-limit order): a 401 or per-user 429 no longer burns
+ * the per-lender IP counter, which previously caused 30-day flag lockouts.
+ */
+export async function checkRateLimit(
   fingerprint: string,
   ip: string,
   namespace: string,
@@ -126,18 +136,25 @@ const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/sit
  * Times out after 3 seconds — no fallback that silently skips verification.
  * A timeout results in the submission being rejected (fail-closed).
  *
- * Short-circuits to `true` when `TURNSTILE_SECRET_KEY` is unset (typical in
- * local dev). Mirrors `submissionGuard`'s existing behaviour so callers see
- * the same "Turnstile is optional in dev" contract everywhere. In production
- * the key MUST be set — env validation does not require it, but ops policy
- * does.
+ * Short-circuits to `true` when `TURNSTILE_SECRET_KEY` is unset AND we are
+ * NOT in production (typical local dev). In production a missing key is a
+ * fail-CLOSED: we log at ERROR and reject the submission rather than silently
+ * accepting every token, which would collapse enumeration + spam defence.
+ * env validation keeps the var optional so a rotation blip does not brick
+ * the deploy, but ops policy is that prod MUST have the key set.
  *
  * ARCH-8: exported so other modules (e.g. the Story 8.1 borrower sign-in
  * server action) can reuse this single Turnstile code path instead of
  * calling the Cloudflare siteverify endpoint from a second place.
  */
 export async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
-  if (!env.TURNSTILE_SECRET_KEY) return true
+  if (!env.TURNSTILE_SECRET_KEY) {
+    if (env.NODE_ENV === 'production') {
+      console.error('[verifyTurnstile] TURNSTILE_SECRET_KEY is unset in production — rejecting submission (fail-closed).')
+      return false
+    }
+    return true
+  }
 
   const body = new URLSearchParams()
   body.append('secret', env.TURNSTILE_SECRET_KEY)
@@ -194,11 +211,12 @@ export async function submissionGuard(
   // ── Step 1: Turnstile verification ──────────────────────────────────────────
   // Must run BEFORE rate-limit INCR: a CAPTCHA glitch or network timeout must
   // never burn the user's submission quota.
-  // Skip when TURNSTILE_SECRET_KEY is absent (pre-Cloudflare setup).
+  // Skip when TURNSTILE_SECRET_KEY is absent in a NON-production environment
+  // (local dev, previews without CF). In production a missing key becomes
+  // a fail-closed reject — handled inside verifyTurnstile, so we always
+  // delegate rather than short-circuit here.
   let turnstilePassed: boolean
-  if (!env.TURNSTILE_SECRET_KEY) {
-    turnstilePassed = true
-  } else try {
+  try {
     turnstilePassed = await verifyTurnstile(turnstileToken, ip)
   } catch {
     // AbortSignal.timeout(3000) throws DOMException on timeout.

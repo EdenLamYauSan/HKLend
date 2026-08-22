@@ -135,16 +135,13 @@ export async function getVoteSortedReviews(
       r."createdAt"            AS "createdAt",
       r.user_id                AS "userId",
       u.name                   AS "userDisplayName",
-      COALESCE(vc.vote_count, 0) AS "voteCount",
+      COALESCE((
+        SELECT COUNT(*) FROM votes
+        WHERE target_id = r.id AND target_type = 'review'
+      ), 0)                    AS "voteCount",
       (uv.id IS NOT NULL)      AS "votedByCurrentUser"
     FROM "Review" r
     LEFT JOIN users u ON u.id = r.user_id
-    LEFT JOIN (
-      SELECT target_id, COUNT(*) AS vote_count
-      FROM votes
-      WHERE target_type = 'review'
-      GROUP BY target_id
-    ) vc ON vc.target_id = r.id
     LEFT JOIN votes uv
       ON uv.target_id = r.id
       AND uv.target_type = 'review'
@@ -154,12 +151,21 @@ export async function getVoteSortedReviews(
       (r."createdAt" >= NOW() - make_interval(days => ${VOTE_SORT_RECENCY_DAYS})) DESC,
       CASE
         WHEN r."createdAt" >= NOW() - make_interval(days => ${VOTE_SORT_RECENCY_DAYS})
-        THEN COALESCE(vc.vote_count, 0)
+        THEN COALESCE((
+          SELECT COUNT(*) FROM votes
+          WHERE target_id = r.id AND target_type = 'review'
+        ), 0)
         ELSE 0
       END DESC,
       r."createdAt" DESC
     OFFSET ${skip}
     LIMIT ${take}
+    -- PERF-1 fix: correlated scalar subqueries use the
+    -- @@index([targetType, targetId]) for K point lookups (one per returned
+    -- row, K ≤ PAGE_SIZE) instead of the previous LEFT JOIN which hash-
+    -- aggregated every review vote in the entire votes table on every
+    -- profile view. Postgres will hoist the identical subquery from SELECT
+    -- and ORDER BY into a single evaluation per row.
   `
 
   return rows.map((r) => ({

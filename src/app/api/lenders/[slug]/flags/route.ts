@@ -35,7 +35,7 @@ import { db } from '@/lib/db'
 import { env } from '@/lib/env'
 import { apiError } from '@/types/api-error'
 import { flagSubmissionSchema } from '@/types/flag.schema'
-import { submissionGuard } from '@/lib/utils/submission-guard'
+import { verifyTurnstile, checkRateLimit } from '@/lib/utils/submission-guard'
 import { getClientIp } from '@/lib/utils/client-ip'
 import { auth } from '@/lib/auth/config'
 
@@ -99,25 +99,30 @@ export async function POST(
   const turnstileToken =
     typeof body?.turnstileToken === 'string' ? body.turnstileToken : ''
 
-  // ── 1. Rate limit + Turnstile (ARCH-8) ──────────────────────────────────
-  // Rate limit: 1 flag per (fingerprint+IP) per lender per 30 days (FR-43).
-  // Namespace includes slug to enforce per-lender limit.
+  // Guard order (fixes ORD-1: a 401 or per-user 429 must NOT burn the
+  // per-lender IP counter — that's a 30-day lockout on a lender where the
+  // user never actually submitted anything).
+  //   1. Turnstile verify (fail-closed, no side effect on Redis)
+  //   2. auth() gate
+  //   3. per-user 429 check
+  //   4. per-IP + per-fingerprint counter INCR (side-effect)
+  //   5. Zod validate + insert
   const fingerprint =
     request.headers.get('x-fingerprint') ??
     request.headers.get('x-real-ip') ??
     '0.0.0.0'
   const ip = getClientIp(request)
 
-  const guard = await submissionGuard({
-    fingerprint,
-    ip,
-    turnstileToken,
-    namespace: `flag:${slug}`,
-    limit: 1,
-    windowSeconds: 30 * 24 * 60 * 60, // 30 days
-  })
-
-  if (!guard.ok) return guard.response
+  // ── 1. Turnstile ─────────────────────────────────────────────────────────
+  let turnstilePassed: boolean
+  try {
+    turnstilePassed = await verifyTurnstile(turnstileToken, ip)
+  } catch {
+    return Response.json(apiError('TURNSTILE_FAILED', '人機驗證失敗，請重試'), { status: 400 })
+  }
+  if (!turnstilePassed) {
+    return Response.json(apiError('TURNSTILE_FAILED', '人機驗證失敗，請重試'), { status: 400 })
+  }
 
   // ── 2. Auth gate (Story 8.2, AC-4) ────────────────────────────────────────
   const session = await auth()
@@ -125,11 +130,21 @@ export async function POST(
     return Response.json(apiError('UNAUTHORIZED', '請先登入後再繼續。'), { status: 401 })
   }
 
-  // ── 3. Per-account rate limit (AC-4), on top of the per-lender limit above ──
+  // ── 3. Per-account rate limit (AC-4) ──────────────────────────────────────
   const { success: withinUserLimit } = await flagUserLimiter.limit(session.user.id)
   if (!withinUserLimit) {
     return Response.json(
       apiError('RATE_LIMITED', '你在 7 天內的標記次數已達上限，請稍後再試。'),
+      { status: 429, headers: { 'X-RateLimit-Remaining': '0' } }
+    )
+  }
+
+  // ── 4. Per-lender IP + fingerprint counter (INCR happens here) ────────────
+  // 1 flag per (fingerprint+IP) per lender per 30 days (FR-43).
+  const rl = await checkRateLimit(fingerprint, ip, `flag:${slug}`, 1, 30 * 24 * 60 * 60)
+  if (!rl.allowed) {
+    return Response.json(
+      apiError('RATE_LIMITED', '你已對此放債人提交過標記，請稍後再試'),
       { status: 429, headers: { 'X-RateLimit-Remaining': '0' } }
     )
   }

@@ -26,6 +26,7 @@ import { useEffect, useRef, useState, useTransition } from 'react'
 import { Turnstile } from '@marsidev/react-turnstile'
 import type { TurnstileInstance } from '@marsidev/react-turnstile'
 import { submitSignIn } from '@/app/[locale]/(public)/sign-in/actions'
+import { getTurnstileSiteKey } from '@/lib/env-client'
 import type { Locale, Translation } from '@/locales'
 
 interface Props {
@@ -233,7 +234,7 @@ export function SignInPromptModal({ open, onClose, locale, t, actionsT, reason, 
 
               <Turnstile
                 ref={turnstileRef}
-                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? ''}
+                siteKey={getTurnstileSiteKey() ?? ''}
                 options={{ execution: 'execute', appearance: 'interaction-only' }}
                 onSuccess={setTurnstileToken}
                 onExpire={() => setTurnstileToken(null)}

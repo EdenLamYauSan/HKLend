@@ -32,7 +32,7 @@
 
 import { db } from '@/lib/db'
 import { env } from '@/lib/env'
-import { auth } from '@/lib/auth/config'
+import { getSession } from '@/lib/auth/config'
 import type { Locale } from '@/locales'
 import { getVoteSortedReviews } from '@/lib/votes'
 import { RatingSummary } from './RatingSummary'
@@ -52,10 +52,15 @@ export interface ReviewItem {
   notHelpfulCount: number
   createdAt: Date
   // Story 8.3, AC-2/AC-3/AC-4
-  userId: string | null
+  // Note: raw userId is intentionally NOT exposed to the client — see the
+  // getReviewsForProfile mapper. Grouping by userId across lenders would
+  // reconstruct a user's cross-lender submission history, which the display
+  // name FR-13 does not allow. Only the FR-67 self-vote check needs the
+  // "is this me?" bit, so we ship that pre-computed as isOwnContent.
   userDisplayName: string | null
   voteCount: number
   votedByCurrentUser: boolean
+  isOwnContent: boolean
 }
 
 export interface RatingAggregate {
@@ -98,10 +103,11 @@ async function getReviewsForProfile(lenderId: string, currentUserId: string | nu
     helpfulCount: r.helpfulCount,
     notHelpfulCount: r.notHelpfulCount,
     createdAt: r.createdAt,
-    userId: r.userId,
     userDisplayName: r.userDisplayName,
     voteCount: r.voteCount,
     votedByCurrentUser: r.votedByCurrentUser,
+    // Pre-computed server-side so the raw userId never leaves the DB.
+    isOwnContent: !!currentUserId && r.userId === currentUserId,
   }))
 
   const count = aggregate._count.id
@@ -141,7 +147,7 @@ interface Props {
 }
 
 export async function ReviewSection({ lenderSlug, lenderId, locale }: Props) {
-  const session = await auth()
+  const session = await getSession()
   const currentUserId = session?.user?.id ?? null
   const { reviews, ratingData, total } = await getReviewsForProfile(lenderId, currentUserId)
 

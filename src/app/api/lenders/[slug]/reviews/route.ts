@@ -43,7 +43,7 @@ import { db } from '@/lib/db'
 import { env } from '@/lib/env'
 import { apiError } from '@/types/api-error'
 import { reviewSubmissionSchema } from '@/types/review.schema'
-import { submissionGuard } from '@/lib/utils/submission-guard'
+import { verifyTurnstile, checkRateLimit } from '@/lib/utils/submission-guard'
 import { getClientIp } from '@/lib/utils/client-ip'
 import { auth } from '@/lib/auth/config'
 import { getVoteSortedReviews } from '@/lib/votes'
@@ -106,7 +106,7 @@ export async function GET(
   const session = await auth()
   const currentUserId = session?.user?.id ?? null
 
-  const [items, total] = await Promise.all([
+  const [rows, total] = await Promise.all([
     getVoteSortedReviews(lender.id, {
       skip: (page - 1) * pageSize,
       take: pageSize,
@@ -116,6 +116,13 @@ export async function GET(
       where: { lenderId: lender.id, status: 'APPROVED' },
     }),
   ])
+
+  // Strip raw userId from the public response — see ReviewSection.tsx
+  // ReviewItem comment. Only the pre-computed isOwnContent bit ships.
+  const items = rows.map(({ userId, ...rest }) => ({
+    ...rest,
+    isOwnContent: !!currentUserId && userId === currentUserId,
+  }))
 
   return Response.json({ items, total, page, pageSize })
 }
@@ -153,30 +160,42 @@ export async function POST(
   }
   const { turnstileToken, reviewerName, ...reviewData } = parsed.data
 
-  // ARCH-8: submissionGuard — rate limit + Turnstile (mandatory; CI grep checks this import)
-  // Namespace includes slug so the limit is per-lender, not site-wide.
-  // FR-13 order: Turnstile verification happens first, inside this call.
-  const guard = await submissionGuard({
-    fingerprint,
-    ip,
-    turnstileToken,
-    namespace: `review:${slug}`,
-    limit: 1,
-    windowSeconds: 86400, // 24h
-  })
-  if (!guard.ok) return guard.response
+  // Guard order (fixes ORD-1): Turnstile → auth → per-user 429 → per-IP INCR.
+  // Previously the per-IP counter incremented before the auth/per-user
+  // checks, so a signed-in user who tripped their 3/user/24h cap had already
+  // burned the per-lender IP window for a lender where nothing was written.
 
-  // AC-1: gate behind sign-in.
+  // ── 1. Turnstile (fail-closed, no side effect on Redis) ──────────────────
+  let turnstilePassed: boolean
+  try {
+    turnstilePassed = await verifyTurnstile(turnstileToken, ip)
+  } catch {
+    return Response.json(apiError('TURNSTILE_FAILED', '人機驗證失敗，請重試'), { status: 400 })
+  }
+  if (!turnstilePassed) {
+    return Response.json(apiError('TURNSTILE_FAILED', '人機驗證失敗，請重試'), { status: 400 })
+  }
+
+  // ── 2. AC-1: sign-in gate ────────────────────────────────────────────────
   const session = await auth()
   if (!session?.user?.id) {
     return Response.json(apiError('UNAUTHORIZED', '請先登入後再繼續。'), { status: 401 })
   }
 
-  // AC-2: per-account rate limit, on top of the per-(fingerprint+IP) limit above.
+  // ── 3. AC-2: per-account rate limit ──────────────────────────────────────
   const { success: withinUserLimit } = await reviewUserLimiter.limit(session.user.id)
   if (!withinUserLimit) {
     return Response.json(
       apiError('RATE_LIMITED', '你在 24 小時內的評論次數已達上限，請稍後再試。'),
+      { status: 429, headers: { 'X-RateLimit-Remaining': '0' } }
+    )
+  }
+
+  // ── 4. Per-lender IP + fingerprint counter (INCR happens here) ───────────
+  const rl = await checkRateLimit(fingerprint, ip, `review:${slug}`, 1, 86400)
+  if (!rl.allowed) {
+    return Response.json(
+      apiError('RATE_LIMITED', '你已對此放債人提交過評論，請稍後再試'),
       { status: 429, headers: { 'X-RateLimit-Remaining': '0' } }
     )
   }

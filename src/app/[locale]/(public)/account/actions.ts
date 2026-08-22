@@ -82,49 +82,77 @@ export async function deleteAccount(confirmEmail: string): Promise<DeleteAccount
 
   const groupHash = computeGroupHash(userId)
 
-  try {
-    // AC-6 step 4 / Dev Notes "Delete flow atomicity": every row-touching
-    // operation lives inside this one transaction. signOut is called ONLY
-    // after this succeeds (below) — signing out first would leave the user
-    // without a session but with content still attached to their account if
-    // the transaction then rolled back.
-    await db.$transaction([
-      db.review.updateMany({
-        where: { userId },
-        data: { userId: null, reviewerName: DELETED_USER_DISPLAY_NAME, deletedUserHash: groupHash },
-      }),
-      db.flag.updateMany({
-        where: { userId },
-        data: { userId: null, deletedUserHash: groupHash },
-      }),
-      db.scamReport.updateMany({
-        where: { reporterUserId: userId },
-        data: { reporterUserId: null, deletedUserHash: groupHash },
-      }),
-      db.reviewReport.updateMany({
-        where: { reporterUserId: userId },
-        data: { reporterUserId: null, deletedUserHash: groupHash },
-      }),
-      // AC-6 step 4: delete all Vote rows for this user — vote counts
-      // recompute naturally via count() on the next read, no cleanup needed
-      // elsewhere. (The Vote→User FK also cascades on delete as a backstop —
-      // see the Vote model's schema comment — but this transaction is the
-      // primary path and does it explicitly.)
-      db.vote.deleteMany({ where: { userId } }),
-      // Auth.js's PrismaAdapter schema cascades Account/Session rows on
-      // User delete (onDelete: Cascade on both) — no explicit deleteMany
-      // needed for those here.
-      db.user.delete({ where: { id: userId } }),
-    ])
-  } catch (error) {
-    console.error('[deleteAccount] transaction failed:', error)
-    return { ok: false, code: 'INTERNAL_ERROR' }
+  // DEL-4: run at SERIALIZABLE isolation with a retry loop. In READ COMMITTED
+  // a concurrent Review/Flag/ScamReport insert from another tab could commit
+  // between our updateMany snapshot and user.delete, then get its userId
+  // cascaded to NULL by the FK without ever receiving the deletedUserHash
+  // stamp — breaking the FR-68 invariant "every row belonging to a deleted
+  // user carries both userId=NULL AND deletedUserHash set". SERIALIZABLE
+  // detects the read-write conflict and errors one transaction with 40001;
+  // the loser retries and sees the new row on the second pass. Two retries
+  // is enough here — the delete is a rare user-initiated action, not a hot
+  // path.
+  const MAX_RETRIES = 3
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      await db.$transaction(
+        async (tx) => {
+          await tx.review.updateMany({
+            where: { userId },
+            data: { userId: null, reviewerName: DELETED_USER_DISPLAY_NAME, deletedUserHash: groupHash },
+          })
+          await tx.flag.updateMany({
+            where: { userId },
+            data: { userId: null, deletedUserHash: groupHash },
+          })
+          await tx.scamReport.updateMany({
+            where: { reporterUserId: userId },
+            data: { reporterUserId: null, deletedUserHash: groupHash },
+          })
+          await tx.reviewReport.updateMany({
+            where: { reporterUserId: userId },
+            data: { reporterUserId: null, deletedUserHash: groupHash },
+          })
+          // AC-6 step 4: Vote rows deleted here explicitly — the User→Vote
+          // FK also cascades on delete as a backstop.
+          await tx.vote.deleteMany({ where: { userId } })
+          // Auth.js's PrismaAdapter schema cascades Account/Session rows on
+          // User delete (onDelete: Cascade on both) — no explicit deleteMany
+          // needed for those here.
+          await tx.user.delete({ where: { id: userId } })
+        },
+        { isolationLevel: 'Serializable' }
+      )
+      break // committed; leave the retry loop
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      const isSerializationFailure =
+        /could not serialize|40001|serialization_failure/i.test(message)
+      if (isSerializationFailure && attempt < MAX_RETRIES) {
+        console.warn(`[deleteAccount] serialization conflict on attempt ${attempt}, retrying`)
+        continue
+      }
+      console.error('[deleteAccount] transaction failed:', error)
+      return { ok: false, code: 'INTERNAL_ERROR' }
+    }
   }
 
   // AC-6 step 5: signOut AFTER the transaction succeeds, redirect: false so
   // the caller (AccountDeletionModal) controls navigation to
   // /[locale]?deleted=1 itself rather than Auth.js's own redirect.
-  await signOut({ redirect: false })
+  //
+  // Defensive try/catch: the User delete above cascaded the Auth.js Session
+  // rows via the adapter's onDelete:Cascade. signOut internally looks up
+  // and deletes the current session row, which may now be gone — depending
+  // on Auth.js version that can throw a P2025 "not found". Swallow it: the
+  // account IS deleted, so surfacing a rejection here would tell the user
+  // the delete failed when it actually succeeded. Any other post-commit
+  // failure lands here too, logged for debugging.
+  try {
+    await signOut({ redirect: false })
+  } catch (error) {
+    console.error('[deleteAccount] signOut after successful transaction failed (session already cascaded or Auth.js internal error). Continuing — account IS deleted.', error)
+  }
 
   return { ok: true }
 }

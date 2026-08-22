@@ -38,6 +38,8 @@ export function AccountDeletionModal({ open, onClose, locale, email, t, actionsT
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
   const inputRef = useRef<HTMLInputElement>(null)
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const previouslyFocusedRef = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
     if (open) {
@@ -49,11 +51,62 @@ export function AccountDeletionModal({ open, onClose, locale, email, t, actionsT
   useEffect(() => {
     if (!open) return
     function handleKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape' && !pending) onClose()
     }
     document.addEventListener('keydown', handleKey)
     return () => document.removeEventListener('keydown', handleKey)
-  }, [open, onClose])
+  }, [open, onClose, pending])
+
+  // A11y: focus trap, focus return, body-scroll lock — same shape as
+  // SignInPromptModal. Highest-consequence dialog in the app so the a11y
+  // regression matters most here.
+  useEffect(() => {
+    if (!open) return
+    previouslyFocusedRef.current = document.activeElement as HTMLElement | null
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    const dialog = dialogRef.current
+    const focusableSelector =
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
+    function getFocusable(): HTMLElement[] {
+      if (!dialog) return []
+      return Array.from(dialog.querySelectorAll<HTMLElement>(focusableSelector)).filter(
+        (el) => !el.hasAttribute('disabled') && el.offsetParent !== null
+      )
+    }
+
+    const focusTimer = setTimeout(() => {
+      // Land focus on the confirm-email input so keyboard users can type
+      // immediately, rather than the close button (first in the tab order).
+      inputRef.current?.focus()
+    }, 0)
+
+    function handleTab(e: KeyboardEvent) {
+      if (e.key !== 'Tab') return
+      const focusables = getFocusable()
+      if (focusables.length === 0) return
+      const first = focusables[0]
+      const last = focusables[focusables.length - 1]
+      const active = document.activeElement as HTMLElement | null
+      if (e.shiftKey && active === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+    document.addEventListener('keydown', handleTab)
+
+    return () => {
+      clearTimeout(focusTimer)
+      document.removeEventListener('keydown', handleTab)
+      document.body.style.overflow = previousOverflow
+      previouslyFocusedRef.current?.focus?.()
+    }
+  }, [open])
 
   if (!open) return null
 
@@ -89,6 +142,7 @@ export function AccountDeletionModal({ open, onClose, locale, email, t, actionsT
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-labelledby="account-deletion-title"
@@ -96,7 +150,7 @@ export function AccountDeletionModal({ open, onClose, locale, email, t, actionsT
     >
       <div
         className="absolute inset-0 bg-black/40"
-        onClick={onClose}
+        onClick={pending ? undefined : onClose}
         aria-hidden="true"
       />
 
@@ -108,8 +162,9 @@ export function AccountDeletionModal({ open, onClose, locale, email, t, actionsT
           <button
             type="button"
             onClick={onClose}
+            disabled={pending}
             aria-label={actionsT.close}
-            className="rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 min-h-[44px] min-w-[44px] flex items-center justify-center"
+            className="rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] min-w-[44px] flex items-center justify-center"
           >
             ✕
           </button>
