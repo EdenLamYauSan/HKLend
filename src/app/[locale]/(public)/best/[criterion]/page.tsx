@@ -312,8 +312,8 @@ export default async function BestPage({ params }: PageProps) {
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-semibold text-brand-navy">{heading}</h1>
-          <p className="mt-2 text-gray-600">{description}</p>
+          <h1 className="text-2xl font-semibold text-gray-900">{heading}</h1>
+          <p className="mt-1 text-sm text-gray-500">{description}</p>
         </div>
 
         {/* Lender list */}

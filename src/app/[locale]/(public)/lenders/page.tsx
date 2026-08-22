@@ -146,10 +146,10 @@ export default async function LendersPage({
       {/* ── Directory ── */}
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
         <div className="mb-4 flex items-center justify-between gap-2">
-          <h1 className="text-lg font-semibold text-primary shrink-0">
+          <h1 className="text-2xl font-semibold text-gray-900 shrink-0">
             {isZh ? '持牌放債人名冊' : 'Licensed Money Lenders Registry'}
           </h1>
-          <span className="text-sm text-muted-foreground whitespace-nowrap">
+          <span className="text-sm text-gray-500 whitespace-nowrap">
             {search || letter || loanType
               ? (isZh ? `${total.toLocaleString()} 個結果` : `${total.toLocaleString()} results`)
               : (isZh ? `共 ${total.toLocaleString()} 間` : `${total.toLocaleString()} total`)}

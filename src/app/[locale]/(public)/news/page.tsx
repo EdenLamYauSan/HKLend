@@ -157,8 +157,8 @@ export default async function NewsPage({ params, searchParams }: PageProps) {
     <div className="mx-auto max-w-4xl px-4 py-8 md:px-6 lg:px-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-semibold text-brand-navy">{t.news.pageTitle}</h1>
-        <p className="mt-2 text-base text-gray-600">{t.news.pageDescription}</p>
+        <h1 className="text-2xl font-semibold text-gray-900">{t.news.pageTitle}</h1>
+        <p className="mt-1 text-sm text-gray-500">{t.news.pageDescription}</p>
       </div>
 
       {/* Category filters */}

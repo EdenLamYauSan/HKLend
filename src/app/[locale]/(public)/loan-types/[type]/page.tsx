@@ -197,10 +197,10 @@ export default async function LoanTypePage({ params }: PageProps) {
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-semibold text-brand-navy">
+          <h1 className="text-2xl font-semibold text-gray-900">
             {locale === 'zh' ? `香港${labelZh}持牌放債人` : `Hong Kong ${labelEn} Licensed Money Lenders`}
           </h1>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-1 text-sm text-gray-500">
             {locale === 'zh'
               ? `以下列出所有提供${labelZh}的香港持牌放債人（共 ${lenders.length} 間），資料來源香港公司登記冊。`
               : `All ${lenders.length} licensed money lenders in Hong Kong offering ${labelEn}, sourced from the HKMA registry.`}
