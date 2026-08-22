@@ -53,6 +53,7 @@ const COPY: Record<Locale, PageCopy> = {
           'IP 位址及瀏覽器指紋：用於防止濫發、限制同一裝置在短時間內重複提交點評或警示。',
           '你自願提交的內容：點評內文、警示原因、可選填的顯示名稱、以及提交時間。',
           'Vercel Analytics：頁面瀏覽次數、來源網址等匿名量測，不包含可識別個人身份的資料。',
+          'PostHog（歐洲託管）：匿名的頁面互動資料（點擊、滾動、瀏覽時長）及有限度的網頁重播，用於了解使用者如何使用本網站；不會收集你在輸入欄內填寫的內容。',
         ],
       },
       {
@@ -63,13 +64,14 @@ const COPY: Record<Locale, PageCopy> = {
       {
         heading: 'Cookies 及本地儲存',
         body:
-          '本網站只使用功能性儲存：例如 Zustand 的持久化書籤（比較清單），以及用於防重複投票的 localStorage 記錄。我們沒有使用廣告或追蹤 cookie。',
+          '本網站使用功能性儲存（如 Zustand 的持久化書籤及防重複投票的 localStorage 記錄），以及 PostHog 匿名分析 cookie／localStorage（用於將同一訪客的多次瀏覽串連，以計算使用流程）。我們沒有使用廣告 cookie 或跨網站追蹤 cookie。',
       },
       {
         heading: '第三方服務',
         list: [
           'Cloudflare Turnstile：驗證提交者非機械人。',
           'Vercel Analytics：匿名網站分析。',
+          'PostHog（歐洲託管）：產品互動分析與網頁重播。',
           'Neon：資料庫託管。',
           'Vercel：網站託管。',
           '目前並無廣告網絡或行銷追蹤服務。',
@@ -109,6 +111,7 @@ const COPY: Record<Locale, PageCopy> = {
           'IP address and browser fingerprint — used to rate-limit repeat submissions from the same device and to deter abuse.',
           'Content you choose to submit — review text, flag reason, optional display name, and the submission timestamp.',
           'Vercel Analytics — anonymous page-view and referrer metrics that do not include personally identifiable data.',
+          'PostHog (EU region) — anonymous interaction data (clicks, scrolls, time on page) and limited session replay used to understand how the site is used; content typed into form fields is not captured.',
         ],
       },
       {
@@ -119,13 +122,14 @@ const COPY: Record<Locale, PageCopy> = {
       {
         heading: 'Cookies and local storage',
         body:
-          'We only use functional storage — for example the Zustand persist store for your compare-list bookmark, and localStorage records used to prevent duplicate votes. We do not use advertising or tracking cookies.',
+          'We use functional storage (such as the Zustand persist store for your compare-list bookmark and localStorage records used to prevent duplicate votes) plus PostHog anonymous analytics cookies/localStorage that let us join a single visitor\'s page views together to see the flow through the site. We do not use advertising cookies or cross-site tracking cookies.',
       },
       {
         heading: 'Third parties',
         list: [
           'Cloudflare Turnstile — bot-check on submissions.',
           'Vercel Analytics — anonymous site analytics.',
+          'PostHog (EU region) — product interaction analytics and session replay.',
           'Neon — database hosting.',
           'Vercel — site hosting.',
           'We do not use ad networks or marketing trackers.',

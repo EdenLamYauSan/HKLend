@@ -16,6 +16,8 @@
 import type { Metadata, Viewport } from 'next'
 import '../globals.css'
 import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
+import { PostHogProvider } from '@/components/analytics/PostHogProvider'
 import { Toaster } from 'sonner'
 import { Plus_Jakarta_Sans, Noto_Serif_TC } from 'next/font/google'
 import { notFound } from 'next/navigation'
@@ -125,6 +127,8 @@ export default async function LocaleLayout({
          * AC-4 (Story 1.8).
          */}
         <Analytics />
+        <SpeedInsights />
+        <PostHogProvider />
 
         {/*
          * Global toast/snackbar. Top-center is mobile-friendly and does not
