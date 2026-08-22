@@ -239,8 +239,8 @@ export default async function HomePage({
           <h2 className="mb-2 text-center">
             {isZh ? '供款試算' : 'Loan Calculator'}
           </h2>
-          <p className="mb-8 text-center text-sm text-muted-foreground">
-            {isZh ? '輸入貸款金額、還款期及月息，即時計算月供及實際年利率。' : 'Enter the loan amount, term, and monthly flat rate to calculate your monthly payment and APR.'}
+          <p className="mb-8 text-center text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
+            {isZh ? '輸入金額、期數、月息，即時計算實際年利率' : 'Enter amount, term, and monthly rate — see APR instantly'}
           </p>
           <CalculatorPage />
         </div>
