@@ -35,6 +35,16 @@ const envSchema = z.object({
   TURNSTILE_SECRET_KEY: z.string().min(1).optional(),
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().min(1).optional(),
 
+  // Auth.js v5 — borrower authentication (Story 8.1, ARCH-6: separate island from admin's iron-session)
+  AUTH_SECRET: z
+    .string()
+    .min(32, 'AUTH_SECRET must be at least 32 characters — use a random secret'),
+  AUTH_RESEND_KEY: z.string().min(1, 'AUTH_RESEND_KEY is required'),
+  AUTH_EMAIL_FROM: z.string().email('AUTH_EMAIL_FROM must be a valid email address'),
+  // Only required when the deploy URL cannot be inferred (e.g. some self-hosted setups).
+  // Vercel deployments infer this automatically from VERCEL_URL.
+  AUTH_URL: z.string().url('AUTH_URL must be a valid URL').optional(),
+
   // Upstash Redis — rate limiting (provisioned via Vercel Marketplace)
   // Optional in development: submission-guard skips rate limiting when absent
   KV_REST_API_URL: z.string().url('KV_REST_API_URL must be a valid URL').optional(),

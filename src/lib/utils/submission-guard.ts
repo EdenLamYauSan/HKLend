@@ -124,8 +124,12 @@ const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/sit
  *
  * Times out after 3 seconds — no fallback that silently skips verification.
  * A timeout results in the submission being rejected (fail-closed).
+ *
+ * ARCH-8: exported so other modules (e.g. the Story 8.1 borrower sign-in
+ * server action) can reuse this single Turnstile code path instead of
+ * calling the Cloudflare siteverify endpoint from a second place.
  */
-async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
+export async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
   const body = new URLSearchParams()
   body.append('secret', env.TURNSTILE_SECRET_KEY ?? '')
   body.append('response', token)

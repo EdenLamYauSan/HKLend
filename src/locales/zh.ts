@@ -423,4 +423,46 @@ export const zh: Translation = {
     formEndDateLabel: '結束日期',
     formIsActiveLabel: '立即啟用',
   },
+
+  // ── Borrower Authentication (Story 8.1) ────────────────────────────────────
+  auth: {
+    signIn: {
+      title: '登入 HK Lend',
+      emailLabel: '電郵地址',
+      emailPlaceholder: 'your@email.com',
+      submit: '傳送登入連結',
+      readAnonymously: '先繼續瀏覽',
+      turnstileError: '人機驗證失敗，請重試。',
+      rateLimitError: '請求次數過多，請稍後再試。',
+      emailServiceDown: '電郵服務暫時無法使用，請稍後再試。',
+    },
+    sent: {
+      title: '請查收電郵',
+      body: '如果此電郵地址可以登入，我們已經傳送一個登入連結給你。連結將於 15 分鐘後失效。',
+      resend: '重新傳送',
+      resendSuccess: '已重新傳送，請查收電郵。',
+    },
+    expired: {
+      title: '連結已失效',
+      body: '此登入連結已被使用或已過期，請重新索取一個新連結。',
+      resend: '重新傳送登入連結',
+    },
+    prompt: {
+      title: '登入以繼續',
+      defaultReason: '繼續操作前需要登入',
+      successMessage: '已寄出登入連結，請查收電郵。',
+      smokeTriggerLabel: '預覽：登入提示彈窗',
+    },
+    email: {
+      subject: 'hklend 登入連結',
+      greeting: '你好，',
+      linkCta: '登入 hklend',
+      expiryLine: '此連結將於 15 分鐘後失效。',
+      ignoreIfNotYou: '如果這不是你本人操作，可以安全地忽略此電郵。',
+      enToggleLine: "This email is in Traditional Chinese. If you'd prefer English, request a new sign-in link after switching the language on hklend.hk.",
+    },
+    signOut: {
+      button: '登出',
+    },
+  },
 }

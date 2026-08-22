@@ -417,6 +417,54 @@ export type Translation = {
     formEndDateLabel: string
     formIsActiveLabel: string
   }
+
+  // ── Borrower Authentication (Story 8.1 — Auth.js v5 email magic link) ──────
+  // FR-64/65/69. Soft gate: browse free, sign in only to submit.
+  auth: {
+    signIn: {
+      title: string
+      emailLabel: string
+      emailPlaceholder: string
+      submit: string
+      readAnonymously: string
+      turnstileError: string
+      rateLimitError: string
+      emailServiceDown: string
+    }
+    sent: {
+      title: string
+      body: string
+      resend: string
+      resendSuccess: string
+    }
+    expired: {
+      title: string
+      body: string
+      resend: string
+    }
+    prompt: {
+      title: string
+      defaultReason: string
+      successMessage: string
+      // Story 8.1 ships only a smoke-test trigger for this modal on
+      // /[locale]/sign-in — Story 8.2 wires real triggers (review/flag/
+      // scam-report/vote submit buttons) and this label goes away.
+      smokeTriggerLabel: string
+    }
+    // Email body copy — the magic-link email is always sent TC-default
+    // regardless of the recipient's site locale (see Story 8.1 AC-3).
+    email: {
+      subject: string
+      greeting: string
+      linkCta: string
+      expiryLine: string
+      ignoreIfNotYou: string
+      enToggleLine: string
+    }
+    signOut: {
+      button: string
+    }
+  }
 }
 
 export type Locale = 'zh' | 'en'

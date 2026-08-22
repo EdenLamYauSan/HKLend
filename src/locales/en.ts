@@ -427,4 +427,46 @@ export const en: Translation = {
     formEndDateLabel: 'End date',
     formIsActiveLabel: 'Active',
   },
+
+  // ── Borrower Authentication (Story 8.1) ────────────────────────────────────
+  auth: {
+    signIn: {
+      title: 'Sign in to HK Lend',
+      emailLabel: 'Email address',
+      emailPlaceholder: 'your@email.com',
+      submit: 'Send sign-in link',
+      readAnonymously: 'Read anonymously',
+      turnstileError: 'Verification failed. Please try again.',
+      rateLimitError: 'Too many requests. Please try again later.',
+      emailServiceDown: 'The email service is temporarily unavailable. Please try again later.',
+    },
+    sent: {
+      title: 'Check your email',
+      body: "If that email address can sign in, we've sent a sign-in link. The link expires in 15 minutes.",
+      resend: 'Resend',
+      resendSuccess: 'Resent — check your email.',
+    },
+    expired: {
+      title: 'Link expired',
+      body: 'This sign-in link was already used or has expired. Please request a new one.',
+      resend: 'Resend sign-in link',
+    },
+    prompt: {
+      title: 'Sign in to continue',
+      defaultReason: 'You need to sign in to continue',
+      successMessage: 'Check your email for the sign-in link.',
+      smokeTriggerLabel: 'Preview: sign-in prompt',
+    },
+    email: {
+      subject: 'Your hklend sign-in link',
+      greeting: 'Hi,',
+      linkCta: 'Sign in to hklend',
+      expiryLine: 'This link expires in 15 minutes.',
+      ignoreIfNotYou: "If you didn't request this, you can safely ignore this email.",
+      enToggleLine: "This email is in Traditional Chinese. If you'd prefer English, request a new sign-in link after switching the language on hklend.hk.",
+    },
+    signOut: {
+      button: 'Sign out',
+    },
+  },
 }
