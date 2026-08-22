@@ -153,7 +153,7 @@ export default async function ScamBoardPage({ params }: { params: PageParams }) 
     <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 space-y-6">
       {/* Page header */}
       <div className="space-y-2">
-        <h1 className="text-2xl font-semibold text-[#264a58]">{pageTitle}</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">{pageTitle}</h1>
         <p className="text-sm text-gray-600">{pageDescription}</p>
       </div>
 
