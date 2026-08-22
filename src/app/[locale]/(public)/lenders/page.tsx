@@ -24,6 +24,7 @@ import { LenderFilters } from '@/components/directory/LenderFilters'
 import { ZeroResultVerdict } from '@/components/directory/ZeroResultVerdict'
 import { LenderCard } from '@/components/directory/LenderCard'
 import { DataSourceAttribution } from '@/components/directory/DataSourceAttribution'
+import { formatDate } from '@/lib/utils/format'
 import { Suspense } from 'react'
 import type { Locale } from '@/locales'
 
@@ -145,7 +146,7 @@ export default async function LendersPage({
     <div>
       {/* ── Directory ── */}
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-        <div className="mb-4 flex items-center justify-between gap-2">
+        <div className="mb-1 flex items-center justify-between gap-2">
           <h1 className="text-2xl font-semibold text-gray-900 shrink-0">
             {isZh ? '持牌放債人名冊' : 'Licensed Money Lenders Registry'}
           </h1>
@@ -155,6 +156,13 @@ export default async function LendersPage({
               : (isZh ? `共 ${total.toLocaleString()} 間` : `${total.toLocaleString()} total`)}
           </span>
         </div>
+        {lastChecked && (
+          <p className="mb-4 text-xs text-gray-500">
+            {isZh
+              ? `資料更新至 ${formatDate(lastChecked, locale)}`
+              : `Data updated ${formatDate(lastChecked, locale)}`}
+          </p>
+        )}
 
         {/* Filters — client component wrapped in Suspense for useSearchParams */}
         <Suspense fallback={null}>
