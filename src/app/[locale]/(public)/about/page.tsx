@@ -187,7 +187,7 @@ export default async function AboutPage({ params }: PageProps) {
                 href={HKMA_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary underline underline-offset-2 hover:text-brand-navy"
+                className="text-primary underline underline-offset-2 hover:opacity-80"
               >
                 {section.linkLabel}
               </a>
@@ -200,7 +200,7 @@ export default async function AboutPage({ params }: PageProps) {
               {section.bodyBefore}
               <a
                 href={`mailto:${section.email}`}
-                className="text-primary underline underline-offset-2 hover:text-brand-navy"
+                className="text-primary underline underline-offset-2 hover:opacity-80"
               >
                 {section.email}
               </a>
@@ -213,7 +213,7 @@ export default async function AboutPage({ params }: PageProps) {
       <nav className="border-t border-border pt-6 text-sm text-gray-500">
         <Link
           href={`/${locale}`}
-          className="text-primary underline underline-offset-2 hover:text-brand-navy"
+          className="text-primary underline underline-offset-2 hover:opacity-80"
         >
           {lang === 'zh' ? '← 返回首頁' : '← Back to home'}
         </Link>
