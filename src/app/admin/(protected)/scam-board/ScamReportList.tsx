@@ -11,6 +11,7 @@
  */
 
 import { useState } from 'react'
+import { DeletedUserGroupPanel } from '@/components/admin/DeletedUserGroupPanel'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -26,15 +27,24 @@ export interface ModerationScamReport {
   submissionIp: string | null
   ipPurgeAt: Date
   reporter: { email: string | null; name: string | null } | null
+  // Story 8.3, AC-9: resolves the deleted-account fallback (see below).
+  deletedUserHash: string | null
 }
 
-// Story 8.2, AC-10: FR-68 hashed-group-id placeholder is Story 8.3 scope.
-// TODO(8.3): replace '—' with the FR-68 hashed group ID once that lands.
-function submitterEmail(reporter: ModerationScamReport['reporter']): string {
-  return reporter?.email ?? '—'
+// Story 8.2, AC-10 / Story 8.3, AC-9 (resolves the TODO(8.3) Story 8.2 left
+// here) — same three-state logic as FlagModerationList's identical helper:
+// resolved reporter → real email/name; no reporter but a deletedUserHash →
+// "已刪除帳戶 · {hash8}" (clickable, opens DeletedUserGroupPanel); neither →
+// literal "—" (pre-8.2 anonymous row).
+function submitterCell(reporter: ModerationScamReport['reporter'], deletedUserHash: string | null): string {
+  if (reporter) return reporter.email ?? '—'
+  if (deletedUserHash) return `已刪除帳戶 · ${deletedUserHash.slice(0, 8)}`
+  return '—'
 }
-function submitterName(reporter: ModerationScamReport['reporter']): string {
-  return reporter?.name ?? '—'
+function submitterName(reporter: ModerationScamReport['reporter'], deletedUserHash: string | null): string {
+  if (reporter) return reporter.name ?? '—'
+  if (deletedUserHash) return `已刪除帳戶 · ${deletedUserHash.slice(0, 8)}`
+  return '—'
 }
 // AC-10: literal "Purges YYYY-MM-DD" format.
 function formatPurgeDate(date: Date | string): string {
@@ -72,6 +82,8 @@ function ScamReportRow({
   const [note, setNote] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Story 8.3, AC-9: opens DeletedUserGroupPanel from the "已刪除帳戶" badge.
+  const [showGroupPanel, setShowGroupPanel] = useState(false)
 
   async function action(status: 'VERIFIED' | 'REJECTED') {
     setBusy(true)
@@ -108,12 +120,28 @@ function ScamReportRow({
             )}
             <span>提交日期：{formatDate(report.createdAt)}</span>
           </div>
-          {/* Story 8.2, AC-10: submitter + IP-purge columns */}
+          {/* Story 8.2, AC-10 / Story 8.3, AC-9: submitter + IP-purge columns */}
           <div className="flex flex-wrap gap-x-4 gap-y-0.5 mt-0.5 text-xs text-gray-500">
-            <span>提交者電郵：{submitterEmail(report.reporter)}</span>
-            <span>顯示名稱：{submitterName(report.reporter)}</span>
+            <span>
+              提交者電郵：
+              {report.deletedUserHash && !report.reporter ? (
+                <button
+                  type="button"
+                  onClick={() => setShowGroupPanel(true)}
+                  className="text-[#264a58] hover:underline"
+                >
+                  {submitterCell(report.reporter, report.deletedUserHash)}
+                </button>
+              ) : (
+                submitterCell(report.reporter, report.deletedUserHash)
+              )}
+            </span>
+            <span>顯示名稱：{submitterName(report.reporter, report.deletedUserHash)}</span>
             <span>IP：{ipCellText(report.submissionIp, report.ipPurgeAt)}</span>
           </div>
+          {showGroupPanel && report.deletedUserHash && (
+            <DeletedUserGroupPanel hash={report.deletedUserHash} onClose={() => setShowGroupPanel(false)} />
+          )}
         </div>
         <button
           type="button"

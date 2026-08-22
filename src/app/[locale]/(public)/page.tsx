@@ -6,7 +6,8 @@ import { Suspense } from 'react'
 import { HeroSearch } from '@/components/directory/HeroSearch'
 import Link from 'next/link'
 import { CalculatorPage } from '@/components/calculator/CalculatorPage'
-import type { Locale } from '@/locales'
+import { DeletedAccountToast } from '@/components/auth/DeletedAccountToast'
+import { getTranslations, type Locale } from '@/locales'
 import type { Metadata } from 'next'
 
 // ─── Site config ──────────────────────────────────────────────────────────────
@@ -62,8 +63,16 @@ export default async function HomePage({
   )
   const totalAll = await getLenderCount().catch(() => 0)
 
+  const t = getTranslations(lang)
+
   return (
     <div>
+      {/* Story 8.3, AC-6 step 5: one-time toast after account deletion.
+          Wrapped in Suspense — DeletedAccountToast reads useSearchParams. */}
+      <Suspense fallback={null}>
+        <DeletedAccountToast message={t.auth.account.deletion.deletedToast} />
+      </Suspense>
+
       {/* ── Hero + Stats (unified dark section) ── */}
       <section className="bg-[#264a58] text-center relative overflow-hidden">
         {/* Diagonal texture — subtle depth without glassmorphism */}

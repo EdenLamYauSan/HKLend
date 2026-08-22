@@ -30,6 +30,8 @@ export default async function AdminScamBoardPage() {
       submissionIp: true,
       ipPurgeAt: true,
       reporter: { select: { email: true, name: true } },
+      // Story 8.3, AC-9: resolves the deleted-account fallback.
+      deletedUserHash: true,
     },
   })
 

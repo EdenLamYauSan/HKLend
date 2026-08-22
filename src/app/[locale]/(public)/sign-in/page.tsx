@@ -10,6 +10,7 @@
 export const runtime = 'nodejs'
 
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { notFound, redirect } from 'next/navigation'
 import { isLocale, getTranslations } from '@/locales'
 import { auth } from '@/lib/auth/config'
@@ -48,7 +49,12 @@ export default async function SignInPage({ params }: { params: PageParams }) {
     <div className="mx-auto max-w-md px-4 py-12 sm:px-6">
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <h1 className="mb-6 text-xl font-semibold text-gray-900">{t.auth.signIn.title}</h1>
-        <SignInEmailForm locale={locale} t={t.auth} />
+        {/* Story 8.3, AC-1: SignInEmailForm now reads useSearchParams (the
+            `callbackUrl` query param) — needs a Suspense ancestor, same
+            reason ScamReportForm needed one in Story 8.2. */}
+        <Suspense fallback={null}>
+          <SignInEmailForm locale={locale} t={t.auth} />
+        </Suspense>
       </div>
 
       {/* AC-9 smoke test — Story 8.2 wires real triggers elsewhere */}

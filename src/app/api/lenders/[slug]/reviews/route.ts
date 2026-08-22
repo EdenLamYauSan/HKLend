@@ -45,6 +45,7 @@ import { apiError } from '@/types/api-error'
 import { reviewSubmissionSchema } from '@/types/review.schema'
 import { submissionGuard } from '@/lib/utils/submission-guard'
 import { auth } from '@/lib/auth/config'
+import { getVoteSortedReviews } from '@/lib/votes'
 
 // Story 8.2, AC-2: per-account rate limit — 3 reviews per 24h, in addition to
 // the existing per-(fingerprint+IP)-per-lender limit enforced by
@@ -98,24 +99,17 @@ export async function GET(
     return Response.json(apiError('NOT_FOUND', '找不到該放債人'), { status: 404 })
   }
 
+  // Story 8.3, AC-4: same vote-sorted order as the initial SSR page — "Load
+  // more" must not fall back to plain createdAt-desc pagination, or the
+  // list order would visibly change partway through.
+  const session = await auth()
+  const currentUserId = session?.user?.id ?? null
+
   const [items, total] = await Promise.all([
-    db.review.findMany({
-      where: { lenderId: lender.id, status: 'APPROVED' },
-      orderBy: { createdAt: 'desc' },
+    getVoteSortedReviews(lender.id, {
       skip: (page - 1) * pageSize,
       take: pageSize,
-      select: {
-        id: true,
-        ratingApprovalSpeed: true,
-        ratingRateAccuracy: true,
-        ratingStaffAttitude: true,
-        ratingTransparency: true,
-        body: true,
-        reviewerName: true,
-        helpfulCount: true,
-        notHelpfulCount: true,
-        createdAt: true,
-      },
+      currentUserId,
     }),
     db.review.count({
       where: { lenderId: lender.id, status: 'APPROVED' },

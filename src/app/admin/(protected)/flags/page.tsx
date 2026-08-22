@@ -27,6 +27,8 @@ export default async function AdminFlagsPage() {
       submissionIp: true,
       ipPurgeAt: true,
       user: { select: { email: true, name: true } },
+      // Story 8.3, AC-9: resolves the deleted-account fallback.
+      deletedUserHash: true,
       lender: {
         select: { slug: true, companyNameZh: true },
       },

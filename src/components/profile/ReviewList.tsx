@@ -26,6 +26,7 @@ import { Pencil, Flag as FlagIcon } from 'lucide-react'
 import type { Locale } from '@/locales'
 import { getTranslations } from '@/locales'
 import { SignInPromptModal } from '@/components/auth/SignInPromptModal'
+import { VoteButton } from '@/components/votes/VoteButton'
 
 // ─── Vote state ───────────────────────────────────────────────────────────────
 
@@ -144,11 +145,18 @@ function ReviewCard({
 }) {
   const copy = COPY[locale]
   const avg = overallAvg(review)
+  const authT = getTranslations(locale).auth
+  const actionsT = getTranslations(locale).actions
+
+  // Story 8.3, AC-2: display-name precedence — the review's own per-review
+  // override (reviewerName) wins if the author set one; otherwise fall back
+  // to the author's current account display name (joined live, so a later
+  // `updateDisplayName` shows up on old reviews without touching them —
+  // AC-2's "not snapshotted" requirement); otherwise anonymous.
+  const displayName = review.reviewerName || review.userDisplayName || copy.anonymous
 
   // ── Story 8.2, AC-3/AC-6: report-a-review ─────────────────────────────────
   const { data: session } = useSession()
-  const authT = getTranslations(locale).auth
-  const actionsT = getTranslations(locale).actions
 
   const [reportOpen, setReportOpen] = useState(false)
   const [reportReason, setReportReason] = useState('')
@@ -272,7 +280,7 @@ function ReviewCard({
   return (
     <article
       className="rounded-xl border border-gray-200 bg-white p-5 space-y-3"
-      aria-label={`${review.reviewerName ?? copy.anonymous} — ${copy.overallAvg(avg)}`}
+      aria-label={`${displayName} — ${copy.overallAvg(avg)}`}
     >
       {/* Header: overall score + reviewer info */}
       <div className="flex items-start justify-between gap-3 flex-wrap">
@@ -284,7 +292,7 @@ function ReviewCard({
         </div>
         <div className="text-xs text-gray-400 shrink-0">
           <span className="font-medium text-gray-600">
-            {review.reviewerName ?? copy.anonymous}
+            {displayName}
           </span>
           {' · '}
           {formatDate(review.createdAt, locale)}
@@ -306,8 +314,21 @@ function ReviewCard({
         {review.body}
       </p>
 
-      {/* Vote buttons (Story 3.5) */}
+      {/* Vote buttons (Story 3.5 helpful/not-helpful + Story 8.3 upvote) */}
       <div className="flex items-center gap-3 pt-1">
+        {/* Story 8.3, AC-3/AC-4: community upvote — distinct from the Story
+            3.5 helpful/not-helpful buttons below. Hidden entirely on the
+            viewer's own review (VoteButton returns null in that case). */}
+        <VoteButton
+          targetType="review"
+          targetId={review.id}
+          initialCount={review.voteCount}
+          initialVoted={review.votedByCurrentUser}
+          isOwnContent={!!session?.user?.id && review.userId === session.user.id}
+          locale={locale}
+          t={authT}
+          actionsT={actionsT}
+        />
         <button
           type="button"
           onClick={() => castVote('helpful')}

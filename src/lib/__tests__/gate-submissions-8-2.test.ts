@@ -253,11 +253,17 @@ describe('AC-8: new ReviewReport model', () => {
 
   it('defines model ReviewReport with the specified fields', () => {
     expect(schema).toContain('model ReviewReport {')
-    expect(schema).toContain('reviewId       String   @map("review_id")')
-    expect(schema).toContain('reporterUserId String   @map("reporter_user_id")')
-    expect(schema).toContain('reason         String')
-    expect(schema).toContain('submissionIp   String?  @map("submission_ip")')
-    expect(schema).toContain('ipPurgeAt      DateTime @map("ip_purge_at")')
+    expect(schema).toContain('reviewId        String   @map("review_id")')
+    // Story 8.3, AC-6/AC-8: reporterUserId became nullable (String? instead
+    // of the original non-nullable String) so deleteAccount's transaction
+    // can SET NULL it instead of hitting the ON DELETE RESTRICT constraint
+    // this story originally shipped — see the ReviewReport model's Story
+    // 8.3 doc comment, and gate-submissions-8-2 Completion Notes for the
+    // review that caught it.
+    expect(schema).toContain('reporterUserId  String?  @map("reporter_user_id")')
+    expect(schema).toContain('reason          String')
+    expect(schema).toContain('submissionIp    String?  @map("submission_ip")')
+    expect(schema).toContain('ipPurgeAt       DateTime @map("ip_purge_at")')
   })
 
   it('maps to table review_reports with the required indexes', () => {
@@ -311,16 +317,25 @@ describe('AC-9: 30-day IP purge mechanism', () => {
 // ─── AC-10: Admin queue shows submitter + IP purge date ──────────────────────
 
 describe('AC-10: admin flag/scam-report queues show submitter + IP purge date', () => {
-  it('FlagModerationList shows submitter email + display name with an FR-68 TODO fallback', () => {
+  // Story 8.3, AC-9 resolved the `TODO(8.3)` placeholder these two tests
+  // originally asserted the mere presence of — the fallback now shows the
+  // real FR-68 hashed-group-id instead of always falling through to '—'.
+  // Updated here (rather than left to bit-rot against code that no longer
+  // matches its own comment) to assert the resolved behaviour; the '—' and
+  // 'Purges' assertions still hold since both still exist as genuine
+  // fallback/format strings elsewhere in each file.
+  it('FlagModerationList shows submitter email + display name, with a deletedUserHash fallback for deleted accounts', () => {
     const list = readFile('src/app/admin/(protected)/flags/FlagModerationList.tsx')
-    expect(list).toContain('TODO(8.3)')
+    expect(list).toContain('deletedUserHash')
+    expect(list).toContain('已刪除帳戶')
     expect(list).toContain("'—'")
     expect(list).toContain('Purges')
   })
 
-  it('ScamReportList shows submitter email + display name with an FR-68 TODO fallback', () => {
+  it('ScamReportList shows submitter email + display name, with a deletedUserHash fallback for deleted accounts', () => {
     const list = readFile('src/app/admin/(protected)/scam-board/ScamReportList.tsx')
-    expect(list).toContain('TODO(8.3)')
+    expect(list).toContain('deletedUserHash')
+    expect(list).toContain('已刪除帳戶')
     expect(list).toContain("'—'")
     expect(list).toContain('Purges')
   })

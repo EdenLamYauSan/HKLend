@@ -45,6 +45,17 @@ const envSchema = z.object({
   // Vercel deployments infer this automatically from VERCEL_URL.
   AUTH_URL: z.string().url('AUTH_URL must be a valid URL').optional(),
 
+  // Account deletion hash salt (Story 8.3, AC-7, FR-68).
+  // A DIFFERENT secret from AUTH_SECRET — never share them. Used only to
+  // compute deletedUserHash = sha256(user.id + ACCOUNT_HASH_SALT) at the
+  // moment a user deletes their account, so admin can still group a deleted
+  // user's past submissions without recovering their identity. It never
+  // leaves the DB any other way. Rotating this value invalidates grouping
+  // for every deletion that predates the rotation — see .env.example.
+  ACCOUNT_HASH_SALT: z
+    .string()
+    .min(32, 'ACCOUNT_HASH_SALT must be at least 32 characters — use a random secret'),
+
   // Upstash Redis — rate limiting (provisioned via Vercel Marketplace)
   // Optional in development: submission-guard skips rate limiting when absent
   KV_REST_API_URL: z.string().url('KV_REST_API_URL must be a valid URL').optional(),

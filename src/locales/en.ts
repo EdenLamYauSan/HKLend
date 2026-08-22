@@ -460,6 +460,7 @@ export const en: Translation = {
       reasonReportReview: 'Sign in to report a review',
       reasonRedFlag: 'Sign in to submit a red flag',
       reasonScamReport: 'Sign in to report a scam',
+      reasonVote: 'Sign in to vote',
     },
     email: {
       subject: 'Your hklend sign-in link',
@@ -471,6 +472,32 @@ export const en: Translation = {
     },
     signOut: {
       button: 'Sign out',
+    },
+    account: {
+      title: 'My account',
+      emailLabel: 'Email address',
+      emailLocked: "Email cannot be changed. To use a different email, delete this account and sign up with the new one.",
+      displayNameLabel: 'Display name',
+      displayNameSave: 'Save',
+      displayNameSaved: 'Saved',
+      displayNameError: 'Save failed. Please try again. Display name must be 1–20 characters.',
+      createdAtLabel: 'Member since',
+      signOut: 'Sign out',
+      deleteAccount: 'Delete account',
+      deletion: {
+        title: 'Delete account',
+        body: "After deletion, your reviews, red flags, and scam reports will remain (for other users and admin moderators) but will show as \"Anonymous user\" and be disconnected from your identity. This cannot be undone.",
+        confirmLabel: 'Type your email address to confirm',
+        confirmButton: 'Permanently delete my account',
+        cancel: 'Cancel',
+        mismatchError: "That email doesn't match. Please try again.",
+        deletedToast: 'Your account has been deleted.',
+      },
+    },
+    vote: {
+      upvote: 'Helpful',
+      removeVote: 'Remove vote',
+      selfDisabled: "You can't vote on your own content",
     },
   },
 }

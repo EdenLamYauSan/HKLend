@@ -456,6 +456,7 @@ export const zh: Translation = {
       reasonReportReview: '舉報評論需要登入',
       reasonRedFlag: '提交紅旗標記需要登入',
       reasonScamReport: '舉報詐騙需要登入',
+      reasonVote: '投票需要登入',
     },
     email: {
       subject: 'hklend 登入連結',
@@ -467,6 +468,32 @@ export const zh: Translation = {
     },
     signOut: {
       button: '登出',
+    },
+    account: {
+      title: '我的帳戶',
+      emailLabel: '電郵地址',
+      emailLocked: '本站不支援更改電郵。如需更換，請先刪除帳戶再以新電郵登記。',
+      displayNameLabel: '顯示名稱',
+      displayNameSave: '儲存',
+      displayNameSaved: '已儲存',
+      displayNameError: '儲存失敗，請重試。顯示名稱須為 1 至 20 個字。',
+      createdAtLabel: '註冊日期',
+      signOut: '登出',
+      deleteAccount: '刪除帳戶',
+      deletion: {
+        title: '刪除帳戶',
+        body: '刪除帳戶後，你的評論、紅旗標記及詐騙舉報將會保留（供其他用戶及管理員參考），但會顯示為「匿名用戶」，並與你的身分脫鈎。此操作無法復原。',
+        confirmLabel: '請輸入你的電郵地址以確認',
+        confirmButton: '永久刪除我的帳戶',
+        cancel: '取消',
+        mismatchError: '電郵地址不符，請重新輸入。',
+        deletedToast: '你的帳戶已刪除。',
+      },
+    },
+    vote: {
+      upvote: '有用',
+      removeVote: '取消讚好',
+      selfDisabled: '不能為自己的內容投票',
     },
   },
 }

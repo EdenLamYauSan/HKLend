@@ -149,10 +149,42 @@ async function sendVerificationRequest({
 export const AUTH_ERROR_PAGE_PATH = '/zh/sign-in/expired'
 const AUTH_VERIFY_REQUEST_PAGE_PATH = '/zh/sign-in/sent'
 
+// ─── Display-name derivation (Story 8.3, AC-1/AC-2, PRD A-13) ───────────────
+//
+// A-13: "The default display name for a fresh account is derived from the
+// email local-part (chars before `@`), truncated [to 20 chars]." Neither
+// Story 8.1 nor 8.2 implemented this — verified via grep across src/ before
+// writing this — even though Story 8.3's account page (AC-1) and its manual
+// smoke task (8.1: "shows email + auto-derived display name") both assume
+// it already exists. Same class of gap as Story 8.2's AC-9/AC-10 note:
+// resolved here by adding the missing piece rather than treating it as an
+// 8.1/8.2 incompatibility, since nothing conflicts — the hook point
+// (Auth.js's `events.createUser`) simply hadn't been wired up yet.
+export function deriveDisplayNameFromEmail(email: string): string {
+  const localPart = email.split('@')[0] ?? email
+  return localPart.slice(0, 20)
+}
+
 // ─── NextAuth configuration ────────────────────────────────────────────────
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(db),
+
+  // Story 8.3, AC-1/AC-2: fires once, right after PrismaAdapter inserts the
+  // new User row (Auth.js's Resend/email provider always creates the user
+  // with name: null). Backfilling `name` here — rather than reading it lazily
+  // wherever a display name is rendered — keeps every consumer (the account
+  // page, the review-list join, the admin queues) simple: they can all just
+  // read User.name directly.
+  events: {
+    async createUser({ user }) {
+      if (!user.email) return
+      await db.user.update({
+        where: { id: user.id },
+        data: { name: deriveDisplayNameFromEmail(user.email) },
+      })
+    },
+  },
 
   // Database session strategy (not JWT) — FR-65: 30-day rolling expiry.
   // A Session row is created on sign-in and its `expires` column is bumped

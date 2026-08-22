@@ -18,13 +18,27 @@ const reviewList = readFile('src/components/profile/ReviewList.tsx')
 const ratingSummary = readFile('src/components/profile/RatingSummary.tsx')
 const profilePage = readFile('src/app/[locale]/(public)/lenders/[slug]/page.tsx')
 const getRoute = readFile('src/app/api/lenders/[slug]/reviews/route.ts')
+const votesLib = readFile('src/lib/votes.ts')
 
 // ─── Story 3.3 AC-1: Approved reviews sorted by createdAt desc ───────────────
+// Story 8.3, AC-4 superseded plain createdAt-desc with vote-sorted order
+// (recent-window vote count DESC, then createdAt DESC — see votes.ts). The
+// sort mechanism moved from a Prisma `orderBy:` object to a raw SQL query in
+// src/lib/votes.ts (getVoteSortedReviews) because vote count is a live
+// aggregate with no direct Prisma relation to sort by. createdAt DESC is
+// still the ultimate tiebreaker/fallback, so "sorted by createdAt
+// descending" remains true as a description — the assertions below just
+// check it where the logic actually lives now.
 
-describe('3.3 AC-1: reviews sorted by createdAt descending', () => {
-  it('ReviewSection fetches approved reviews ordered desc', () => {
+describe('3.3 AC-1: reviews sorted (Story 8.3: vote-sorted, createdAt DESC tiebreaker)', () => {
+  it('ReviewSection fetches only approved reviews, via the shared vote-sorted query', () => {
     expect(reviewSection).toContain("status: 'APPROVED'")
-    expect(reviewSection).toContain("orderBy: { createdAt: 'desc' }")
+    expect(reviewSection).toContain('getVoteSortedReviews')
+  })
+
+  it('the vote-sorted query itself ends every ordering path on createdAt DESC', () => {
+    expect(votesLib).toContain("r.status = 'APPROVED'")
+    expect(votesLib).toContain('r."createdAt" DESC')
   })
 
   it('ReviewSection paginates at 5 per page', () => {
@@ -92,22 +106,27 @@ describe('3.3 AC-3: no approved reviews shows empty state', () => {
   })
 })
 
-// ─── Story 3.3 AC-4: Cache tag ───────────────────────────────────────────────
+// ─── Story 3.3 AC-4 → superseded by Story 8.3 ────────────────────────────────
+// Story 8.3 removed unstable_cache from ReviewSection entirely: it now
+// carries per-viewer data (votedByCurrentUser), which unstable_cache would
+// leak across visitors if cached under a shared key, and votes need to
+// reorder the list immediately rather than waiting for the next tag purge.
+// See ReviewSection.tsx's own Story 8.3 doc comment for the full reasoning.
+// This replaces the original "reviews:{slug} tag" assertions, which
+// describe a caching layer that no longer exists here.
 
-describe('3.3 AC-4: review data cached under reviews:{slug} tag', () => {
-  it('ReviewSection uses unstable_cache', () => {
-    expect(reviewSection).toContain('unstable_cache')
+describe('3.3 AC-4 (superseded by Story 8.3): review query is per-viewer, not cached', () => {
+  it('ReviewSection no longer uses unstable_cache for the review list', () => {
+    // Anchored to the actual import/call, not any mention — the file's own
+    // Story 8.3 doc comment explains *why* unstable_cache was removed,
+    // which legitimately mentions the name in prose.
+    expect(reviewSection).not.toContain("from 'next/cache'")
+    expect(reviewSection).not.toMatch(/unstable_cache\(/)
   })
 
-  it('cache tag is reviews:{slug}', () => {
-    expect(reviewSection).toContain('reviews:${slug}')
-  })
-
-  it('cache tag is reviews:{slug} only (lender:{slug} dual-tag removed in S2 fix)', () => {
-    // Commit 0350f7d removed the lender:{slug} dual-tag from reviews cache.
-    // Reviews are purged via reviews:{slug} only; lender tag is used by profile page cache.
-    expect(reviewSection).not.toContain('lender:${slug}')
-    expect(reviewSection).toContain('reviews:${slug}')
+  it('ReviewSection reads the current session to scope the query per-viewer', () => {
+    expect(reviewSection).toContain('await auth()')
+    expect(reviewSection).toContain('currentUserId')
   })
 })
 

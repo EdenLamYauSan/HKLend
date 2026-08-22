@@ -14,7 +14,7 @@
  */
 
 import { useRef, useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Turnstile } from '@marsidev/react-turnstile'
 import type { TurnstileInstance } from '@marsidev/react-turnstile'
 import { toast } from 'sonner'
@@ -29,6 +29,7 @@ interface Props {
 
 export function SignInEmailForm({ locale, t }: Props) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -48,6 +49,14 @@ export function SignInEmailForm({ locale, t }: Props) {
     const formData = new FormData()
     formData.set('email', email)
     formData.set('turnstileToken', turnstileToken)
+    // Story 8.3, AC-1: /account redirects here as
+    // `/[locale]/sign-in?callbackUrl=/[locale]/account` when signed out.
+    // submitSignIn already applies the same open-redirect guard (same-origin
+    // relative path only) that SignInPromptModal's `redirectTo` goes
+    // through — this just wires the plain /sign-in page's own form into
+    // that existing, already-guarded mechanism.
+    const callbackUrl = searchParams.get('callbackUrl')
+    if (callbackUrl) formData.set('redirectTo', callbackUrl)
 
     startTransition(async () => {
       const result = await submitSignIn(formData)
