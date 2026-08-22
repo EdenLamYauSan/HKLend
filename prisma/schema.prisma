@@ -163,6 +163,14 @@ model Review {
   lenderId              String
   lender                Lender   @relation(fields: [lenderId], references: [id], onDelete: Cascade)
 
+  // ── Submitter (Story 8.2 — FR-13) ────────────────────────────────────────
+  // Nullable: pre-8.2 anonymous rows have no userId (see migration 2,
+  // backfill_userid_placeholder). Every row created by 8.2-era code sets
+  // this — "non-nullable going forward" is an application-level guarantee,
+  // not a DB constraint, so legacy rows remain valid.
+  userId                String?  @map("user_id")
+  user                  User?    @relation(fields: [userId], references: [id])
+
   // ── 4-dimension ratings (1–5, all required) ─────────────────────────────
   ratingApprovalSpeed   Int
   ratingRateAccuracy    Int
@@ -184,8 +192,17 @@ model Review {
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 
+  // Review abuse reports (Story 8.2, AC-8)
+  reports               ReviewReport[]
+
+  // One review per (user, lender) — FR-13 amendment: a repeat submission by
+  // the same signed-in user edits the existing review instead of creating a
+  // second row. NULL userId values are treated as distinct by Postgres, so
+  // legacy anonymous rows never collide with this constraint.
+  @@unique([userId, lenderId])
   // Index for paginated approved-reviews-by-lender queries (newest first)
   @@index([lenderId, status, createdAt(sort: Desc)])
+  @@index([userId])
   @@map("Review")
 }
 
@@ -209,11 +226,24 @@ model Flag {
   lenderId  String
   lender    Lender   @relation(fields: [lenderId], references: [id], onDelete: Cascade)
 
+  // ── Submitter (Story 8.2 — FR-39/FR-43) ──────────────────────────────────
+  // Nullable: pre-8.2 anonymous rows have no userId — see the Review model's
+  // identical comment.
+  userId    String?  @map("user_id")
+  user      User?    @relation(fields: [userId], references: [id])
+
   // Category from the fixed constant set — stored as text (not enum)
   category  String   // HARASSMENT | ILLEGAL_TERMS | FAKE_IDENTITY | OVERCHARGING | OTHER
 
   // Optional free-text description (max 500 chars)
   details   String?
+
+  // ── IP retention (Story 8.2, AC-9) ───────────────────────────────────────
+  // submissionIp did not exist before 8.2 — this story adds it alongside the
+  // purge mechanism so there is something for the purge job to act on.
+  // Nulled out by the daily purge job once ipPurgeAt has passed.
+  submissionIp String?  @map("submission_ip")
+  ipPurgeAt    DateTime @map("ip_purge_at")
 
   // Moderation lifecycle
   status    String   @default("PENDING") // PENDING | APPROVED | REJECTED
@@ -223,6 +253,8 @@ model Flag {
 
   // Index for approved-flags-by-lender-by-date queries (velocity, warning banner)
   @@index([lenderId, status, createdAt(sort: Desc)])
+  @@index([userId])
+  @@index([ipPurgeAt])
   @@map("Flag")
 }
 
@@ -239,6 +271,12 @@ model Flag {
 model ScamReport {
   id                    String    @id @default(cuid())
 
+  // ── Submitter (Story 8.2 — FR-33/FR-33a) ─────────────────────────────────
+  // Nullable: pre-8.2 anonymous rows have no reporterUserId — see the Review
+  // model's identical comment.
+  reporterUserId        String?   @map("reporter_user_id")
+  reporter              User?     @relation(fields: [reporterUserId], references: [id])
+
   // Reported entity details
   companyName           String
   licenceNumberClaimed  String?   // claimed licence number (may be fake)
@@ -247,6 +285,12 @@ model ScamReport {
 
   // Required evidence text (100–2000 chars)
   evidenceText          String
+
+  // ── IP retention (Story 8.2, AC-9) ───────────────────────────────────────
+  // submissionIp did not exist before 8.2 — see the Flag model's identical
+  // comment. Nulled out by the daily purge job once ipPurgeAt has passed.
+  submissionIp          String?   @map("submission_ip")
+  ipPurgeAt             DateTime  @map("ip_purge_at")
 
   // Moderation lifecycle
   status                String    @default("PENDING") // PENDING | VERIFIED | REJECTED
@@ -257,7 +301,33 @@ model ScamReport {
 
   // Index for public scam board listing (newest verified first)
   @@index([status, createdAt(sort: Desc)])
+  @@index([reporterUserId])
+  @@index([ipPurgeAt])
   @@map("ScamReport")
+}
+
+// ─── ReviewReport ───────────────────────────────────────────────────────────
+// Community abuse report against a Review — Story 8.2, AC-8 (FR-18).
+// No moderation lifecycle of its own yet; the admin flag/scam-report queues
+// pattern is the model for a future review-report queue (out of scope here).
+// Always authenticated at creation — no legacy anonymous rows are possible
+// since this table is new in 8.2, so reporterUserId is non-nullable.
+
+model ReviewReport {
+  id             String   @id @default(cuid())
+  reviewId       String   @map("review_id")
+  reporterUserId String   @map("reporter_user_id")
+  reason         String
+  submissionIp   String?  @map("submission_ip")
+  ipPurgeAt      DateTime @map("ip_purge_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+  review         Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  reporter       User     @relation(fields: [reporterUserId], references: [id])
+
+  @@index([reviewId])
+  @@index([reporterUserId])
+  @@index([ipPurgeAt])
+  @@map("review_reports")
 }
 
 // ─── NewsItem ─────────────────────────────────────────────────────────────────
@@ -383,6 +453,12 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+
+  // ── Community submission relations (Story 8.2) ───────────────────────────
+  reviews       Review[]
+  flags         Flag[]
+  scamReports   ScamReport[]
+  reviewReports ReviewReport[]
 
   @@map("users")
 }

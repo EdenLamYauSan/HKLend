@@ -16,12 +16,16 @@
  */
 
 import { useState, useCallback, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
+import { usePathname, useSearchParams } from 'next/navigation'
 import type { ReviewItem } from './ReviewSection'
 import { ReviewForm } from './ReviewForm'
 import { StarDisplay } from './StarPicker'
 import { Button } from '@/components/ui/button'
-import { Pencil } from 'lucide-react'
+import { Pencil, Flag as FlagIcon } from 'lucide-react'
 import type { Locale } from '@/locales'
+import { getTranslations } from '@/locales'
+import { SignInPromptModal } from '@/components/auth/SignInPromptModal'
 
 // ─── Vote state ───────────────────────────────────────────────────────────────
 
@@ -65,6 +69,15 @@ const COPY = {
       ratingStaffAttitude: '職員態度',
       ratingTransparency: '透明度',
     },
+    // Story 8.2, AC-3/AC-6: report-a-review
+    report: '舉報',
+    reported: '已舉報',
+    reportPlaceholder: '請說明舉報原因（最多 500 字）',
+    reportSubmit: '提交舉報',
+    reportCancel: '取消',
+    reportSuccess: '已收到你的舉報，我們將盡快審核。',
+    reportError: '提交失敗，請稍後再試。',
+    reportRateLimited: '你在 24 小時內的舉報次數已達上限，請稍後再試。',
   },
   en: {
     writeReview: 'Write a Review',
@@ -81,6 +94,15 @@ const COPY = {
       ratingStaffAttitude: 'Staff Attitude',
       ratingTransparency: 'Transparency',
     },
+    // Story 8.2, AC-3/AC-6: report-a-review
+    report: 'Report',
+    reported: 'Reported',
+    reportPlaceholder: 'Explain why you are reporting this review (max 500 characters)',
+    reportSubmit: 'Submit report',
+    reportCancel: 'Cancel',
+    reportSuccess: 'Report received. We will review it soon.',
+    reportError: 'Submission failed. Please try again.',
+    reportRateLimited: 'You have reached today\'s report limit. Please try again tomorrow.',
   },
 } as const
 
@@ -110,12 +132,75 @@ function formatDate(date: Date | string, locale: Locale): string {
 function ReviewCard({
   review,
   locale,
+  pathname,
+  openReportReviewId,
 }: {
   review: ReviewItem
   locale: Locale
+  pathname: string
+  /** Story 8.2, Task 3.3: review id to auto-open the report form for, read
+   * from `?openReviewReport=<id>` by the parent after a return from sign-in. */
+  openReportReviewId: string | null
 }) {
   const copy = COPY[locale]
   const avg = overallAvg(review)
+
+  // ── Story 8.2, AC-3/AC-6: report-a-review ─────────────────────────────────
+  const { data: session } = useSession()
+  const authT = getTranslations(locale).auth
+  const actionsT = getTranslations(locale).actions
+
+  const [reportOpen, setReportOpen] = useState(false)
+  const [reportReason, setReportReason] = useState('')
+  const [reportBusy, setReportBusy] = useState(false)
+  const [reportError, setReportError] = useState<string | null>(null)
+  const [reportDone, setReportDone] = useState(false)
+  const [showSignIn, setShowSignIn] = useState(false)
+
+  // Auto-reopen the report form after a return-from-sign-in redirect.
+  useEffect(() => {
+    if (openReportReviewId === review.id) setReportOpen(true)
+  }, [openReportReviewId, review.id])
+
+  function handleReportClick() {
+    if (!session?.user) {
+      setShowSignIn(true)
+      return
+    }
+    setReportOpen(true)
+  }
+
+  async function submitReport() {
+    if (reportReason.trim().length === 0 || reportBusy) return
+    setReportBusy(true)
+    setReportError(null)
+    try {
+      const res = await fetch(`/api/reviews/${review.id}/report`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: reportReason.trim() }),
+      })
+      if (res.status === 401) {
+        setShowSignIn(true)
+        return
+      }
+      if (res.status === 429) {
+        setReportError(copy.reportRateLimited)
+        return
+      }
+      if (!res.ok) {
+        setReportError(copy.reportError)
+        return
+      }
+      setReportDone(true)
+      setReportOpen(false)
+      setReportReason('')
+    } catch {
+      setReportError(copy.reportError)
+    } finally {
+      setReportBusy(false)
+    }
+  }
 
   // Vote state — starts null to avoid SSR/hydration mismatch; populated after
   // mount so localStorage is only read on the client.
@@ -249,7 +334,71 @@ function ReviewCard({
         >
           {copy.notHelpful} ({resolvedVotes.notHelpful})
         </button>
+
+        {/* Story 8.2, AC-3/AC-6: report-a-review — gated behind sign-in */}
+        {reportDone ? (
+          <span className="text-xs text-gray-400 ml-auto">{copy.reported}</span>
+        ) : (
+          <button
+            type="button"
+            onClick={handleReportClick}
+            className="text-xs text-gray-400 hover:text-[#B8390E] ml-auto inline-flex items-center gap-1"
+          >
+            <FlagIcon className="h-3 w-3" aria-hidden="true" />
+            {copy.report}
+          </button>
+        )}
       </div>
+
+      {/* Inline report form */}
+      {reportOpen && (
+        <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 space-y-2">
+          <textarea
+            value={reportReason}
+            onChange={(e) => setReportReason(e.target.value.slice(0, 500))}
+            rows={2}
+            maxLength={500}
+            placeholder={copy.reportPlaceholder}
+            aria-label={copy.reportPlaceholder}
+            className="w-full rounded-md border border-gray-300 px-2.5 py-2 text-sm resize-none focus:border-[#264a58] focus:outline-none focus:ring-1 focus:ring-[#264a58]"
+          />
+          {reportError && (
+            <p role="alert" className="text-xs text-[#B8390E]">
+              {reportError}
+            </p>
+          )}
+          <div className="flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setReportOpen(false)
+                setReportError(null)
+              }}
+              className="text-xs text-gray-500"
+            >
+              {copy.reportCancel}
+            </button>
+            <button
+              type="button"
+              onClick={submitReport}
+              disabled={reportBusy || reportReason.trim().length === 0}
+              className="rounded-md bg-[#264a58] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#1d3a47] disabled:opacity-50"
+            >
+              {reportBusy ? copy.loading : copy.reportSubmit}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <SignInPromptModal
+        open={showSignIn}
+        onClose={() => setShowSignIn(false)}
+        locale={locale}
+        t={authT}
+        actionsT={actionsT}
+        reason={authT.prompt.reasonReportReview}
+        redirectTo={`${pathname}?openReviewReport=${review.id}`}
+      />
     </article>
   )
 }
@@ -280,6 +429,31 @@ export function ReviewList({
   const [loadingMore, setLoadingMore] = useState(false)
   const [showForm, setShowForm] = useState(false)
 
+  // Story 8.2, AC-6: "Write a Review" is gated behind sign-in.
+  const { data: session } = useSession()
+  const authT = getTranslations(locale).auth
+  const actionsT = getTranslations(locale).actions
+  const [showSignIn, setShowSignIn] = useState(false)
+
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const openReportReviewId = searchParams.get('openReviewReport')
+
+  // Task 3.3: return-from-sign-in contract — `?openReview=1` reopens the
+  // write-review form (the user is already authenticated at this point,
+  // having just clicked the magic link).
+  useEffect(() => {
+    if (searchParams.get('openReview') === '1') setShowForm(true)
+  }, [searchParams])
+
+  function handleWriteReviewClick() {
+    if (!session?.user) {
+      setShowSignIn(true)
+      return
+    }
+    setShowForm(true)
+  }
+
   const hasMore = reviews.length < total
 
   const loadMore = async () => {
@@ -305,17 +479,27 @@ export function ReviewList({
 
   return (
     <div className="space-y-4">
-      {/* Write-review toggle */}
+      {/* Write-review toggle — gated behind sign-in (Story 8.2, AC-6) */}
       {!showForm && (
         <Button
           size="sm"
-          onClick={() => setShowForm(true)}
+          onClick={handleWriteReviewClick}
           className="bg-[#264a58] text-white hover:bg-[#264a58]/90"
         >
           <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
           {copy.writeReview}
         </Button>
       )}
+
+      <SignInPromptModal
+        open={showSignIn}
+        onClose={() => setShowSignIn(false)}
+        locale={locale}
+        t={authT}
+        actionsT={actionsT}
+        reason={authT.prompt.reasonWriteReview}
+        redirectTo={`${pathname}?openReview=1`}
+      />
 
       {/* Inline review form */}
       {showForm && (
@@ -337,7 +521,13 @@ export function ReviewList({
       ) : (
         <div className="space-y-4">
           {reviews.map(r => (
-            <ReviewCard key={r.id} review={r} locale={locale} />
+            <ReviewCard
+              key={r.id}
+              review={r}
+              locale={locale}
+              pathname={pathname}
+              openReportReviewId={openReportReviewId}
+            />
           ))}
 
           {hasMore && (

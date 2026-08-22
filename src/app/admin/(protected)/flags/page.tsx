@@ -23,6 +23,10 @@ export default async function AdminFlagsPage() {
       category: true,
       details: true,
       createdAt: true,
+      // Story 8.2, AC-10: submitter + IP-purge columns.
+      submissionIp: true,
+      ipPurgeAt: true,
+      user: { select: { email: true, name: true } },
       lender: {
         select: { slug: true, companyNameZh: true },
       },

@@ -91,6 +91,13 @@ const emailSchema = z.string().email()
 export async function submitSignIn(formData: FormData): Promise<SignInActionResult> {
   const rawEmail = formData.get('email')
   const turnstileToken = formData.get('turnstileToken')
+  // Story 8.2, Task 3.3 / Dev Notes "Modal → return-to-page contract":
+  // SignInPromptModal sets this to the current pathname + a surface-specific
+  // query param (e.g. `?openReview=1`) so the magic-link click lands the
+  // user back where they started, with the form pre-opened. Optional —
+  // the plain /sign-in page form doesn't set it, and falls back to
+  // Auth.js's own default post-sign-in redirect.
+  const rawRedirectTo = formData.get('redirectTo')
 
   const emailParsed = emailSchema.safeParse(rawEmail)
   if (!emailParsed.success || typeof turnstileToken !== 'string' || turnstileToken.length === 0) {
@@ -141,9 +148,18 @@ export async function submitSignIn(formData: FormData): Promise<SignInActionResu
   // not an AuthError instance, and @auth/core only rethrows AuthErrors on
   // this code path. A try/catch alone is not enough; the returned URL must
   // be inspected.
+  // Open-redirect guard: only accept a same-origin relative path (must start
+  // with a single '/', never '//' which browsers treat as protocol-relative
+  // to an attacker-controlled host). Anything else is silently dropped —
+  // Auth.js falls back to its own default redirect.
+  const redirectTo =
+    typeof rawRedirectTo === 'string' && /^\/(?!\/)/.test(rawRedirectTo)
+      ? rawRedirectTo
+      : undefined
+
   let result: unknown
   try {
-    result = await signIn('resend', { email, redirect: false })
+    result = await signIn('resend', { email, redirect: false, ...(redirectTo && { redirectTo }) })
   } catch (error) {
     // Belt-and-braces: some failure modes (e.g. a thrown AuthError from a
     // future Auth.js version, or a genuine programming error) DO throw.

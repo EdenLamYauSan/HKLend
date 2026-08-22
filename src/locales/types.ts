@@ -450,6 +450,12 @@ export type Translation = {
       // /[locale]/sign-in — Story 8.2 wires real triggers (review/flag/
       // scam-report/vote submit buttons) and this label goes away.
       smokeTriggerLabel: string
+      // Story 8.2, AC-3/AC-4/AC-5/AC-6: contextual `reason` copy shown in
+      // SignInPromptModal for each of the four gated submit surfaces.
+      reasonWriteReview: string
+      reasonReportReview: string
+      reasonRedFlag: string
+      reasonScamReport: string
     }
     // Email body copy — the magic-link email is always sent TC-default
     // regardless of the recipient's site locale (see Story 8.1 AC-3).

@@ -23,10 +23,35 @@ export interface ModerationFlag {
   category: string
   details: string | null
   createdAt: Date
+  // Story 8.2, AC-10: submitter + IP-purge columns.
+  submissionIp: string | null
+  ipPurgeAt: Date
+  user: { email: string | null; name: string | null } | null
   lender: {
     slug: string
     companyNameZh: string
   }
+}
+
+// Story 8.2, AC-10: FR-68 hashed-group-id placeholder is Story 8.3 scope.
+// For now, any row whose submitter can't be resolved (legacy pre-8.2 row,
+// or a since-deleted account) shows a literal "—".
+// TODO(8.3): replace '—' with the FR-68 hashed group ID once that lands.
+function submitterEmail(user: ModerationFlag['user']): string {
+  return user?.email ?? '—'
+}
+function submitterName(user: ModerationFlag['user']): string {
+  return user?.name ?? '—'
+}
+// AC-10: literal "Purges YYYY-MM-DD" format — distinct from the zh-HK
+// long-form date used elsewhere on this page.
+function formatPurgeDate(date: Date | string): string {
+  const d = typeof date === 'string' ? new Date(date) : date
+  return d.toISOString().slice(0, 10)
+}
+function ipCellText(submissionIp: string | null, ipPurgeAt: Date): string {
+  if (!submissionIp) return '—'
+  return `${submissionIp} · Purges ${formatPurgeDate(ipPurgeAt)}`
 }
 
 // ─── Category labels ──────────────────────────────────────────────────────────
@@ -113,6 +138,16 @@ function FlagRow({
         <p className="text-sm text-gray-600 truncate">
           {flag.details ? `${flag.details.slice(0, 80)}${flag.details.length > 80 ? '…' : ''}` : '—'}
         </p>
+      </td>
+      {/* Story 8.2, AC-10: submitter columns, before the IP column */}
+      <td className="py-3 px-4 text-sm text-gray-600 whitespace-nowrap">
+        {submitterEmail(flag.user)}
+      </td>
+      <td className="py-3 px-4 text-sm text-gray-600 whitespace-nowrap">
+        {submitterName(flag.user)}
+      </td>
+      <td className="py-3 px-4 text-sm text-gray-500 whitespace-nowrap">
+        {ipCellText(flag.submissionIp, flag.ipPurgeAt)}
       </td>
       <td className="py-3 px-4 text-sm text-gray-500 whitespace-nowrap">
         {formatDate(flag.createdAt)}
@@ -266,6 +301,9 @@ export function FlagModerationList({ flags: initial }: { flags: ModerationFlag[]
               <th className="py-3 px-4">放債人</th>
               <th className="py-3 px-4">類別</th>
               <th className="py-3 px-4">詳情</th>
+              <th className="py-3 px-4">提交者電郵</th>
+              <th className="py-3 px-4">顯示名稱</th>
+              <th className="py-3 px-4">IP</th>
               <th className="py-3 px-4">提交日期</th>
               <th className="py-3 px-4">操作</th>
             </tr>

@@ -24,6 +24,7 @@ export const runtime = 'nodejs'
 
 import { notFound } from 'next/navigation'
 import { unstable_cache } from 'next/cache'
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import { db } from '@/lib/db'
 import { isLocale } from '@/locales'
@@ -192,7 +193,11 @@ export default async function ScamBoardPage({ params }: { params: PageParams }) 
             ? (isZh ? `${total} 宗已核實舉報` : `${total} verified report(s)`)
             : ''}
         </p>
-        <ScamReportForm locale={lang} />
+        {/* Story 8.2: ScamReportForm reads useSearchParams (return-from-sign-in
+            contract, Task 3.3) — needs a Suspense ancestor. */}
+        <Suspense fallback={null}>
+          <ScamReportForm locale={lang} />
+        </Suspense>
       </div>
 
       {/* Search + report listing */}

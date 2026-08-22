@@ -22,6 +22,28 @@ export interface ModerationScamReport {
   lossAmountHkd: number | null
   evidenceText: string
   createdAt: Date
+  // Story 8.2, AC-10: submitter + IP-purge columns.
+  submissionIp: string | null
+  ipPurgeAt: Date
+  reporter: { email: string | null; name: string | null } | null
+}
+
+// Story 8.2, AC-10: FR-68 hashed-group-id placeholder is Story 8.3 scope.
+// TODO(8.3): replace '—' with the FR-68 hashed group ID once that lands.
+function submitterEmail(reporter: ModerationScamReport['reporter']): string {
+  return reporter?.email ?? '—'
+}
+function submitterName(reporter: ModerationScamReport['reporter']): string {
+  return reporter?.name ?? '—'
+}
+// AC-10: literal "Purges YYYY-MM-DD" format.
+function formatPurgeDate(date: Date | string): string {
+  const d = typeof date === 'string' ? new Date(date) : date
+  return d.toISOString().slice(0, 10)
+}
+function ipCellText(submissionIp: string | null, ipPurgeAt: Date): string {
+  if (!submissionIp) return '—'
+  return `${submissionIp} · Purges ${formatPurgeDate(ipPurgeAt)}`
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -85,6 +107,12 @@ function ScamReportRow({
               <span>估計損失：HK${report.lossAmountHkd.toLocaleString()}</span>
             )}
             <span>提交日期：{formatDate(report.createdAt)}</span>
+          </div>
+          {/* Story 8.2, AC-10: submitter + IP-purge columns */}
+          <div className="flex flex-wrap gap-x-4 gap-y-0.5 mt-0.5 text-xs text-gray-500">
+            <span>提交者電郵：{submitterEmail(report.reporter)}</span>
+            <span>顯示名稱：{submitterName(report.reporter)}</span>
+            <span>IP：{ipCellText(report.submissionIp, report.ipPurgeAt)}</span>
           </div>
         </div>
         <button

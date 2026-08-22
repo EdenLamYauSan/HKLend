@@ -21,12 +21,16 @@
  */
 
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { useSession } from 'next-auth/react'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { Turnstile } from '@marsidev/react-turnstile'
 import type { TurnstileInstance } from '@marsidev/react-turnstile'
 import { Flag } from 'lucide-react'
 import { toast } from 'sonner'
 import { FLAG_CATEGORIES, type FlagCategory } from '@/types/flag.schema'
 import type { Locale } from '@/locales'
+import { getTranslations } from '@/locales'
+import { SignInPromptModal } from '@/components/auth/SignInPromptModal'
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -85,6 +89,14 @@ export function FlagForm({ lenderSlug, locale }: Props) {
   const firstInputRef = useRef<HTMLFieldSetElement>(null)
   const turnstileRef = useRef<TurnstileInstance>(null)
 
+  // ── Story 8.2, AC-4/AC-6: gated behind sign-in ────────────────────────────
+  const { data: session } = useSession()
+  const authT = getTranslations(locale).auth
+  const actionsT = getTranslations(locale).actions
+  const [showSignIn, setShowSignIn] = useState(false)
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
   // Read localStorage on mount to show "已舉報" chip.
   // Deferred via subscribeToStorage callback so the effect body subscribes
   // to an external system (storage events) rather than setting state directly,
@@ -131,12 +143,28 @@ export function FlagForm({ lenderSlug, locale }: Props) {
   }, [open, hasScrolledDisclaimer])
 
   function handleOpen() {
+    if (!session?.user) {
+      setShowSignIn(true)
+      return
+    }
     setOpen(true)
     setHasScrolledDisclaimer(false)
     setCategory('')
     setDetails('')
     setError(null)
   }
+
+  // Task 3.3: return-from-sign-in contract — `?openFlag=1` reopens the modal.
+  useEffect(() => {
+    if (searchParams.get('openFlag') === '1') {
+      setOpen(true)
+      setHasScrolledDisclaimer(false)
+      setCategory('')
+      setDetails('')
+      setError(null)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
 
   // Small helper so every error path also surfaces a toast.
   const showError = (msg: string) => {
@@ -166,6 +194,12 @@ export function FlagForm({ lenderSlug, locale }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ category, details: details || undefined, turnstileToken }),
       })
+
+      if (res.status === 401) {
+        // Session expired between opening the form and submitting.
+        setShowSignIn(true)
+        return
+      }
 
       if (res.status === 429) {
         showError(isZh ? '你已對此放債人提交過標記，請稍後再試。' : 'You have already flagged this lender. Please wait before submitting again.')
@@ -203,6 +237,18 @@ export function FlagForm({ lenderSlug, locale }: Props) {
   const triggerLabel = isZh ? '舉報問題' : 'Report a Problem'
   const alreadyFlaggedLabel = isZh ? '你已檢舉此放債人' : 'You have reported this lender'
 
+  const signInModal = (
+    <SignInPromptModal
+      open={showSignIn}
+      onClose={() => setShowSignIn(false)}
+      locale={locale}
+      t={authT}
+      actionsT={actionsT}
+      reason={authT.prompt.reasonRedFlag}
+      redirectTo={`${pathname}?openFlag=1`}
+    />
+  )
+
   // Show the "already flagged" chip if localStorage says they submitted before
   if (alreadyFlagged && !open) {
     return (
@@ -217,6 +263,7 @@ export function FlagForm({ lenderSlug, locale }: Props) {
         >
           {isZh ? '再次舉報' : 'Report again'}
         </button>
+        {signInModal}
       </div>
     )
   }
@@ -233,6 +280,8 @@ export function FlagForm({ lenderSlug, locale }: Props) {
         <Flag className="h-3.5 w-3.5" aria-hidden="true" />
         {triggerLabel}
       </button>
+
+      {signInModal}
 
       {/* Modal overlay */}
       {open && (

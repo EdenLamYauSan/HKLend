@@ -36,9 +36,17 @@ interface Props {
   actionsT: Translation['actions']
   /** One-line contextual explanation, e.g. "撰寫評論需登入" / "Writing a review needs an account". Falls back to t.prompt.defaultReason. */
   reason?: string
+  /**
+   * Story 8.2, Task 3.3: where the magic-link click should land the user
+   * back — typically the current pathname plus a surface-specific query
+   * param (e.g. `?openReview=1`) so the page can pop the form back open.
+   * Must be a same-origin relative path; validated again server-side in
+   * submitSignIn (open-redirect guard) regardless of what's passed here.
+   */
+  redirectTo?: string
 }
 
-export function SignInPromptModal({ open, onClose, locale, t, actionsT, reason }: Props) {
+export function SignInPromptModal({ open, onClose, locale, t, actionsT, reason, redirectTo }: Props) {
   const [email, setEmail] = useState('')
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -81,6 +89,7 @@ export function SignInPromptModal({ open, onClose, locale, t, actionsT, reason }
     const formData = new FormData()
     formData.set('email', email)
     formData.set('turnstileToken', turnstileToken)
+    if (redirectTo) formData.set('redirectTo', redirectTo)
 
     startTransition(async () => {
       const result = await submitSignIn(formData)

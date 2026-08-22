@@ -456,6 +456,10 @@ export const en: Translation = {
       defaultReason: 'You need to sign in to continue',
       successMessage: 'Check your email for the sign-in link.',
       smokeTriggerLabel: 'Preview: sign-in prompt',
+      reasonWriteReview: 'Sign in to write a review',
+      reasonReportReview: 'Sign in to report a review',
+      reasonRedFlag: 'Sign in to submit a red flag',
+      reasonScamReport: 'Sign in to report a scam',
     },
     email: {
       subject: 'Your hklend sign-in link',

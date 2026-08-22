@@ -26,6 +26,10 @@ export default async function AdminScamBoardPage() {
       lossAmountHkd: true,
       evidenceText: true,
       createdAt: true,
+      // Story 8.2, AC-10: submitter + IP-purge columns.
+      submissionIp: true,
+      ipPurgeAt: true,
+      reporter: { select: { email: true, name: true } },
     },
   })
 

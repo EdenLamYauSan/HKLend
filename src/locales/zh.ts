@@ -452,6 +452,10 @@ export const zh: Translation = {
       defaultReason: '繼續操作前需要登入',
       successMessage: '已寄出登入連結，請查收電郵。',
       smokeTriggerLabel: '預覽：登入提示彈窗',
+      reasonWriteReview: '撰寫評論需要登入',
+      reasonReportReview: '舉報評論需要登入',
+      reasonRedFlag: '提交紅旗標記需要登入',
+      reasonScamReport: '舉報詐騙需要登入',
     },
     email: {
       subject: 'hklend 登入連結',
