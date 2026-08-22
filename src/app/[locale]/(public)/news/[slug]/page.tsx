@@ -284,7 +284,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
                   <Link
                     key={lender.slug}
                     href={`/${locale}/lenders/${lender.slug}`}
-                    className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-4 hover:shadow-sm transition-shadow"
+                    className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 hover:shadow-sm transition-shadow"
                   >
                     <div className="flex-1 min-w-0">
                       <p className="truncate font-medium text-gray-900">{name}</p>

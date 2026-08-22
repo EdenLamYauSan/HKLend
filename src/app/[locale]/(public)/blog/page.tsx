@@ -146,7 +146,7 @@ export default async function BlogListPage({ params, searchParams }: PageProps) 
       </div>
 
       {items.length === 0 ? (
-        <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
+        <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
           <p className="text-gray-500">{isZh ? '暫時沒有文章。' : 'No articles yet.'}</p>
         </div>
       ) : (
@@ -155,7 +155,7 @@ export default async function BlogListPage({ params, searchParams }: PageProps) 
             <Link
               key={item.id}
               href={`/${locale}/blog/${item.slug}`}
-              className="block rounded-lg border border-gray-200 bg-white p-5 hover:shadow-sm hover:border-brand-navy/40 transition-all"
+              className="block rounded-xl border border-gray-200 bg-white p-5 hover:shadow-sm hover:border-brand-navy/40 transition-all"
               aria-label={`${isZh ? '閱讀' : 'Read'}: ${item.titleZh}`}
             >
               <article>

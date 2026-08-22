@@ -84,11 +84,11 @@ export default async function QuizPage({ params }: { params: PageParams }) {
       {/* Page header */}
       <div className="mb-8">
         <h1 className="text-2xl font-semibold text-gray-900">{t.quiz.title}</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{t.quiz.description}</p>
+        <p className="mt-1 text-sm text-gray-500">{t.quiz.description}</p>
       </div>
 
       {/* Quiz wizard — client component with pre-fetched lender data */}
-      <div className="rounded-2xl border border-border bg-brand-card p-6 shadow-sm">
+      <div className="rounded-xl border border-border bg-brand-card p-6 shadow-sm">
         <QuizWizard lenders={lenders} locale={locale} t={t} />
       </div>
     </div>

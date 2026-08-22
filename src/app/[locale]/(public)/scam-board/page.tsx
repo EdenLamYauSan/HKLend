@@ -154,7 +154,7 @@ export default async function ScamBoardPage({ params }: { params: PageParams }) 
       {/* Page header */}
       <div className="space-y-2">
         <h1 className="text-2xl font-semibold text-gray-900">{pageTitle}</h1>
-        <p className="text-sm text-gray-600">{pageDescription}</p>
+        <p className="mt-1 text-sm text-gray-500">{pageDescription}</p>
       </div>
 
       {/* UX-DR23: Disclaimer banner — Scam Board only */}
@@ -176,9 +176,9 @@ export default async function ScamBoardPage({ params }: { params: PageParams }) 
           target="_blank"
           rel="noopener noreferrer"
           className="
-            text-[#264a58] font-medium underline underline-offset-2
-            hover:text-[#1d3a47]
-            focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#264a58]
+            text-brand-navy font-medium underline underline-offset-2
+            hover:opacity-80
+            focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-navy
           "
         >
           {hkpfLinkText} ↗
