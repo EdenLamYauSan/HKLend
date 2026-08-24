@@ -18,8 +18,10 @@ interface ScopeBannerProps {
   locale: Locale
 }
 
-const HKMA_URL =
-  'https://www.hkma.gov.hk/eng/consumer-education-centre/other-financial-products-and-services/money-lenders/'
+// Companies Registry — official licensee search UI. The HKMA has no such
+// registry (they only regulate banks); the previous HKMA URL 404'd.
+const REGISTRY_URL_ZH = 'https://www.cr.gov.hk/tc/services/money-lenders/search/licensee-search.htm'
+const REGISTRY_URL_EN = 'https://www.cr.gov.hk/en/services/money-lenders/search/licensee-search.htm'
 
 /**
  * Pure Server Component — no 'use client' directive.
@@ -57,7 +59,7 @@ export function ScopeBanner({ locale }: ScopeBannerProps) {
       </span>
       <span aria-hidden="true" className="text-brand-amber/60">·</span>
       <a
-        href={HKMA_URL}
+        href={locale === 'zh' ? REGISTRY_URL_ZH : REGISTRY_URL_EN}
         target="_blank"
         rel="noopener noreferrer"
         className="underline underline-offset-2 decoration-white/40 hover:text-brand-amber hover:decoration-brand-amber transition-colors focus-visible:opacity-80"

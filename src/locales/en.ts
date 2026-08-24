@@ -17,7 +17,7 @@ export const en: Translation = {
   // ── Scope banner ──────────────────────────────────────────────────────────
   scopeBanner: {
     text: 'HK Lend verifies licences — we do not approve loans',
-    hkmaLink: 'View HKMA official directory',
+    hkmaLink: 'View Companies Registry official list',
   },
 
   // ── Navigation ──────────────────────────────────────────────────────────────
@@ -100,7 +100,7 @@ export const en: Translation = {
       title: 'This name is not registered in the Money Lenders Register',
       description:
         'The official register uses full legal company names. Trade names and brand names may differ. Try searching by full name.',
-      hkmaLink: 'View HKMA official Money Lenders Register',
+      hkmaLink: 'View Companies Registry Money Lenders List',
       retrySearch: 'Search again',
       viewScamBoard: 'View Scam Board',
     },

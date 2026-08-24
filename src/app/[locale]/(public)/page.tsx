@@ -91,8 +91,8 @@ export default async function HomePage({
           </h1>
           <p className="mb-8 mx-auto max-w-sm text-sm leading-relaxed text-white/70" style={{ fontFamily: 'var(--font-heading)' }}>
             {isZh
-              ? '免費查核HKMA持牌放債人名冊，避免接觸無牌放債人'
-              : 'Free checks from the HKMA official money lenders register'}
+              ? '免費查核公司註冊處持牌放債人名冊，避免接觸無牌放債人'
+              : 'Free checks from the Companies Registry official money lenders list'}
           </p>
           <Suspense fallback={null}>
             <HeroSearch locale={lang} targetPath={`/${lang}/lenders`} />
@@ -104,7 +104,7 @@ export default async function HomePage({
           <div className="mx-auto flex max-w-4xl divide-x divide-white/10 px-4 sm:px-6">
             {[
               { value: totalAll.toLocaleString(), label: isZh ? '間持牌放債人' : 'licensed lenders', numeric: true },
-              { value: isZh ? '每日更新' : 'Daily updates', label: isZh ? '資料來源：HKMA' : 'Source: HKMA', numeric: false },
+              { value: isZh ? '每日更新' : 'Daily updates', label: isZh ? '資料來源：公司註冊處' : 'Source: Companies Registry', numeric: false },
               { value: isZh ? '完全免費' : 'Completely free', label: isZh ? '無需登記' : 'No registration', numeric: false },
             ].map(stat => (
               <div key={stat.label} className="flex-1 py-5 px-2 text-center">
@@ -132,8 +132,8 @@ export default async function HomePage({
               ),
               titleZh: '查核牌照真偽',
               titleEn: 'Verify the licence',
-              bodyZh: '持牌放債人由HKMA監管，每間均有唯一牌照號碼，可即時核實。',
-              bodyEn: 'Licensed lenders are HKMA-regulated. Each has a unique licence number you can verify instantly.',
+              bodyZh: '持牌放債人由公司註冊處登記，每間均有唯一牌照號碼，可即時核實。',
+              bodyEn: 'Licensed lenders are registered with the Companies Registry. Each has a unique licence number you can verify instantly.',
             },
             {
               accent: 'border-l-brand-coral',
