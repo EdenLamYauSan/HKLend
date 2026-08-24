@@ -13,23 +13,20 @@ import { describe, it, expect } from 'vitest'
 import { calculateApr } from '../apr'
 
 describe('calculateApr', () => {
-  it('matches the AC fixture: 100k / 24mo / 1% flat → APR ~21.57%', () => {
+  it('matches Softmedia: 100k / 24mo / 1% monthly (reducing balance)', () => {
+    // Field is called `monthlyFlatRate` for historical reasons, but the
+    // formula is standard reducing-balance amortisation — the same method
+    // Softmedia's calculator uses. For 1%/month (12%/yr nominal), the
+    // monthly IRR is exactly 0.01, so APR = 12.0 %.
     const result = calculateApr({
       principal: 100_000,
       tenorMonths: 24,
       monthlyFlatRate: 1.0,
     })
-
-    // Nominal APR (monthly IRR × 12) for this fixture: ~21.57%
-    // Note: story AC cited 21.46% which appears to be an approximation;
-    // the correct Newton-Raphson IRR for these inputs is ~21.57%.
-    expect(result.apr).toBeCloseTo(21.57, 1)
-
-    // Monthly payment: HK$5,167 (rounded to nearest dollar)
-    expect(result.monthlyPayment).toBe(5167)
-
-    // Total repayable: 5,167 × 24 = HK$124,008
-    expect(result.totalRepayable).toBe(124_008)
+    expect(result.apr).toBeCloseTo(12.0, 1)
+    // 100k / (annuity factor at 1%/24mo) ≈ HK$4,707.35
+    expect(result.monthlyPayment).toBeCloseTo(4707.35, 1)
+    expect(result.totalRepayable).toBeCloseTo(result.monthlyPayment * 24, 2)
   })
 
   it('inputs are echoed back in the result', () => {
@@ -44,7 +41,7 @@ describe('calculateApr', () => {
       tenorMonths: 24,
       monthlyFlatRate: 1.0,
     })
-    expect(result.totalInterest).toBe(result.totalRepayable - 100_000)
+    expect(result.totalInterest).toBeCloseTo(result.totalRepayable - 100_000, 2)
   })
 
   it('higher flat rate produces higher APR', () => {
