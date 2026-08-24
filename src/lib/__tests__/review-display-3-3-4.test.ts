@@ -125,7 +125,10 @@ describe('3.3 AC-4 (superseded by Story 8.3): review query is per-viewer, not ca
   })
 
   it('ReviewSection reads the current session to scope the query per-viewer', () => {
-    expect(reviewSection).toContain('await auth()')
+    // Updated per PERF-2 fix: auth() calls in RSCs now go through the
+    // React `cache()`-wrapped `getSession()` helper so sibling RSCs share
+    // one session lookup per request.
+    expect(reviewSection).toContain('await getSession()')
     expect(reviewSection).toContain('currentUserId')
   })
 })

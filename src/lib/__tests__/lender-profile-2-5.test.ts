@@ -31,15 +31,20 @@ describe('AC-0: file exists', () => {
 
 // ─── ISR strategy ─────────────────────────────────────────────────────────────
 
-describe('AC-1: ISR strategy — dynamicParams + page-level revalidate', () => {
+describe('AC-1: ISR strategy — dynamicParams + page-level rendering mode', () => {
   const page = readFile(PAGE_PATH)
 
   it('exports dynamicParams = true (serve on-demand for unknown slugs)', () => {
     expect(page).toContain('export const dynamicParams = true')
   })
 
-  it('exports page-level revalidate (ISR TTL)', () => {
-    expect(page).toContain('export const revalidate')
+  it('declares dynamic rendering (Story 8.3 ReviewSection/FlagsSection read cookies)', () => {
+    // Superseded by ISR-1 fix: the previous `revalidate = 86400` claim
+    // was a lie once auth() started reading cookies inside RSC children,
+    // so the page-level declaration was changed to `dynamic = 'force-dynamic'`
+    // to make the actual behaviour honest. The getLenderBySlug lookup still
+    // uses unstable_cache with 604800s TTL (see AC-2 tests below).
+    expect(page).toContain("export const dynamic = 'force-dynamic'")
   })
 
   it('uses unstable_cache for per-slug DB lookup', () => {
