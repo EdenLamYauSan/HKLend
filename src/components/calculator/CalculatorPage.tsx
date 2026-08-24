@@ -138,9 +138,9 @@ export function CalculatorPage() {
     : []
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
+    <div className="mx-auto max-w-2xl px-2 py-8 sm:px-6">
       {/* Inputs */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:p-6">
         <h1 className="mb-6 text-xl font-semibold text-gray-900">貸款計算機</h1>
 
         <div className="space-y-5">
@@ -223,7 +223,7 @@ export function CalculatorPage() {
       {result && (
         <div className="mt-6 space-y-6">
           {/* Summary */}
-          <div className="rounded-xl border border-border bg-white p-5 shadow-sm">
+          <div className="rounded-xl border border-border bg-white p-3 shadow-sm sm:p-5">
             <h2 className="mb-4 text-base font-semibold text-gray-900">計算結果</h2>
             <div className="divide-y divide-border rounded-lg border border-border sm:divide-y-0 sm:grid sm:grid-cols-3 sm:divide-x">
               <div className="flex items-center justify-between px-4 py-3 sm:flex-col sm:items-start sm:gap-1 sm:py-4">
@@ -249,7 +249,7 @@ export function CalculatorPage() {
 
           {/* Schedule */}
           <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-            <div className="border-b border-gray-100 px-6 py-4">
+            <div className="border-b border-gray-100 px-3 py-4 sm:px-6">
               <h2 className="text-base font-semibold text-gray-900">還款計劃表</h2>
             </div>
             <div className="overflow-x-auto">
