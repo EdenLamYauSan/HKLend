@@ -1,7 +1,7 @@
 /**
  * Scrapes TC body text from regulatory news article pages.
  *
- * HKMA press releases: fetches the /chi/ version directly (no translation needed).
+ * HKMA press releases: sourceUrl is already /chi/ (lang=tc API). Fetches directly.
  * SFC edistributionWeb: React SPA, skipped without Playwright — returns ''.
  */
 
@@ -9,7 +9,7 @@ export async function scrapeBodyZh(sourceUrl: string): Promise<string> {
   let tcUrl: string | null = null
 
   if (sourceUrl.includes('hkma.gov.hk')) {
-    tcUrl = sourceUrl.replace('/eng/', '/chi/').replace('/gb_chi/', '/chi/')
+    tcUrl = sourceUrl
   }
   // SFC edistributionWeb is a React SPA — requires Playwright, skip for now
   if (!tcUrl) return ''
