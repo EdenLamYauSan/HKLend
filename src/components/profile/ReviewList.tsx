@@ -15,7 +15,7 @@
  * NFR-6: review body rendered as <p> plain text — never dangerouslySetInnerHTML.
  */
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import type { ReviewItem } from './ReviewSection'
@@ -28,30 +28,6 @@ import { getTranslations } from '@/locales'
 import { SignInPromptModal } from '@/components/auth/SignInPromptModal'
 import { VoteButton } from '@/components/votes/VoteButton'
 
-// ─── Vote state ───────────────────────────────────────────────────────────────
-
-type VoteState = 'helpful' | 'not-helpful' | null
-
-function getStoredVote(reviewId: string): VoteState {
-  if (typeof window === 'undefined') return null
-  try {
-    const raw = localStorage.getItem(`voted:${reviewId}`)
-    if (raw === 'helpful' || raw === 'not-helpful') return raw
-  } catch {
-    // localStorage unavailable (private browsing etc.)
-  }
-  return null
-}
-
-function storeVote(reviewId: string, vote: VoteState) {
-  if (typeof window === 'undefined' || !vote) return
-  try {
-    localStorage.setItem(`voted:${reviewId}`, vote)
-  } catch {
-    // Ignore write errors
-  }
-}
-
 // ─── Labels ───────────────────────────────────────────────────────────────────
 
 const COPY = {
@@ -59,8 +35,6 @@ const COPY = {
     writeReview: '撰寫評論',
     emptyState: '還沒有評論。成為第一個分享經驗的人。',
     anonymous: '匿名',
-    helpful: '有用',
-    notHelpful: '沒用',
     loadMore: '載入更多',
     loading: '載入中…',
     overallAvg: (n: number) => `${n.toFixed(1)} 分`,
@@ -84,8 +58,6 @@ const COPY = {
     writeReview: 'Write a Review',
     emptyState: 'No reviews yet. Be the first to share your experience.',
     anonymous: 'Anonymous',
-    helpful: 'Helpful',
-    notHelpful: 'Not Helpful',
     loadMore: 'Load more',
     loading: 'Loading…',
     overallAvg: (n: number) => `${n.toFixed(1)}`,
@@ -210,65 +182,12 @@ function ReviewCard({
     }
   }
 
-  // Vote state — starts null to avoid SSR/hydration mismatch; populated after
-  // mount so localStorage is only read on the client.
-  const [votes, setVotes] = useState<{
-    helpful: number
-    notHelpful: number
-    cast: VoteState
-  } | null>(null)
-
-  useEffect(() => {
-    setVotes({
-      helpful: review.helpfulCount,
-      notHelpful: review.notHelpfulCount,
-      cast: getStoredVote(review.id),
-    })
-  }, [review.id, review.helpfulCount, review.notHelpfulCount])
-
-  // Resolved counts for render — fall back to server props while not yet mounted.
-  const resolvedVotes = votes ?? {
-    helpful: review.helpfulCount,
-    notHelpful: review.notHelpfulCount,
-    cast: null as VoteState,
-  }
-
-
-  const [voting, setVoting] = useState(false)
-
-  const castVote = useCallback(
-    async (vote: 'helpful' | 'not-helpful') => {
-      if (resolvedVotes.cast || voting) return
-      setVoting(true)
-      try {
-        const res = await fetch(`/api/reviews/${review.id}/vote`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ vote }),
-        })
-        if (res.ok) {
-          storeVote(review.id, vote)
-          setVotes(prev => {
-            const base = prev ?? {
-              helpful: review.helpfulCount,
-              notHelpful: review.notHelpfulCount,
-              cast: null as VoteState,
-            }
-            return {
-              ...base,
-              helpful: vote === 'helpful' ? base.helpful + 1 : base.helpful,
-              notHelpful:
-                vote === 'not-helpful' ? base.notHelpful + 1 : base.notHelpful,
-              cast: vote,
-            }
-          })
-        }
-      } finally {
-        setVoting(false)
-      }
-    },
-    [review.id, review.helpfulCount, review.notHelpfulCount, resolvedVotes.cast, voting]
-  )
+  // Legacy Story 3.5 helpful/not-helpful counter was removed in the security
+  // fix that follows the branch-level review: the endpoint (/api/reviews/[id]/vote)
+  // had no auth gate, letting anyone inflate the counts including on their own
+  // reviews. Story 8.3's Vote model + VoteButton below is now the sole upvote
+  // path. The `helpfulCount` / `notHelpfulCount` DB columns are retained for
+  // historical data but no longer written or displayed.
 
   const dims = [
     ['ratingApprovalSpeed', review.ratingApprovalSpeed],
@@ -329,33 +248,6 @@ function ReviewCard({
           t={authT}
           actionsT={actionsT}
         />
-        <button
-          type="button"
-          onClick={() => castVote('helpful')}
-          disabled={!!resolvedVotes.cast || voting}
-          aria-pressed={resolvedVotes.cast === 'helpful'}
-          className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
-            resolvedVotes.cast === 'helpful'
-              ? 'bg-green-100 border-green-400 text-green-700 font-semibold'
-              : 'border-gray-300 text-gray-500 hover:border-gray-400 disabled:opacity-50'
-          }`}
-        >
-          {copy.helpful} ({resolvedVotes.helpful})
-        </button>
-        <button
-          type="button"
-          onClick={() => castVote('not-helpful')}
-          disabled={!!resolvedVotes.cast || voting}
-          aria-pressed={resolvedVotes.cast === 'not-helpful'}
-          className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
-            resolvedVotes.cast === 'not-helpful'
-              ? 'bg-red-100 border-red-400 text-red-700 font-semibold'
-              : 'border-gray-300 text-gray-500 hover:border-gray-400 disabled:opacity-50'
-          }`}
-        >
-          {copy.notHelpful} ({resolvedVotes.notHelpful})
-        </button>
-
         {/* Story 8.2, AC-3/AC-6: report-a-review — gated behind sign-in */}
         {reportDone ? (
           <span className="text-xs text-gray-400 ml-auto">{copy.reported}</span>

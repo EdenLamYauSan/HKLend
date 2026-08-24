@@ -48,8 +48,6 @@ export interface ReviewItem {
   ratingTransparency: number
   body: string
   reviewerName: string | null
-  helpfulCount: number
-  notHelpfulCount: number
   createdAt: Date
   // Story 8.3, AC-2/AC-3/AC-4
   // Note: raw userId is intentionally NOT exposed to the client — see the
@@ -100,8 +98,6 @@ async function getReviewsForProfile(lenderId: string, currentUserId: string | nu
     ratingTransparency: r.ratingTransparency,
     body: r.body,
     reviewerName: r.reviewerName,
-    helpfulCount: r.helpfulCount,
-    notHelpfulCount: r.notHelpfulCount,
     createdAt: r.createdAt,
     userDisplayName: r.userDisplayName,
     voteCount: r.voteCount,
