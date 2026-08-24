@@ -50,10 +50,26 @@ export function Header({ locale }: HeaderProps) {
           <span aria-hidden="true" className="text-white">Lend</span>
         </Link>
 
-        {/* Language toggle */}
-        <nav aria-label="Language switcher">
-          <LanguageToggle currentLocale={locale} />
-        </nav>
+        {/* Right-side controls */}
+        <div className="flex items-center gap-2">
+          <Link
+            href={`/${locale}/login`}
+            className="
+              inline-flex items-center
+              h-8 px-2.5
+              rounded-md
+              text-sm font-medium
+              text-white/60 hover:text-white hover:bg-white/10
+              focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2
+              transition-colors
+            "
+          >
+            {locale === 'zh' ? '登入' : 'Log in'}
+          </Link>
+          <nav aria-label="Language switcher">
+            <LanguageToggle currentLocale={locale} />
+          </nav>
+        </div>
       </div>
     </header>
   )
