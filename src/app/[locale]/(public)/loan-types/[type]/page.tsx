@@ -124,8 +124,8 @@ export async function generateMetadata({
 
   const description =
     locale === 'zh'
-      ? `查閱所有提供${labelZh}的香港持牌放債人，資料來源香港金融管理局。`
-      : `Browse all licensed money lenders offering ${labelEn} in Hong Kong. Sourced from the HKMA registry.`
+      ? `查閱所有提供${labelZh}的香港持牌放債人，資料來源香港公司註冊處。`
+      : `Browse all licensed money lenders offering ${labelEn} in Hong Kong. Sourced from the Companies Registry.`
 
   return {
     title,
@@ -203,7 +203,7 @@ export default async function LoanTypePage({ params }: PageProps) {
           <p className="mt-1 text-sm text-gray-500">
             {locale === 'zh'
               ? `以下列出所有提供${labelZh}的香港持牌放債人（共 ${lenders.length} 間），資料來源香港公司登記冊。`
-              : `All ${lenders.length} licensed money lenders in Hong Kong offering ${labelEn}, sourced from the HKMA registry.`}
+              : `All ${lenders.length} licensed money lenders in Hong Kong offering ${labelEn}, sourced from the Companies Registry.`}
           </p>
         </div>
 

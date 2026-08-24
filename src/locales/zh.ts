@@ -17,7 +17,7 @@ export const zh: Translation = {
   // ── Scope banner ──────────────────────────────────────────────────────────
   scopeBanner: {
     text: 'HK Lend 核實牌照，不批核貸款',
-    hkmaLink: '查閱金管局官方名冊',
+    hkmaLink: '查閱公司註冊處官方名冊',
   },
 
   // ── Navigation ──────────────────────────────────────────────────────────────
@@ -100,7 +100,7 @@ export const zh: Translation = {
       title: '此名稱並未在放債人登記冊登記',
       description:
         '官方名冊以公司全名登記。貿易名稱或品牌名稱可能與登記名稱不同，建議以全名搜尋。',
-      hkmaLink: '查閱金管局官方放債人名冊',
+      hkmaLink: '查閱公司註冊處放債人名冊',
       retrySearch: '重新搜尋',
       viewScamBoard: '查看詐騙警示板',
     },

@@ -9,8 +9,9 @@
 import Link from 'next/link'
 import type { Locale } from '@/locales'
 
-const HKMA_REGISTER_URL =
-  'https://www.hkma.gov.hk/eng/consumer-education-centre/other-financial-products-and-services/money-lenders/'
+// Companies Registry — official licensee search UI (per-locale).
+const REGISTRY_URL_ZH = 'https://www.cr.gov.hk/tc/services/money-lenders/search/licensee-search.htm'
+const REGISTRY_URL_EN = 'https://www.cr.gov.hk/en/services/money-lenders/search/licensee-search.htm'
 
 interface FooterProps {
   locale: Locale
@@ -43,12 +44,12 @@ export function Footer({ locale }: FooterProps) {
               {isZh ? '資料來源' : 'Data source'}
             </p>
             <a
-              href={HKMA_REGISTER_URL}
+              href={isZh ? REGISTRY_URL_ZH : REGISTRY_URL_EN}
               target="_blank"
               rel="noopener noreferrer"
               className="block underline underline-offset-2 hover:text-primary transition-colors"
             >
-              {isZh ? '香港金融管理局放債人名冊' : 'HKMA Money Lenders Register'}
+              {isZh ? '香港公司註冊處放債人名冊' : 'Companies Registry Money Lenders List'}
               <span className="sr-only"> (opens in new tab)</span>
             </a>
           </div>
@@ -107,7 +108,7 @@ export function Footer({ locale }: FooterProps) {
           </p>
           <p className="text-xs text-muted-foreground">
             {isZh
-              ? '資料每日更新，以金管局官方記錄為準。'
+              ? '資料每日更新，以公司註冊處官方記錄為準。'
               : 'Data updated daily. HKMA official records are authoritative.'}
           </p>
         </div>

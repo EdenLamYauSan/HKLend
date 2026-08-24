@@ -18,8 +18,8 @@ export const revalidate = 86400 // 24h
 
 // ─── Copy ─────────────────────────────────────────────────────────────────────
 
-const HKMA_URL =
-  'https://www.hkma.gov.hk/eng/consumer-education-centre/other-financial-products-and-services/money-lenders/'
+const REGISTRY_URL_ZH = 'https://www.cr.gov.hk/tc/services/money-lenders/search/licensee-search.htm'
+const REGISTRY_URL_EN = 'https://www.cr.gov.hk/en/services/money-lenders/search/licensee-search.htm'
 
 interface Section {
   heading: string
@@ -51,7 +51,7 @@ const COPY: Record<Locale, PageCopy> = {
       {
         heading: '資料來源',
         bodyBefore: '牌照及公司資料來自 ',
-        linkLabel: '香港金融管理局公開放債人名冊',
+        linkLabel: '香港公司註冊處放債人名冊',
         bodyAfter: '。點評與警示由用戶提交，經人手審核後發佈。資料每日更新，惟仍以官方紀錄為準。',
       },
       {
@@ -93,7 +93,7 @@ const COPY: Record<Locale, PageCopy> = {
       {
         heading: 'Where our data comes from',
         bodyBefore: 'Licence and company details are sourced from the ',
-        linkLabel: "HKMA's public register of money lenders",
+        linkLabel: "Hong Kong Companies Registry's Money Lenders List",
         bodyAfter:
           '. Reviews and flags are submitted by users and reviewed manually before publication. Data is refreshed daily; the official record remains authoritative.',
       },
@@ -184,7 +184,7 @@ export default async function AboutPage({ params }: PageProps) {
             <p className="text-sm text-gray-700 leading-relaxed">
               {section.bodyBefore}
               <a
-                href={HKMA_URL}
+                href={locale === 'zh' ? REGISTRY_URL_ZH : REGISTRY_URL_EN}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary underline underline-offset-2 hover:opacity-80"
