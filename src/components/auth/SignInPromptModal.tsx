@@ -235,7 +235,7 @@ export function SignInPromptModal({ open, onClose, locale, t, actionsT, reason, 
               <Turnstile
                 ref={turnstileRef}
                 siteKey={getTurnstileSiteKey() ?? ''}
-                options={{ execution: 'execute', appearance: 'interaction-only' }}
+                options={{ execution: 'render', appearance: 'interaction-only' }}
                 onSuccess={setTurnstileToken}
                 onExpire={() => setTurnstileToken(null)}
                 onError={() => {

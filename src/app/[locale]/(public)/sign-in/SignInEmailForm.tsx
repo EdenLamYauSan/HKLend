@@ -123,7 +123,7 @@ export function SignInEmailForm({ locale, t }: Props) {
       <Turnstile
         ref={turnstileRef}
         siteKey={getTurnstileSiteKey() ?? ''}
-        options={{ execution: 'execute', appearance: 'interaction-only' }}
+        options={{ execution: 'render', appearance: 'interaction-only' }}
         onSuccess={setTurnstileToken}
         onExpire={() => setTurnstileToken(null)}
         onError={() => {
