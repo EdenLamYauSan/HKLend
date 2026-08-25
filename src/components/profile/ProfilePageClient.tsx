@@ -1,13 +1,12 @@
 'use client'
 
 /**
- * ProfilePageClient — client island for the lender profile page (Story 5.5).
+ * ProfilePageClient — client island for the lender profile page.
  *
  * Owns:
  *   - Calculator open/close state (for the mobile bottom sheet)
- *   - The "加入比較" and "計算利率" action buttons
  *
- * Layout: two-column flex (left: profile content + action buttons; right: calculator)
+ * Layout: two-column flex (left: profile content; right: calculator)
  *
  * Server-rendered content (LicencePanel, LoanTypeTags, etc.) is passed as
  * `children` — React and Next.js 16 support server component children inside
@@ -19,12 +18,19 @@
  */
 
 import { useState, useEffect } from 'react'
-import { ProfileActions } from './ProfileActions'
 import { CalculatorSheet } from '@/components/CalculatorSheet'
-import type { CompareLender } from '@/store/compare.store'
+
+interface LenderMeta {
+  slug: string
+  companyNameZh: string
+  companyNameEn: string | null
+  licenceStatus: string
+  districtZh: string | null
+  interestRateMin: number | null
+}
 
 interface ProfilePageClientProps {
-  lender: CompareLender & { interestRateMin: number | null }
+  lender: LenderMeta
   locale: 'zh' | 'en'
   /** Server-rendered profile sections passed from the Server Component */
   children: React.ReactNode
@@ -42,17 +48,9 @@ export function ProfilePageClient({ lender, locale, children }: ProfilePageClien
 
   return (
     <div className="flex gap-8 items-start">
-      {/* ── Left column: server-rendered content + action buttons ── */}
+      {/* ── Left column: server-rendered content ── */}
       <div className="flex-1 min-w-0 space-y-6">
-        {/* Server-rendered profile sections */}
         {children}
-
-        {/* Action buttons below licence/rate info */}
-        <ProfileActions
-          lender={lender}
-          locale={locale}
-          onOpenCalc={() => setCalcOpen(true)}
-        />
       </div>
 
       {/*

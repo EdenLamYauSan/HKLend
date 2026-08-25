@@ -30,7 +30,6 @@ import { SeasonAlertBanner } from '@/components/layout/SeasonAlertBanner'
 import { Header } from '@/components/layout/Header'
 import { DirectoryTabNav } from '@/components/layout/DirectoryTabNav'
 import { Footer } from '@/components/layout/Footer'
-import { CompareTray } from '@/components/CompareTray'
 import { getTranslations } from '@/locales'
 
 const jakartaSans = Plus_Jakarta_Sans({
@@ -145,8 +144,6 @@ export default async function LocaleLayout({
            */}
           <Toaster position="top-center" richColors closeButton />
 
-          {/* Floating comparison tray — hidden until compare feature re-enabled */}
-          {/* <CompareTray locale={lang} /> */}
         </SessionProviderWrapper>
       </body>
     </html>

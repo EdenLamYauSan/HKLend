@@ -318,7 +318,7 @@ export default async function BestPage({ params }: PageProps) {
 
         {/* Lender list */}
         {lenders.length === 0 ? (
-          <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
+          <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
             <p className="text-gray-500">
               {locale === 'zh' ? '暫時沒有符合條件的放債人。' : 'No lenders match this criterion yet.'}
             </p>

@@ -123,12 +123,14 @@ export function calculateApr(inputs: CalculatorInputs): CalculatorResult {
   const monthlyPaymentExact = r > 0
     ? principal * r / (1 - Math.pow(1 + r, -tenorMonths))
     : principal / tenorMonths
-  // Round to the nearest dollar — this is the actual payment the borrower makes.
-  const monthlyPayment = Math.round(monthlyPaymentExact)
+  // Round to cents (2 decimal places) — matches the industry convention used
+  // by Softmedia and other HK loan calculators. Whole-dollar rounding here
+  // over- or under-states the true monthly payment by up to $1.
+  const monthlyPayment = Math.round(monthlyPaymentExact * 100) / 100
   // Total repayable is derived from the rounded payment so the displayed totals
   // are internally consistent (totalRepayable = monthlyPayment × tenorMonths).
-  const totalRepayable = monthlyPayment * tenorMonths
-  const totalInterest = totalRepayable - principal
+  const totalRepayable = Math.round(monthlyPayment * tenorMonths * 100) / 100
+  const totalInterest = Math.round((totalRepayable - principal) * 100) / 100
 
   // IRR is solved from the unrounded payment so that convergence is clean and
   // the resulting APR is not distorted by a few dollars of rounding.

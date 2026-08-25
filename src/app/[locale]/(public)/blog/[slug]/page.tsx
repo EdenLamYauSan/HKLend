@@ -130,7 +130,7 @@ function categoryLabel(category: 'LENDING' | 'PERSONAL_FINANCE', locale: Locale)
 }
 
 function categoryClass(category: 'LENDING' | 'PERSONAL_FINANCE'): string {
-  return category === 'LENDING' ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'
+  return category === 'LENDING' ? 'bg-amber-50 text-amber-700' : 'bg-purple-50 text-purple-700'
 }
 
 // ─── JSON-LD ──────────────────────────────────────────────────────────────────

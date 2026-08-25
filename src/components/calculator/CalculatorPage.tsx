@@ -43,6 +43,10 @@ function fmt(n: number): string {
   return hkdFmt.format(n)
 }
 
+function fmtShort(n: number): string {
+  return '$' + new Intl.NumberFormat('en', { maximumFractionDigits: 0 }).format(n)
+}
+
 /**
  * Generate a reducing-balance repayment schedule.
  * Each period: interest = remaining balance × monthly rate.
@@ -134,9 +138,9 @@ export function CalculatorPage() {
     : []
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
+    <div className="mx-auto max-w-2xl px-2 py-8 sm:px-6">
       {/* Inputs */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:p-6">
         <h1 className="mb-6 text-xl font-semibold text-gray-900">貸款計算機</h1>
 
         <div className="space-y-5">
@@ -219,7 +223,7 @@ export function CalculatorPage() {
       {result && (
         <div className="mt-6 space-y-6">
           {/* Summary */}
-          <div className="rounded-xl border border-border bg-white p-5 shadow-sm">
+          <div className="rounded-xl border border-border bg-white p-3 shadow-sm sm:p-5">
             <h2 className="mb-4 text-base font-semibold text-gray-900">計算結果</h2>
             <div className="divide-y divide-border rounded-lg border border-border sm:divide-y-0 sm:grid sm:grid-cols-3 sm:divide-x">
               <div className="flex items-center justify-between px-4 py-3 sm:flex-col sm:items-start sm:gap-1 sm:py-4">
@@ -245,35 +249,35 @@ export function CalculatorPage() {
 
           {/* Schedule */}
           <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-            <div className="border-b border-gray-100 px-6 py-4">
+            <div className="border-b border-gray-100 px-3 py-4 sm:px-6">
               <h2 className="text-base font-semibold text-gray-900">還款計劃表</h2>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm min-w-[340px]">
                 <thead>
                   <tr className="bg-gray-50 text-xs text-gray-500">
-                    <th className="px-2 py-3 text-right font-medium">期</th>
-                    <th className="px-2 py-3 text-right font-medium">月供</th>
-                    <th className="px-2 py-3 text-right font-medium">利息</th>
-                    <th className="px-2 py-3 text-right font-medium">本金</th>
-                    <th className="px-2 py-3 text-right font-medium">餘額</th>
+                    <th className="px-1.5 py-3 text-center font-medium sm:px-2">期</th>
+                    <th className="px-1.5 py-3 text-center font-medium sm:px-2">月供</th>
+                    <th className="px-1.5 py-3 text-center font-medium sm:px-2">利息</th>
+                    <th className="px-1.5 py-3 text-center font-medium sm:px-2">本金</th>
+                    <th className="px-1.5 py-3 text-center font-medium sm:px-2">餘額</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {scheduleRows.map(row => (
                     <tr key={row.period} className="hover:bg-gray-50">
-                      <td className="px-2 py-2.5 text-right text-gray-600">{row.period}</td>
-                      <td className="px-2 py-2.5 text-right font-medium text-gray-900">
-                        {fmt(row.payment)}
+                      <td className="px-1.5 py-2.5 text-center text-gray-600 sm:px-2">{row.period}</td>
+                      <td className="px-1.5 py-2.5 text-center font-medium text-gray-900 tabular-nums sm:px-2">
+                        {fmtShort(row.payment)}
                       </td>
-                      <td className="px-2 py-2.5 text-right text-brand-amber">
-                        {fmt(row.interest)}
+                      <td className="px-1.5 py-2.5 text-center text-brand-amber tabular-nums sm:px-2">
+                        {fmtShort(row.interest)}
                       </td>
-                      <td className="px-2 py-2.5 text-right text-primary">
-                        {fmt(row.principal)}
+                      <td className="px-1.5 py-2.5 text-center text-primary tabular-nums sm:px-2">
+                        {fmtShort(row.principal)}
                       </td>
-                      <td className="px-2 py-2.5 text-right text-gray-500">
-                        {fmt(row.balance)}
+                      <td className="px-1.5 py-2.5 text-center text-gray-500 tabular-nums sm:px-2">
+                        {fmtShort(row.balance)}
                       </td>
                     </tr>
                   ))}

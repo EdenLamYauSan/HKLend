@@ -68,47 +68,6 @@ export async function GET(request: NextRequest): Promise<Response> {
   const url = new URL(request.url)
   const raw = Object.fromEntries(url.searchParams.entries())
 
-  // ── Bulk slug lookup for the comparison grid (Story 5.6) ──────────────────
-  // GET /api/lenders?slugs=slug1,slug2,...
-  // Returns an array of lender objects (no pagination wrapper).
-  if (raw.slugs) {
-    if (raw.slugs.length > 200) {
-      return Response.json(
-        apiError('VALIDATION_ERROR', 'slugs parameter too long'),
-        { status: 400 },
-      )
-    }
-    const slugList = raw.slugs
-      .split(',')
-      .map((s: string) => s.trim())
-      .filter(Boolean)
-      .slice(0, 100)
-
-    const rows = await db.lender.findMany({
-      where: { slug: { in: slugList } },
-      select: {
-        slug: true,
-        licenceNumber: true,
-        licenceStatus: true,
-        companyNameZh: true,
-        companyNameEn: true,
-        districtZh: true,
-        districtEn: true,
-        loanTypeTags: true,
-        interestRateMin: true,
-        interestRateMax: true,
-      },
-    })
-
-    const data = rows.map(r => ({
-      ...r,
-      interestRateMin: r.interestRateMin ? Number(r.interestRateMin) : null,
-      interestRateMax: r.interestRateMax ? Number(r.interestRateMax) : null,
-    }))
-
-    return Response.json({ data, meta: { total: data.length, page: 1, pageSize: data.length, totalPages: 1 } })
-  }
-
   const parsed = querySchema.safeParse(raw)
   if (!parsed.success) {
     return Response.json(

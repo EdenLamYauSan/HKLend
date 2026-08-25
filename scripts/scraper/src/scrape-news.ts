@@ -17,18 +17,18 @@ import Anthropic from '@anthropic-ai/sdk'
 import { getScraperDb } from './env'
 import { scrapeBodyZh } from './body-scraper'
 
-// ─── TC Translation ───────────────────────────────────────────────────────────
+// ─── EN Translation ───────────────────────────────────────────────────────────
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-async function translateToTC(text: string): Promise<string> {
+async function translateToEN(text: string): Promise<string> {
   if (!text.trim()) return text
   const msg = await anthropic.messages.create({
-    model: 'claude-haiku-4-5-20251001',
+    model: 'claude-haiku-4-5',
     max_tokens: 1024,
     messages: [{
       role: 'user',
-      content: `Translate the following financial/regulatory news text into professional Traditional Chinese (繁體中文) as used in Hong Kong. Return ONLY the translation, no explanation.\n\n${text}`,
+      content: `Translate the following financial/regulatory news text into professional English. Return ONLY the translation, no explanation.\n\n${text}`,
     }],
   })
   const block = msg.content[0]
@@ -66,7 +66,7 @@ const FEEDS: FeedConfig[] = [
   {
     // HKMA dropped their RSS feed; the Open API returns up to 100 records as JSON.
     // API docs: https://apidocs.hkma.gov.hk/documentation/press-releases
-    url: 'https://api.hkma.gov.hk/public/press-releases?offset=0&limit=100&lang=en',
+    url: 'https://api.hkma.gov.hk/public/press-releases?offset=0&limit=100&lang=tc',
     source: 'hkma',
     type: 'api',
     category: 'regulatory',
@@ -76,7 +76,7 @@ const FEEDS: FeedConfig[] = [
   {
     // Fraudulent bank websites, phishing e-mails and similar scams.
     // API docs: https://apidocs.hkma.gov.hk/documentation/bank-svf-info/fraudulent-bank-scams
-    url: 'https://api.hkma.gov.hk/public/bank-svf-info/fraudulent-bank-scams?offset=0&limit=100&lang=en',
+    url: 'https://api.hkma.gov.hk/public/bank-svf-info/fraudulent-bank-scams?offset=0&limit=100&lang=tc',
     source: 'hkma',
     type: 'api-scams',
     category: 'enforcement',
@@ -84,8 +84,8 @@ const FEEDS: FeedConfig[] = [
     labelEn: 'HKMA',
   },
   {
-    // Confirmed working 2026-08-19; old /en/RSS/news-press-releases was 404.
-    url: 'https://www.sfc.hk/en/RSS-Feeds/Press-releases',
+    // Chinese RSS feed — links to /TC/ pages instead of /EN/.
+    url: 'https://www.sfc.hk/tc/RSS-Feeds/Press-releases',
     source: 'sfc',
     type: 'rss',
     category: 'regulatory',
@@ -176,8 +176,8 @@ async function fetchHkmaScamsApi(url: string): Promise<RssItem[]> {
     return data.result.records
       .filter((r) => r.pr_url) // dedup key uses link; skip anything without one
       .map((r) => ({
-        // Synthetic title so users see who's being impersonated and how
-        title: `Fraud alert: ${r.alleged_name} (${r.scam_type})`,
+        // API returns Chinese with lang=tc; synthetic title in Chinese
+        title: `詐騙警示：${r.alleged_name}（${r.scam_type}）`,
         link: r.pr_url as string,
         description: r.fraud_website_address ?? '',
         pubDate: `${r.issue_date}T00:00:00+08:00`,
@@ -303,7 +303,8 @@ async function main(): Promise<void> {
         const baseSlug = generateNewsSlug(item.title, item.pubDate)
         const slug = await resolveUniqueSlug(db, baseSlug)
 
-        const titleZh = await translateToTC(item.title)
+        const titleZh = item.title
+        const titleEn = await translateToEN(item.title)
         const bodyZh = await scrapeBodyZh(sourceUrl)
         const bodyEn = item.description || ''
 
@@ -311,7 +312,7 @@ async function main(): Promise<void> {
           data: {
             slug,
             titleZh,
-            titleEn: item.title,
+            titleEn,
             bodyZh,
             bodyEn,
             source: sourceUrl,

@@ -64,7 +64,7 @@ const COPY: Record<Locale, PageCopy> = {
       {
         heading: 'Cookies 及本地儲存',
         body:
-          '本網站使用功能性儲存（如 Zustand 的持久化書籤及防重複投票的 localStorage 記錄），以及 PostHog 匿名分析 cookie／localStorage（用於將同一訪客的多次瀏覽串連，以計算使用流程）。我們沒有使用廣告 cookie 或跨網站追蹤 cookie。',
+          '本網站只使用功能性儲存：包括書籤的 localStorage 記錄，以及用於防重複投票的 localStorage 記錄。我們沒有使用廣告或追蹤 cookie。',
       },
       {
         heading: '第三方服務',
@@ -122,7 +122,7 @@ const COPY: Record<Locale, PageCopy> = {
       {
         heading: 'Cookies and local storage',
         body:
-          'We use functional storage (such as the Zustand persist store for your compare-list bookmark and localStorage records used to prevent duplicate votes) plus PostHog anonymous analytics cookies/localStorage that let us join a single visitor\'s page views together to see the flow through the site. We do not use advertising cookies or cross-site tracking cookies.',
+          'We only use functional storage — localStorage records for your saved bookmarks, and localStorage records used to prevent duplicate votes. We do not use advertising or tracking cookies.',
       },
       {
         heading: 'Third parties',
