@@ -22,17 +22,23 @@ import { env } from '@/lib/env'
 import { apiError } from '@/types/api-error'
 import { reviewVoteSchema } from '@/types/review.schema'
 
-// Upstash rate limiter: 10 votes per IP per hour
-const redis = new Redis({
-  url: env.KV_REST_API_URL,
-  token: env.KV_REST_API_TOKEN,
-})
+// Lazy singleton — only initialized when KV env vars are present.
+// Matches the pattern used by submission-guard.ts.
+let _redis: Redis | null = null
+let _voteLimiter: Ratelimit | null = null
 
-const voteLimiter = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(10, '1 h'),
-  prefix: 'ratelimit:vote',
-})
+function getVoteLimiter(): Ratelimit | null {
+  if (!env.KV_REST_API_URL || !env.KV_REST_API_TOKEN) return null
+  if (!_voteLimiter) {
+    _redis = new Redis({ url: env.KV_REST_API_URL, token: env.KV_REST_API_TOKEN })
+    _voteLimiter = new Ratelimit({
+      redis: _redis,
+      limiter: Ratelimit.slidingWindow(10, '1 h'),
+      prefix: 'ratelimit:vote',
+    })
+  }
+  return _voteLimiter
+}
 
 // ─── POST ─────────────────────────────────────────────────────────────────────
 
@@ -44,16 +50,19 @@ export async function POST(
   const ip =
     request.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? '0.0.0.0'
 
-  // Server-side rate limit: 10 votes per IP per hour
-  const { success: withinLimit } = await voteLimiter.limit(ip)
-  if (!withinLimit) {
-    return Response.json(
-      apiError('RATE_LIMITED', '投票過於頻繁，請稍後再試。'),
-      {
-        status: 429,
-        headers: { 'X-RateLimit-Remaining': '0' },
-      }
-    )
+  // Server-side rate limit: 10 votes per IP per hour (skipped when KV is not provisioned)
+  const limiter = getVoteLimiter()
+  if (limiter) {
+    const { success: withinLimit } = await limiter.limit(ip)
+    if (!withinLimit) {
+      return Response.json(
+        apiError('RATE_LIMITED', '投票過於頻繁，請稍後再試。'),
+        {
+          status: 429,
+          headers: { 'X-RateLimit-Remaining': '0' },
+        }
+      )
+    }
   }
 
   // Parse body

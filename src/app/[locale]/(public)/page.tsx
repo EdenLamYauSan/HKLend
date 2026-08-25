@@ -188,10 +188,10 @@ export default async function HomePage({
               },
               {
                 n: '2',
-                titleZh: '並排比較',
-                titleEn: 'Compare side by side',
-                bodyZh: '將心儀公司加入比較，同時對照利率、批核時間和服務質素。',
-                bodyEn: 'Add shortlisted lenders to the compare tray and see rates, approval times, and quality scores together.',
+                titleZh: '儲存書籤',
+                titleEn: 'Save & shortlist',
+                bodyZh: '將心儀放債人加入書籤，隨時回顧，方便選定。',
+                bodyEn: 'Bookmark lenders you like and revisit your shortlist before making contact.',
               },
               {
                 n: '3',

@@ -53,7 +53,7 @@ export function Header({ locale }: HeaderProps) {
         {/* Right-side controls */}
         <div className="flex items-center gap-2">
           <Link
-            href={`/${locale}/login`}
+            href={`/${locale}/sign-in`}
             className="
               inline-flex items-center
               h-8 px-2.5

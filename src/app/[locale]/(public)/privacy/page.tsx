@@ -63,7 +63,7 @@ const COPY: Record<Locale, PageCopy> = {
       {
         heading: 'Cookies 及本地儲存',
         body:
-          '本網站只使用功能性儲存：例如 Zustand 的持久化書籤（比較清單），以及用於防重複投票的 localStorage 記錄。我們沒有使用廣告或追蹤 cookie。',
+          '本網站只使用功能性儲存：包括書籤的 localStorage 記錄，以及用於防重複投票的 localStorage 記錄。我們沒有使用廣告或追蹤 cookie。',
       },
       {
         heading: '第三方服務',
@@ -119,7 +119,7 @@ const COPY: Record<Locale, PageCopy> = {
       {
         heading: 'Cookies and local storage',
         body:
-          'We only use functional storage — for example the Zustand persist store for your compare-list bookmark, and localStorage records used to prevent duplicate votes. We do not use advertising or tracking cookies.',
+          'We only use functional storage — localStorage records for your saved bookmarks, and localStorage records used to prevent duplicate votes. We do not use advertising or tracking cookies.',
       },
       {
         heading: 'Third parties',

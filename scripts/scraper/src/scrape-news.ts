@@ -24,7 +24,7 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 async function translateToEN(text: string): Promise<string> {
   if (!text.trim()) return text
   const msg = await anthropic.messages.create({
-    model: 'claude-haiku-4-5-20251001',
+    model: 'claude-haiku-4-5',
     max_tokens: 1024,
     messages: [{
       role: 'user',
