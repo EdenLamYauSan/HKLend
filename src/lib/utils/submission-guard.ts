@@ -50,8 +50,9 @@ export interface SubmissionGuardOptions {
 
   /**
    * Client IP address — backstop signal.
-   * Pass the value of the `x-forwarded-for` header (first entry) or
-   * `x-real-ip`. Required.
+   * Use `getClientIp(request)` from `@/lib/utils/client-ip` — do NOT read
+   * `x-forwarded-for.split(',')[0]` directly; that entry is attacker-
+   * controlled on Vercel (the platform APPENDS the real IP). Required.
    */
   ip: string
 
@@ -85,7 +86,17 @@ export type SubmissionGuardResult =
 
 // ─── Rate limit ───────────────────────────────────────────────────────────────
 
-async function checkRateLimit(
+/**
+ * IP + fingerprint rate limit only (no Turnstile, no wrapper). Exported so
+ * callers that need a different guard order — e.g. run Turnstile + auth +
+ * per-user check FIRST, and only apply the per-IP counter after those all
+ * pass — can invoke it directly. submissionGuard() still bundles Turnstile
+ * with the same call for the common case.
+ *
+ * Fixes ORD-1 (rate-limit order): a 401 or per-user 429 no longer burns
+ * the per-lender IP counter, which previously caused 30-day flag lockouts.
+ */
+export async function checkRateLimit(
   fingerprint: string,
   ip: string,
   namespace: string,
@@ -124,10 +135,29 @@ const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/sit
  *
  * Times out after 3 seconds — no fallback that silently skips verification.
  * A timeout results in the submission being rejected (fail-closed).
+ *
+ * Short-circuits to `true` when `TURNSTILE_SECRET_KEY` is unset AND we are
+ * NOT in production (typical local dev). In production a missing key is a
+ * fail-CLOSED: we log at ERROR and reject the submission rather than silently
+ * accepting every token, which would collapse enumeration + spam defence.
+ * env validation keeps the var optional so a rotation blip does not brick
+ * the deploy, but ops policy is that prod MUST have the key set.
+ *
+ * ARCH-8: exported so other modules (e.g. the Story 8.1 borrower sign-in
+ * server action) can reuse this single Turnstile code path instead of
+ * calling the Cloudflare siteverify endpoint from a second place.
  */
-async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
+export async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
+  if (!env.TURNSTILE_SECRET_KEY) {
+    if (env.NODE_ENV === 'production') {
+      console.error('[verifyTurnstile] TURNSTILE_SECRET_KEY is unset in production — rejecting submission (fail-closed).')
+      return false
+    }
+    return true
+  }
+
   const body = new URLSearchParams()
-  body.append('secret', env.TURNSTILE_SECRET_KEY ?? '')
+  body.append('secret', env.TURNSTILE_SECRET_KEY)
   body.append('response', token)
   body.append('remoteip', ip)
 
@@ -152,7 +182,7 @@ async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
  * ```ts
  * const guard = await submissionGuard({
  *   fingerprint: req.headers.get('x-fingerprint') ?? '',
- *   ip: req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? '0.0.0.0',
+ *   ip: getClientIp(req),
  *   turnstileToken: body.turnstileToken,
  *   namespace: 'review',
  *   limit: 3,
@@ -181,11 +211,12 @@ export async function submissionGuard(
   // ── Step 1: Turnstile verification ──────────────────────────────────────────
   // Must run BEFORE rate-limit INCR: a CAPTCHA glitch or network timeout must
   // never burn the user's submission quota.
-  // Skip when TURNSTILE_SECRET_KEY is absent (pre-Cloudflare setup).
+  // Skip when TURNSTILE_SECRET_KEY is absent in a NON-production environment
+  // (local dev, previews without CF). In production a missing key becomes
+  // a fail-closed reject — handled inside verifyTurnstile, so we always
+  // delegate rather than short-circuit here.
   let turnstilePassed: boolean
-  if (!env.TURNSTILE_SECRET_KEY) {
-    turnstilePassed = true
-  } else try {
+  try {
     turnstilePassed = await verifyTurnstile(turnstileToken, ip)
   } catch {
     // AbortSignal.timeout(3000) throws DOMException on timeout.

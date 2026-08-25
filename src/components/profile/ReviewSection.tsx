@@ -1,22 +1,40 @@
 /**
  * ReviewSection — Server Component shell for the reviews section on a lender profile.
  *
- * Story 3.1 (submission form) + Story 3.3 (approved reviews display).
+ * Story 3.1 (submission form) + Story 3.3 (approved reviews display) +
+ * Story 8.3 (AC-4: vote-sorted order, upvote button, display-name join).
  *
  * Responsibilities:
- * - Fetches initial page of approved reviews server-side (SSG-friendly via unstable_cache).
+ * - Fetches initial page of approved reviews server-side, vote-sorted
+ *   (AC-4 — see src/lib/votes.ts's getVoteSortedReviews for the sort spec).
  * - Computes aggregate rating summary for Story 3.4.
  * - Passes the Turnstile site key from env to the client ReviewForm.
  * - Renders RatingSummary, ReviewList (client), and the write-review toggle.
  *
  * NFR-8: complete content rendered server-side; no meaningful content gated behind JS.
  * ARCH-11: cache tag = reviews:{slug}; purged only on admin approval.
+ *
+ * Story 8.3 note: the review-list query is no longer wrapped in
+ * `unstable_cache`. Two reasons, not one:
+ *   1. Correctness — `votedByCurrentUser` is per-viewer. `unstable_cache`
+ *      caches across ALL visitors under a given key; caching this query as
+ *      it stood before would leak one user's vote state to every other
+ *      visitor who hits the same cache entry.
+ *   2. Freshness — the whole point of AC-4's vote-sorted order is that
+ *      voting visibly reorders the list. toggleVote (src/lib/actions/
+ *      vote-actions.ts) does not call revalidateTag, so under the previous
+ *      7-day fallback a vote's effect on ordering would not appear for up
+ *      to a week.
+ * The aggregate rating query is left uncached too, for consistency and
+ * because it is a single cheap indexed aggregate — not worth a second,
+ * differently-scoped caching strategy in the same component.
  */
 
-import { unstable_cache } from 'next/cache'
 import { db } from '@/lib/db'
 import { env } from '@/lib/env'
+import { getSession } from '@/lib/auth/config'
 import type { Locale } from '@/locales'
+import { getVoteSortedReviews } from '@/lib/votes'
 import { RatingSummary } from './RatingSummary'
 import { ReviewList } from './ReviewList'
 
@@ -30,9 +48,17 @@ export interface ReviewItem {
   ratingTransparency: number
   body: string
   reviewerName: string | null
-  helpfulCount: number
-  notHelpfulCount: number
   createdAt: Date
+  // Story 8.3, AC-2/AC-3/AC-4
+  // Note: raw userId is intentionally NOT exposed to the client — see the
+  // getReviewsForProfile mapper. Grouping by userId across lenders would
+  // reconstruct a user's cross-lender submission history, which the display
+  // name FR-13 does not allow. Only the FR-67 self-vote check needs the
+  // "is this me?" bit, so we ship that pre-computed as isOwnContent.
+  userDisplayName: string | null
+  voteCount: number
+  votedByCurrentUser: boolean
+  isOwnContent: boolean
 }
 
 export interface RatingAggregate {
@@ -44,77 +70,68 @@ export interface RatingAggregate {
   count: number
 }
 
-// ─── Cached queries ───────────────────────────────────────────────────────────
+// ─── Queries (uncached — see Story 8.3 note above) ───────────────────────────
 
 const PAGE_SIZE = 5
 const MIN_REVIEWS_FOR_RATING = 3
 
-function getReviewsForProfile(lenderId: string, slug: string) {
-  return unstable_cache(
-    async () => {
-      const [reviews, aggregate] = await Promise.all([
-        db.review.findMany({
-          where: { lenderId, status: 'APPROVED' },
-          orderBy: { createdAt: 'desc' },
-          take: PAGE_SIZE,
-          select: {
-            id: true,
-            ratingApprovalSpeed: true,
-            ratingRateAccuracy: true,
-            ratingStaffAttitude: true,
-            ratingTransparency: true,
-            body: true,
-            reviewerName: true,
-            helpfulCount: true,
-            notHelpfulCount: true,
-            createdAt: true,
-          },
-        }),
-        db.review.aggregate({
-          where: { lenderId, status: 'APPROVED' },
-          _avg: {
-            ratingApprovalSpeed: true,
-            ratingRateAccuracy: true,
-            ratingStaffAttitude: true,
-            ratingTransparency: true,
-          },
-          _count: { id: true },
-        }),
-      ])
+async function getReviewsForProfile(lenderId: string, currentUserId: string | null) {
+  const [rows, aggregate] = await Promise.all([
+    getVoteSortedReviews(lenderId, { skip: 0, take: PAGE_SIZE, currentUserId }),
+    db.review.aggregate({
+      where: { lenderId, status: 'APPROVED' },
+      _avg: {
+        ratingApprovalSpeed: true,
+        ratingRateAccuracy: true,
+        ratingStaffAttitude: true,
+        ratingTransparency: true,
+      },
+      _count: { id: true },
+    }),
+  ])
 
-      const count = aggregate._count.id
-      const agg = aggregate._avg
+  const reviews: ReviewItem[] = rows.map((r) => ({
+    id: r.id,
+    ratingApprovalSpeed: r.ratingApprovalSpeed,
+    ratingRateAccuracy: r.ratingRateAccuracy,
+    ratingStaffAttitude: r.ratingStaffAttitude,
+    ratingTransparency: r.ratingTransparency,
+    body: r.body,
+    reviewerName: r.reviewerName,
+    createdAt: r.createdAt,
+    userDisplayName: r.userDisplayName,
+    voteCount: r.voteCount,
+    votedByCurrentUser: r.votedByCurrentUser,
+    // Pre-computed server-side so the raw userId never leaves the DB.
+    isOwnContent: !!currentUserId && r.userId === currentUserId,
+  }))
 
-      const ratingData: RatingAggregate | null =
-        count >= MIN_REVIEWS_FOR_RATING
-          ? {
-              avgApprovalSpeed: agg.ratingApprovalSpeed ?? 0,
-              avgRateAccuracy: agg.ratingRateAccuracy ?? 0,
-              avgStaffAttitude: agg.ratingStaffAttitude ?? 0,
-              avgTransparency: agg.ratingTransparency ?? 0,
-              overallAvg:
-                ((agg.ratingApprovalSpeed ?? 0) +
-                  (agg.ratingRateAccuracy ?? 0) +
-                  (agg.ratingStaffAttitude ?? 0) +
-                  (agg.ratingTransparency ?? 0)) /
-                4,
-              count,
-            }
-          : null
+  const count = aggregate._count.id
+  const agg = aggregate._avg
 
-      return {
-        reviews,
-        ratingData,
-        hasMore: count > PAGE_SIZE,
-        total: count,
-      }
-    },
-    [`reviews-${slug}`],
-    {
-      tags: [`reviews:${slug}`],
-      revalidate: 604800, // 7-day fallback; tag purge handles real-time updates
-    }
-  )()
+  const ratingData: RatingAggregate | null =
+    count >= MIN_REVIEWS_FOR_RATING
+      ? {
+          avgApprovalSpeed: agg.ratingApprovalSpeed ?? 0,
+          avgRateAccuracy: agg.ratingRateAccuracy ?? 0,
+          avgStaffAttitude: agg.ratingStaffAttitude ?? 0,
+          avgTransparency: agg.ratingTransparency ?? 0,
+          overallAvg:
+            ((agg.ratingApprovalSpeed ?? 0) +
+              (agg.ratingRateAccuracy ?? 0) +
+              (agg.ratingStaffAttitude ?? 0) +
+              (agg.ratingTransparency ?? 0)) /
+            4,
+          count,
+        }
+      : null
+
+  return {
+    reviews,
+    ratingData,
+    hasMore: count > PAGE_SIZE,
+    total: count,
+  }
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -126,7 +143,9 @@ interface Props {
 }
 
 export async function ReviewSection({ lenderSlug, lenderId, locale }: Props) {
-  const { reviews, ratingData, total } = await getReviewsForProfile(lenderId, lenderSlug)
+  const session = await getSession()
+  const currentUserId = session?.user?.id ?? null
+  const { reviews, ratingData, total } = await getReviewsForProfile(lenderId, currentUserId)
 
   return (
     <section className="space-y-4">

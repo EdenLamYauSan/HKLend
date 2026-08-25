@@ -23,6 +23,12 @@ export default async function AdminFlagsPage() {
       category: true,
       details: true,
       createdAt: true,
+      // Story 8.2, AC-10: submitter + IP-purge columns.
+      submissionIp: true,
+      ipPurgeAt: true,
+      user: { select: { email: true, name: true } },
+      // Story 8.3, AC-9: resolves the deleted-account fallback.
+      deletedUserHash: true,
       lender: {
         select: { slug: true, companyNameZh: true },
       },

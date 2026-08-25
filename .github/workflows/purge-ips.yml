@@ -1,0 +1,44 @@
+# Story 8.2, AC-9: daily IP-retention purge.
+#
+# Nulls out submission_ip on Flag / ScamReport / ReviewReport rows whose
+# ip_purge_at has passed (30 days after submission). Idempotent — running
+# more than once a day is harmless.
+
+name: Purge Submission IPs
+
+on:
+  schedule:
+    - cron: '0 18 * * *'   # Daily 18:00 UTC = 02:00 HKT
+  workflow_dispatch:         # Manual trigger
+
+jobs:
+  purge:
+    name: Purge expired submission IPs
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Run purge script
+        run: npx tsx src/scripts/purge-submission-ips.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}

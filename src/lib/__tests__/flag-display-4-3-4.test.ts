@@ -80,8 +80,21 @@ describe('4.3 AC-4: FlagsSection rendered on lender profile page', () => {
     expect(profilePage).toContain('FlagsSection')
   })
 
-  it('FlagsSection uses lender cache tag', () => {
-    expect(flagsSection).toContain('lender:${')
+  it('FlagsSection query is per-viewer and intentionally not wrapped in unstable_cache', () => {
+    // Story 8.3 added per-viewer vote data (votedByCurrentUser) to this
+    // section's query — unstable_cache caches across ALL visitors under a
+    // given key, so keeping it would leak one viewer's vote state to
+    // everyone else who hits the same cache entry, and would delay a
+    // vote's effect on this list until the next tag purge. Same reasoning,
+    // same fix, as ReviewSection.tsx (see its identical Story 8.3 comment).
+    // This replaces the original Story 4.3 assertion that the query used
+    // `unstable_cache` with the `lender:${slug}` tag — that caching layer
+    // no longer exists here.
+    // Anchored to the actual import/call, not any mention — the file's own
+    // Story 8.3 doc comment explains *why* unstable_cache was removed.
+    expect(flagsSection).not.toContain("from 'next/cache'")
+    expect(flagsSection).not.toMatch(/unstable_cache\(/)
+    expect(flagsSection).toContain('getFlagVoteData')
   })
 })
 

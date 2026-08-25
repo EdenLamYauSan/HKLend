@@ -20,6 +20,7 @@ export const runtime = 'nodejs'
 
 import '../../globals.css'
 import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/session'
 
@@ -119,8 +120,11 @@ export default async function AdminLayout({
          * Vercel Analytics — collects page views and web vitals.
          * Does NOT set tracking cookies (privacy-safe).
          * AC-4 (Story 1.8).
+         * Admin traffic intentionally excluded from PostHog to keep
+         * engagement/funnel data clean of internal use.
          */}
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   )

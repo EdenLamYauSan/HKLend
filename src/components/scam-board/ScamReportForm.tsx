@@ -13,9 +13,13 @@
  */
 
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { useSession } from 'next-auth/react'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { Turnstile } from '@marsidev/react-turnstile'
 import type { TurnstileInstance } from '@marsidev/react-turnstile'
 import type { Locale } from '@/locales'
+import { getTranslations } from '@/locales'
+import { SignInPromptModal } from '@/components/auth/SignInPromptModal'
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -42,11 +46,33 @@ export function ScamReportForm({ locale }: Props) {
   const [lossAmount, setLossAmount] = useState('')
   const [evidenceText, setEvidenceText] = useState('')
 
+  // ── Story 8.2, AC-5/AC-6: gated behind sign-in ────────────────────────────
+  const { data: session } = useSession()
+  const authT = getTranslations(locale).auth
+  const actionsT = getTranslations(locale).actions
+  const [showSignIn, setShowSignIn] = useState(false)
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
   function handleOpen() {
+    if (!session?.user) {
+      setShowSignIn(true)
+      return
+    }
     setOpen(true)
     setError(null)
     setSubmitted(false)
   }
+
+  // Task 3.3: return-from-sign-in contract — `?openScamReport=1` reopens the modal.
+  useEffect(() => {
+    if (searchParams.get('openScamReport') === '1') {
+      setOpen(true)
+      setError(null)
+      setSubmitted(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
 
   const handleClose = useCallback(() => {
     setOpen(false)
@@ -101,6 +127,12 @@ export function ScamReportForm({ locale }: Props) {
         }),
       })
 
+      if (res.status === 401) {
+        // Session expired between opening the form and submitting.
+        setShowSignIn(true)
+        return
+      }
+
       if (res.status === 429) {
         setError(isZh ? '你已達到今日舉報上限，請明天再試。' : 'You have reached today\'s report limit. Please try again tomorrow.')
         return
@@ -145,6 +177,16 @@ export function ScamReportForm({ locale }: Props) {
       >
         {triggerLabel}
       </button>
+
+      <SignInPromptModal
+        open={showSignIn}
+        onClose={() => setShowSignIn(false)}
+        locale={locale}
+        t={authT}
+        actionsT={actionsT}
+        reason={authT.prompt.reasonScamReport}
+        redirectTo={`${pathname}?openScamReport=1`}
+      />
 
       {open && (
         <div

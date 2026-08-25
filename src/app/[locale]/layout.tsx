@@ -16,11 +16,14 @@
 import type { Metadata, Viewport } from 'next'
 import '../globals.css'
 import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
+import { PostHogProvider } from '@/components/analytics/PostHogProvider'
 import { Toaster } from 'sonner'
 import { Plus_Jakarta_Sans, Noto_Serif_TC } from 'next/font/google'
 import { notFound } from 'next/navigation'
 import { isLocale } from '@/locales'
 import type { Locale } from '@/locales'
+import { SessionProviderWrapper } from '@/components/auth/SessionProviderWrapper'
 import { ScopeBanner } from '@/components/layout/ScopeBanner'
 import { StickyNavWrapper } from '@/components/layout/StickyNavWrapper'
 import { SeasonAlertBanner } from '@/components/layout/SeasonAlertBanner'
@@ -84,54 +87,64 @@ export default async function LocaleLayout({
           Skip to main content
         </a>
 
-        {/* Fixed top info strip — never dismissible (UX-DR9, AC-4) */}
-        <ScopeBanner locale={lang} />
-
         {/*
-         * pt-8 offsets page content below the 32px fixed ScopeBanner.
-         * The wrapper grows to fill remaining height so page content can
-         * use flex-1 inside main.
+         * Story 8.2, Task 3.1: SessionProvider ancestor for every client
+         * component that gates a submit action on `useSession()` (review
+         * write/report, red-flag, scam-report). Wraps everything below the
+         * skip link so it's available anywhere in the page tree.
          */}
-        <div className="flex flex-col flex-1 pt-8">
+        <SessionProviderWrapper>
+          {/* Fixed top info strip — never dismissible (UX-DR9, AC-4) */}
+          <ScopeBanner locale={lang} />
+
           {/*
-           * Story 7.5: Season Alert Banner — sits below ScopeBanner (fixed)
-           * and above the Header. Fetched server-side via unstable_cache;
-           * client handles sessionStorage dismiss. Rendered in a Suspense
-           * boundary so a slow DB read does not block the rest of the layout.
+           * pt-8 offsets page content below the 32px fixed ScopeBanner.
+           * The wrapper grows to fill remaining height so page content can
+           * use flex-1 inside main.
            */}
-          <SeasonAlertBanner
-            locale={lang}
-            dismissAriaLabel={t.seasonAlert.dismissAriaLabel}
-          />
-          {/* Sticky header + tab nav — hides on scroll-down, reveals on scroll-up */}
-          <StickyNavWrapper>
-            <Header locale={lang} />
-            <DirectoryTabNav locale={lang} />
-          </StickyNavWrapper>
+          <div className="flex flex-col flex-1 pt-8">
+            {/*
+             * Story 7.5: Season Alert Banner — sits below ScopeBanner (fixed)
+             * and above the Header. Fetched server-side via unstable_cache;
+             * client handles sessionStorage dismiss. Rendered in a Suspense
+             * boundary so a slow DB read does not block the rest of the layout.
+             */}
+            <SeasonAlertBanner
+              locale={lang}
+              dismissAriaLabel={t.seasonAlert.dismissAriaLabel}
+            />
+            {/* Sticky header + tab nav — hides on scroll-down, reveals on scroll-up */}
+            <StickyNavWrapper>
+              <Header locale={lang} />
+              <DirectoryTabNav locale={lang} />
+            </StickyNavWrapper>
 
-          {/* Main content — target of skip-to-content link */}
-          <main id="main-content" className="flex-1">
-            {children}
-          </main>
+            {/* Main content — target of skip-to-content link */}
+            <main id="main-content" className="flex-1">
+              {children}
+            </main>
 
-          {/* Site-wide footer */}
-          <Footer locale={lang} />
-        </div>
+            {/* Site-wide footer */}
+            <Footer locale={lang} />
+          </div>
 
-        {/*
-         * Vercel Analytics — collects page views and web vitals.
-         * Does NOT set tracking cookies (privacy-safe).
-         * AC-4 (Story 1.8).
-         */}
-        <Analytics />
+          {/*
+           * Vercel Analytics — collects page views and web vitals.
+           * Does NOT set tracking cookies (privacy-safe).
+           * AC-4 (Story 1.8).
+           */}
+          <Analytics />
+          <SpeedInsights />
+          <PostHogProvider />
 
-        {/*
-         * Global toast/snackbar. Top-center is mobile-friendly and does not
-         * collide with the sticky header (it renders above it). richColors
-         * uses green for success and red for error, matching the site palette.
-         */}
-        <Toaster position="top-center" richColors closeButton />
+          {/*
+           * Global toast/snackbar. Top-center is mobile-friendly and does not
+           * collide with the sticky header (it renders above it). richColors
+           * uses green for success and red for error, matching the site palette.
+           */}
+          <Toaster position="top-center" richColors closeButton />
 
+        </SessionProviderWrapper>
       </body>
     </html>
   )

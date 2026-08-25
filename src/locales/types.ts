@@ -417,6 +417,94 @@ export type Translation = {
     formEndDateLabel: string
     formIsActiveLabel: string
   }
+
+  // ── Borrower Authentication (Story 8.1 — Auth.js v5 email magic link) ──────
+  // FR-64/65/69. Soft gate: browse free, sign in only to submit.
+  auth: {
+    signIn: {
+      title: string
+      emailLabel: string
+      emailPlaceholder: string
+      submit: string
+      readAnonymously: string
+      turnstileError: string
+      rateLimitError: string
+      emailServiceDown: string
+    }
+    sent: {
+      title: string
+      body: string
+      resend: string
+      resendSuccess: string
+    }
+    expired: {
+      title: string
+      body: string
+      resend: string
+    }
+    prompt: {
+      title: string
+      defaultReason: string
+      successMessage: string
+      // Story 8.1 ships only a smoke-test trigger for this modal on
+      // /[locale]/sign-in — Story 8.2 wires real triggers (review/flag/
+      // scam-report/vote submit buttons) and this label goes away.
+      smokeTriggerLabel: string
+      // Story 8.2, AC-3/AC-4/AC-5/AC-6: contextual `reason` copy shown in
+      // SignInPromptModal for each of the four gated submit surfaces.
+      reasonWriteReview: string
+      reasonReportReview: string
+      reasonRedFlag: string
+      reasonScamReport: string
+      // Story 8.3, AC-3: shown when an unauthenticated user clicks a vote button.
+      reasonVote: string
+    }
+    // Email body copy — the magic-link email is always sent TC-default
+    // regardless of the recipient's site locale (see Story 8.1 AC-3).
+    email: {
+      subject: string
+      greeting: string
+      linkCta: string
+      expiryLine: string
+      ignoreIfNotYou: string
+      enToggleLine: string
+    }
+    signOut: {
+      button: string
+    }
+    // Story 8.3: /[locale]/account page (AC-1, AC-2, AC-10, FR-66).
+    account: {
+      title: string
+      emailLabel: string
+      emailLocked: string
+      displayNameLabel: string
+      displayNameSave: string
+      displayNameSaved: string
+      displayNameError: string
+      createdAtLabel: string
+      signOut: string
+      deleteAccount: string
+      deletion: {
+        title: string
+        body: string
+        confirmLabel: string
+        confirmButton: string
+        cancel: string
+        mismatchError: string
+        internalError: string
+        unauthorizedError: string
+        // AC-6 step 5: "a small toast confirms" after landing back on
+        // `/[locale]?deleted=1`.
+        deletedToast: string
+      }
+    }
+    // Story 8.3, AC-3/AC-4: upvote button on Review cards and Flag entries.
+    vote: {
+      upvote: string
+      removeVote: string
+      selfDisabled: string
+    }
+  }
 }
 
 export type Locale = 'zh' | 'en'

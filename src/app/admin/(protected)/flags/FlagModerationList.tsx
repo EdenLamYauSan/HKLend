@@ -14,7 +14,9 @@
  */
 
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
+import { DeletedUserGroupPanel } from '@/components/admin/DeletedUserGroupPanel'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -23,10 +25,46 @@ export interface ModerationFlag {
   category: string
   details: string | null
   createdAt: Date
+  // Story 8.2, AC-10: submitter + IP-purge columns.
+  submissionIp: string | null
+  ipPurgeAt: Date
+  user: { email: string | null; name: string | null } | null
+  // Story 8.3, AC-9: resolves the deleted-account fallback (see below).
+  deletedUserHash: string | null
   lender: {
     slug: string
     companyNameZh: string
   }
+}
+
+// Story 8.2, AC-10 / Story 8.3, AC-9 (resolves the TODO(8.3) Story 8.2 left
+// here): a row's submitter cell has three possible states —
+//   1. `user` resolves          → show the real email/name.
+//   2. `user` is null but a `deletedUserHash` was snapshotted at account
+//      deletion → the submitter deleted their account; show "已刪除帳戶 ·
+//      {hash8}" (clickable — opens DeletedUserGroupPanel, showing every
+//      other submission carrying the same hash, per FR-68).
+//   3. `user` is null AND `deletedUserHash` is null → pre-8.2 anonymous row,
+//      predates any userId tracking at all → literal "—".
+function submitterCell(user: ModerationFlag['user'], deletedUserHash: string | null): string {
+  if (user) return user.email ?? '—'
+  if (deletedUserHash) return `已刪除帳戶 · ${deletedUserHash.slice(0, 8)}`
+  return '—'
+}
+function submitterName(user: ModerationFlag['user'], deletedUserHash: string | null): string {
+  if (user) return user.name ?? '—'
+  if (deletedUserHash) return `已刪除帳戶 · ${deletedUserHash.slice(0, 8)}`
+  return '—'
+}
+// AC-10: literal "Purges YYYY-MM-DD" format — distinct from the zh-HK
+// long-form date used elsewhere on this page.
+function formatPurgeDate(date: Date | string): string {
+  const d = typeof date === 'string' ? new Date(date) : date
+  return d.toISOString().slice(0, 10)
+}
+function ipCellText(submissionIp: string | null, ipPurgeAt: Date): string {
+  if (!submissionIp) return '—'
+  return `${submissionIp} · Purges ${formatPurgeDate(ipPurgeAt)}`
 }
 
 // ─── Category labels ──────────────────────────────────────────────────────────
@@ -66,6 +104,9 @@ function FlagRow({
 }) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Story 8.3, AC-9: opens DeletedUserGroupPanel when the submitter cell
+  // (a "已刪除帳戶 · {hash8}" badge) is clicked.
+  const [showGroupPanel, setShowGroupPanel] = useState(false)
 
   async function action(status: 'APPROVED' | 'REJECTED') {
     setBusy(true)
@@ -114,9 +155,35 @@ function FlagRow({
           {flag.details ? `${flag.details.slice(0, 80)}${flag.details.length > 80 ? '…' : ''}` : '—'}
         </p>
       </td>
+      {/* Story 8.2, AC-10 / Story 8.3, AC-9: submitter columns, before the IP column */}
+      <td className="py-3 px-4 text-sm text-gray-600 whitespace-nowrap">
+        {flag.deletedUserHash && !flag.user ? (
+          <button
+            type="button"
+            onClick={() => setShowGroupPanel(true)}
+            className="text-[#264a58] hover:underline"
+          >
+            {submitterCell(flag.user, flag.deletedUserHash)}
+          </button>
+        ) : (
+          submitterCell(flag.user, flag.deletedUserHash)
+        )}
+      </td>
+      <td className="py-3 px-4 text-sm text-gray-600 whitespace-nowrap">
+        {submitterName(flag.user, flag.deletedUserHash)}
+      </td>
+      <td className="py-3 px-4 text-sm text-gray-500 whitespace-nowrap">
+        {ipCellText(flag.submissionIp, flag.ipPurgeAt)}
+      </td>
       <td className="py-3 px-4 text-sm text-gray-500 whitespace-nowrap">
         {formatDate(flag.createdAt)}
       </td>
+      {showGroupPanel && flag.deletedUserHash &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <DeletedUserGroupPanel hash={flag.deletedUserHash} onClose={() => setShowGroupPanel(false)} />,
+          document.body
+        )}
       <td className="py-3 px-4">
         <div className="flex items-center gap-2">
           <button
@@ -266,6 +333,9 @@ export function FlagModerationList({ flags: initial }: { flags: ModerationFlag[]
               <th className="py-3 px-4">放債人</th>
               <th className="py-3 px-4">類別</th>
               <th className="py-3 px-4">詳情</th>
+              <th className="py-3 px-4">提交者電郵</th>
+              <th className="py-3 px-4">顯示名稱</th>
+              <th className="py-3 px-4">IP</th>
               <th className="py-3 px-4">提交日期</th>
               <th className="py-3 px-4">操作</th>
             </tr>

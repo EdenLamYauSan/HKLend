@@ -163,6 +163,14 @@ model Review {
   lenderId              String
   lender                Lender   @relation(fields: [lenderId], references: [id], onDelete: Cascade)
 
+  // ── Submitter (Story 8.2 — FR-13) ────────────────────────────────────────
+  // Nullable: pre-8.2 anonymous rows have no userId (see migration 2,
+  // backfill_userid_placeholder). Every row created by 8.2-era code sets
+  // this — "non-nullable going forward" is an application-level guarantee,
+  // not a DB constraint, so legacy rows remain valid.
+  userId                String?  @map("user_id")
+  user                  User?    @relation(fields: [userId], references: [id])
+
   // ── 4-dimension ratings (1–5, all required) ─────────────────────────────
   ratingApprovalSpeed   Int
   ratingRateAccuracy    Int
@@ -184,8 +192,27 @@ model Review {
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 
+  // Review abuse reports (Story 8.2, AC-8)
+  reports               ReviewReport[]
+
+  // ── Account deletion audit trail (Story 8.3, AC-8, FR-68) ────────────────
+  // Populated ONLY when the submitting user deletes their account (AC-6):
+  // userId is set to NULL, displayName snapshotted to '匿名用戶', and this
+  // column set to sha256(user.id + ACCOUNT_HASH_SALT) so admin can still
+  // group a deleted user's past submissions together without recovering
+  // their identity. NULL for every row whose author has not deleted their
+  // account (including pre-8.2 anonymous rows — see AC-9).
+  deletedUserHash       String?  @map("deleted_user_hash")
+
+  // One review per (user, lender) — FR-13 amendment: a repeat submission by
+  // the same signed-in user edits the existing review instead of creating a
+  // second row. NULL userId values are treated as distinct by Postgres, so
+  // legacy anonymous rows never collide with this constraint.
+  @@unique([userId, lenderId])
   // Index for paginated approved-reviews-by-lender queries (newest first)
   @@index([lenderId, status, createdAt(sort: Desc)])
+  @@index([userId])
+  @@index([deletedUserHash])
   @@map("Review")
 }
 
@@ -209,11 +236,24 @@ model Flag {
   lenderId  String
   lender    Lender   @relation(fields: [lenderId], references: [id], onDelete: Cascade)
 
+  // ── Submitter (Story 8.2 — FR-39/FR-43) ──────────────────────────────────
+  // Nullable: pre-8.2 anonymous rows have no userId — see the Review model's
+  // identical comment.
+  userId    String?  @map("user_id")
+  user      User?    @relation(fields: [userId], references: [id])
+
   // Category from the fixed constant set — stored as text (not enum)
   category  String   // HARASSMENT | ILLEGAL_TERMS | FAKE_IDENTITY | OVERCHARGING | OTHER
 
   // Optional free-text description (max 500 chars)
   details   String?
+
+  // ── IP retention (Story 8.2, AC-9) ───────────────────────────────────────
+  // submissionIp did not exist before 8.2 — this story adds it alongside the
+  // purge mechanism so there is something for the purge job to act on.
+  // Nulled out by the daily purge job once ipPurgeAt has passed.
+  submissionIp String?  @map("submission_ip")
+  ipPurgeAt    DateTime @map("ip_purge_at")
 
   // Moderation lifecycle
   status    String   @default("PENDING") // PENDING | APPROVED | REJECTED
@@ -221,8 +261,15 @@ model Flag {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Account deletion audit trail (Story 8.3, AC-8, FR-68) — see Review's
+  // identical field comment.
+  deletedUserHash String? @map("deleted_user_hash")
+
   // Index for approved-flags-by-lender-by-date queries (velocity, warning banner)
   @@index([lenderId, status, createdAt(sort: Desc)])
+  @@index([userId])
+  @@index([ipPurgeAt])
+  @@index([deletedUserHash])
   @@map("Flag")
 }
 
@@ -239,6 +286,12 @@ model Flag {
 model ScamReport {
   id                    String    @id @default(cuid())
 
+  // ── Submitter (Story 8.2 — FR-33/FR-33a) ─────────────────────────────────
+  // Nullable: pre-8.2 anonymous rows have no reporterUserId — see the Review
+  // model's identical comment.
+  reporterUserId        String?   @map("reporter_user_id")
+  reporter              User?     @relation(fields: [reporterUserId], references: [id])
+
   // Reported entity details
   companyName           String
   licenceNumberClaimed  String?   // claimed licence number (may be fake)
@@ -248,6 +301,12 @@ model ScamReport {
   // Required evidence text (100–2000 chars)
   evidenceText          String
 
+  // ── IP retention (Story 8.2, AC-9) ───────────────────────────────────────
+  // submissionIp did not exist before 8.2 — see the Flag model's identical
+  // comment. Nulled out by the daily purge job once ipPurgeAt has passed.
+  submissionIp          String?   @map("submission_ip")
+  ipPurgeAt             DateTime  @map("ip_purge_at")
+
   // Moderation lifecycle
   status                String    @default("PENDING") // PENDING | VERIFIED | REJECTED
   adminNote             String?   // internal only, never public
@@ -255,9 +314,85 @@ model ScamReport {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
+  // Account deletion audit trail (Story 8.3, AC-8, FR-68) — see Review's
+  // identical field comment.
+  deletedUserHash       String?   @map("deleted_user_hash")
+
   // Index for public scam board listing (newest verified first)
   @@index([status, createdAt(sort: Desc)])
+  @@index([reporterUserId])
+  @@index([ipPurgeAt])
+  @@index([deletedUserHash])
   @@map("ScamReport")
+}
+
+// ─── ReviewReport ───────────────────────────────────────────────────────────
+// Community abuse report against a Review — Story 8.2, AC-8 (FR-18).
+// No moderation lifecycle of its own yet; the admin flag/scam-report queues
+// pattern is the model for a future review-report queue (out of scope here).
+//
+// reporterUserId was originally non-nullable (Story 8.2: "always
+// authenticated at creation, no legacy anonymous rows possible"). Story 8.3
+// AC-6/AC-8 requires nulling it out on account deletion (same SET NULL
+// treatment as Review/Flag/ScamReport, preserving the report content for
+// admin's audit trail per FR-68) — that requires the FK to be nullable, so
+// it changed to String? + onDelete: SetNull here. The original non-nullable
+// reasoning about legacy rows still holds; nullability now stems from
+// deletion, not from ever having had genuine anonymous rows.
+
+model ReviewReport {
+  id              String   @id @default(cuid())
+  reviewId        String   @map("review_id")
+  reporterUserId  String?  @map("reporter_user_id")
+  reason          String
+  submissionIp    String?  @map("submission_ip")
+  ipPurgeAt       DateTime @map("ip_purge_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+  review          Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  reporter        User?    @relation(fields: [reporterUserId], references: [id], onDelete: SetNull)
+
+  // Account deletion audit trail (Story 8.3, AC-8, FR-68) — see Review's
+  // identical field comment.
+  deletedUserHash String?  @map("deleted_user_hash")
+
+  @@index([reviewId])
+  @@index([reporterUserId])
+  @@index([ipPurgeAt])
+  @@index([deletedUserHash])
+  @@map("review_reports")
+}
+
+// ─── Vote ─────────────────────────────────────────────────────────────────────
+// Community upvote on a Review or a Red Flag — Story 8.3, AC-3 (FR-67).
+//
+// Polymorphic association (targetType/targetId) rather than two separate FK
+// columns: a single model covers both Review and Flag targets without a
+// second table. targetId is intentionally NOT a Prisma relation field — it
+// is validated against the real Review/Flag row in application code
+// (toggleVote), not enforced by the DB, matching the "vote count via
+// count(votes WHERE...), not a denormalised counter" simplicity called for
+// in the story spec.
+//
+// @@unique([userId, targetType, targetId]) is the load-bearing constraint:
+// it is what makes "clicking twice removes the vote" and "one vote per user
+// per item" actual DB-level guarantees, not just application logic.
+//
+// Cascades from User → Vote on account deletion (AC-6 step 4 deletes all of
+// a user's Vote rows explicitly inside the transaction before the User row
+// itself is deleted; the onDelete: Cascade here is a backstop for any vote
+// rows that transaction step might miss, not the primary deletion path).
+
+model Vote {
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  targetType String   @map("target_type") // "review" | "flag"
+  targetId   String   @map("target_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, targetType, targetId])
+  @@index([targetType, targetId])
+  @@map("votes")
 }
 
 // ─── NewsItem ─────────────────────────────────────────────────────────────────
@@ -361,4 +496,85 @@ model Article {
 
   @@index([isPublished, publishedAt(sort: Desc)])
   @@map("Article")
+}
+
+// ─── Auth.js (Borrower Authentication) ────────────────────────────────────────
+// Story 8.1: Auth.js v5 Infrastructure & Email Magic Link.
+// Soft-gate borrower identity — a separate island from admin's iron-session
+// (ARCH-6). Table/column names follow the Auth.js Prisma adapter convention
+// exactly (https://authjs.dev/getting-started/adapters/prisma) so the
+// PrismaAdapter needs zero field-name configuration.
+//
+// Session strategy is 'database' (not JWT) per FR-65 — a Session row is
+// created on sign-in and looked up on every request via the sessionToken
+// cookie, giving a 30-day rolling expiry that a stateless JWT can't provide
+// without extra plumbing.
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime? @map("email_verified")
+  image         String?
+  // Story 8.3, AC-1: account page shows "created-at date". Auth.js's default
+  // PrismaAdapter User model (id/name/email/emailVerified/image) has no
+  // createdAt column — neither Story 8.1 nor 8.2 added one, since neither
+  // needed it. Added here; same class of missing-infrastructure gap as the
+  // email-local-part display-name derivation above (see auth/config.ts).
+  createdAt     DateTime  @default(now()) @map("created_at")
+  accounts      Account[]
+  sessions      Session[]
+
+  // ── Community submission relations (Story 8.2) ───────────────────────────
+  reviews       Review[]
+  flags         Flag[]
+  scamReports   ScamReport[]
+  reviewReports ReviewReport[]
+
+  // ── Voting (Story 8.3, AC-3) ──────────────────────────────────────────────
+  votes         Vote[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
 }
