@@ -317,16 +317,6 @@ export default async function LenderProfilePage({
   // Convert Decimal to plain number — Decimal is not serialisable to client components
   const rateMinNum = lender.interestRateMin ? Number(lender.interestRateMin) : null
 
-  // Compare-store shape (client-safe — no Decimal types)
-  const compareLender = {
-    slug: lender.slug,
-    companyNameZh: lender.companyNameZh,
-    companyNameEn: lender.companyNameEn,
-    licenceStatus: lender.licenceStatus,
-    districtZh: lender.districtZh,
-    interestRateMin: rateMinNum,
-  }
-
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 space-y-5">
       {/* Back link — returns to previous page (search results, filter, etc.) */}
@@ -373,7 +363,7 @@ export default async function LenderProfilePage({
        * and the calculator open/close state. Server-rendered sections are passed as
        * children and rendered inside the left column.
        */}
-      <ProfilePageClient lender={compareLender} locale={locale as 'zh' | 'en'}>
+      <ProfilePageClient lender={{ slug: lender.slug, companyNameZh: lender.companyNameZh, companyNameEn: lender.companyNameEn, licenceStatus: lender.licenceStatus, districtZh: lender.districtZh, interestRateMin: rateMinNum }} locale={locale as 'zh' | 'en'}>
         {/* Licence details panel */}
         <LicencePanel lender={lender} locale={locale} />
 

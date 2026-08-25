@@ -4,26 +4,15 @@
  * Story 2.4: shows company name, licence number, district, up to 3 loan type
  * tags ("+N more" overflow), LicenceBadge, and eligibility warning.
  *
- * Story 5.5: "加入比較" (Add to Compare) button added below the link area.
- *
  * ARCH-10: {field}En shown when non-null; {field}Zh as fallback when En is null.
  * UX-DR17: hasValue() used — 0 is real data; never render blank fields.
  * UX-DR16: no double-mount; single layout tree.
- *
- * Card structure:
- *   <li>
- *     <a> → lender profile (covers the card info area)
- *     <div> → action buttons (AddToCompareButton) — NOT inside <a>
- *   </li>
- *
- * AddToCompareButton is a Client Component; this card is a Server Component.
  */
 
 import Link from 'next/link'
 import { hasValue } from '@/lib/utils/has-value'
 import { formatPhone } from '@/lib/utils/format'
 import { LicenceBadge } from './LicenceBadge'
-import { AddToCompareButton } from './AddToCompareButton'
 
 const MAX_VISIBLE_TAGS = 3
 
@@ -82,16 +71,6 @@ export function LenderCard({ lender, locale }: LenderCardProps) {
 
   const isWarning =
     lender.licenceStatus === 'SUSPENDED' || lender.licenceStatus === 'REVOKED'
-
-  // Shape for the compare store (only the fields it needs)
-  const compareLender = {
-    slug: lender.slug,
-    companyNameZh: lender.companyNameZh,
-    companyNameEn: lender.companyNameEn,
-    licenceStatus: lender.licenceStatus,
-    districtZh: lender.districtZh,
-    interestRateMin: lender.interestRateMin ?? null,
-  }
 
   return (
     <li className={`rounded-xl border border-border bg-white shadow-sm transition-all hover:border-brand-amber/50 hover:shadow-md ${isWarning ? 'opacity-75' : ''}`}>
