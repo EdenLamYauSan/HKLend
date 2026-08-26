@@ -32,11 +32,9 @@ export const runtime = 'nodejs'
 
 import { cache } from 'react'
 import NextAuth from 'next-auth'
-import Credentials from 'next-auth/providers/credentials'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import { db } from '@/lib/db'
 import { env } from '@/lib/env'
-import { verifyPassword } from '@/lib/auth/password'
 
 // ─── Well-known page paths ────────────────────────────────────────────────
 
@@ -89,42 +87,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     updateAge: 60 * 60 * 24, // re-bump expiry once per day of activity
   },
 
-  providers: [
-    Credentials({
-      credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
-      },
-      async authorize(credentials) {
-        if (
-          typeof credentials?.email !== 'string' ||
-          typeof credentials?.password !== 'string'
-        ) {
-          return null
-        }
-
-        const email = credentials.email.trim().toLowerCase()
-        const password = credentials.password
-
-        const user = await db.user.findUnique({ where: { email } })
-
-        // No enumeration: return null for any failure — unknown email,
-        // unverified, wrong password, or no password set (legacy user).
-        if (!user) return null
-        if (!user.emailVerified) return null
-
-        const ok = await verifyPassword(password, user.passwordHash ?? null)
-        if (!ok) return null
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          image: user.image,
-        }
-      },
-    }),
-  ],
+  // No providers listed: all authentication is handled manually via
+  // createDatabaseSession() in src/lib/auth/session.ts. Auth.js Credentials
+  // provider requires JWT strategy (incompatible with database sessions); the
+  // Resend magic-link provider was removed when email+password auth landed.
+  // `auth()` still reads the database session cookie correctly.
+  providers: [],
 
   secret: env.AUTH_SECRET,
 

@@ -17,10 +17,10 @@ import { headers } from 'next/headers'
 import { z } from 'zod'
 import { Redis } from '@upstash/redis'
 import { Ratelimit } from '@upstash/ratelimit'
-import { AuthError } from 'next-auth'
-import { signIn } from '@/lib/auth/config'
 import { db } from '@/lib/db'
 import { env } from '@/lib/env'
+import { verifyPassword } from '@/lib/auth/password'
+import { createDatabaseSession } from '@/lib/auth/session'
 
 // ─── Result type ──────────────────────────────────────────────────────────────
 
@@ -108,29 +108,28 @@ export async function submitSignIn(formData: FormData): Promise<SignInActionResu
     }
   }
 
-  // ── Check unverified email BEFORE calling signIn ───────────────────────────
-  // Auth.js Credentials authorize() returns null for unverified users (same
-  // as wrong password). We check the DB here to surface a distinct error code
-  // so the UI can show a "verify your email" + resend link. This is acceptable
-  // enumeration per spec (Design Notes: duplicate email is explicit too).
+  // ── Look up user ─────────────────────────────────────────────────────────
   const user = await db.user.findUnique({
     where: { email },
-    select: { emailVerified: true, passwordHash: true },
+    select: { id: true, emailVerified: true, passwordHash: true },
   })
 
+  // Unverified: surface distinct error so UI can show resend link.
+  // Acceptable enumeration per spec (Design Notes).
   if (user && !user.emailVerified) {
     return { ok: false, code: 'UNVERIFIED_EMAIL' }
   }
 
-  // ── Credentials sign-in ────────────────────────────────────────────────────
+  // Wrong credentials or no account: generic error, no enumeration.
+  if (!user) return { ok: false, code: 'INVALID_CREDENTIALS' }
+  const passwordOk = await verifyPassword(password, user.passwordHash ?? null)
+  if (!passwordOk) return { ok: false, code: 'INVALID_CREDENTIALS' }
+
+  // ── Create session ────────────────────────────────────────────────────────
   try {
-    await signIn('credentials', { email, password, redirect: false })
-  } catch (error) {
-    if (error instanceof AuthError) {
-      return { ok: false, code: 'INVALID_CREDENTIALS' }
-    }
-    // Non-AuthError (programming error, DB down, etc.)
-    console.error('[sign-in] unexpected error:', error)
+    await createDatabaseSession(user.id)
+  } catch (err) {
+    console.error('[sign-in] session creation failed:', err)
     return { ok: false, code: 'INVALID_CREDENTIALS' }
   }
 

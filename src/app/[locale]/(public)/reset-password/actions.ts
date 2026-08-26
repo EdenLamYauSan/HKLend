@@ -14,7 +14,7 @@ import { z } from 'zod'
 import { db } from '@/lib/db'
 import { consumeToken } from '@/lib/auth/tokens'
 import { hashPassword } from '@/lib/auth/password'
-import { signIn } from '@/lib/auth/config'
+import { createDatabaseSession } from '@/lib/auth/session'
 import type { Locale } from '@/locales'
 
 export type ResetPasswordResult =
@@ -71,16 +71,11 @@ export async function applyPasswordReset(
   // Invalidate all existing sessions so stolen pre-reset cookies become invalid
   await db.session.deleteMany({ where: { userId: user.id } })
 
-  // Sign in with the new password — creates a session + sets cookie
+  // Create a new session
   try {
-    await signIn('credentials', {
-      email: normEmail,
-      password,
-      redirect: false,
-    })
+    await createDatabaseSession(user.id)
   } catch (err) {
-    // signIn may throw AuthError on failure; log and surface as internal error
-    console.error('[reset-password] signIn after reset failed:', err)
+    console.error('[reset-password] session creation failed:', err)
     return { ok: false, code: 'INTERNAL_ERROR' }
   }
 
