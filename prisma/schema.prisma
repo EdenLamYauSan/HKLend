@@ -516,6 +516,7 @@ model User {
   email         String?   @unique
   emailVerified DateTime? @map("email_verified")
   image         String?
+  passwordHash  String?   @map("password_hash")
   // Story 8.3, AC-1: account page shows "created-at date". Auth.js's default
   // PrismaAdapter User model (id/name/email/emailVerified/image) has no
   // createdAt column — neither Story 8.1 nor 8.2 added one, since neither
@@ -574,7 +575,10 @@ model VerificationToken {
   identifier String
   token      String
   expires    DateTime
+  // "email_verify" | "password_reset"
+  type       String   @default("email_verify")
 
   @@unique([identifier, token])
+  @@unique([identifier, type])
   @@map("verification_tokens")
 }

@@ -430,6 +430,14 @@ export type Translation = {
       turnstileError: string
       rateLimitError: string
       emailServiceDown: string
+      passwordLabel: string
+      passwordPlaceholder: string
+      forgotPassword: string
+      invalidCredentials: string
+      unverifiedEmail: string
+      resendVerification: string
+      noAccount: string
+      signUpLink: string
     }
     sent: {
       title: string
@@ -503,6 +511,70 @@ export type Translation = {
       upvote: string
       removeVote: string
       selfDisabled: string
+    }
+    // Password-auth overhaul: sign-up flow
+    signUp: {
+      title: string
+      emailLabel: string
+      emailPlaceholder: string
+      passwordLabel: string
+      passwordPlaceholder: string
+      passwordMinLength: string
+      passwordMaxLength: string
+      turnstileFailed: string
+      submit: string
+      alreadyHaveAccount: string
+      signInLink: string
+      duplicateEmail: string
+      genericError: string
+    }
+    // Password-auth overhaul: email verification
+    verifyEmail: {
+      verifying: string
+      successTitle: string
+      successBody: string
+      expiredTitle: string
+      expiredBody: string
+      resend: string
+      // Email copy
+      email: {
+        subject: string
+        linkCta: string
+        expiryLine: string
+        ignoreIfNotYou: string
+      }
+    }
+    // Password-auth overhaul: forgot-password flow
+    forgotPassword: {
+      title: string
+      body: string
+      emailLabel: string
+      emailPlaceholder: string
+      submit: string
+      backToSignIn: string
+      turnstileFailed: string
+      sentTitle: string
+      sentBody: string
+      // Email copy
+      email: {
+        subject: string
+        linkCta: string
+        expiryLine: string
+        ignoreIfNotYou: string
+      }
+    }
+    // Password-auth overhaul: reset-password flow
+    resetPassword: {
+      title: string
+      passwordLabel: string
+      passwordPlaceholder: string
+      passwordMinLength: string
+      passwordMaxLength: string
+      submit: string
+      expiredTitle: string
+      expiredBody: string
+      requestNewLink: string
+      genericError: string
     }
   }
 }

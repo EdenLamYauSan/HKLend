@@ -1,40 +1,26 @@
 'use server'
 
 /**
- * src/app/[locale]/(public)/sign-in/actions.ts — Story 8.1, AC-8.
+ * src/app/[locale]/(public)/sign-in/actions.ts
  *
- * submitSignIn is the single Server Action behind BOTH the /sign-in page
- * form and SignInPromptModal (AC-9) — one code path, one place to keep the
- * enumeration defence correct.
+ * submitSignIn: email + password Credentials sign-in.
  *
- * ARCH-20 deviation: this file does NOT declare `export const runtime =
- * 'nodejs'`. Next.js 16 rejects any non-async export from a 'use server'
- * file at build time ("Only async functions are allowed to be exported in
- * a 'use server' file") — confirmed against the running dev server, not a
- * guess. Route Segment Config (the `runtime` export) only applies to
- * page/layout/route.ts files; a Server Actions file always executes on
- * whatever runtime the invoking route uses, which for every caller of
- * submitSignIn in this story (sign-in/page.tsx, sent/page.tsx,
- * expired/page.tsx, SignInPromptModal via the /sign-in route tree) is
- * already 'nodejs'. See Story 8.1 Completion Notes.
+ * Returns distinct error codes for unverified email (so the UI can show a
+ * resend link) and generic invalid-credentials (no enumeration of email vs.
+ * password).
  *
- * ── Enumeration defence — the invisible AC ──────────────────────────────────
- * This file MUST NOT call prisma.user.findUnique or otherwise branch on
- * whether the submitted email belongs to an existing User. Auth.js's
- * signIn('resend', ...) already handles both cases identically: it always
- * creates a VerificationToken for the address; a User row is only ever
- * created when the emailed link is actually clicked. Any `if (existingUser)`
- * branch here — even just to change a log message — leaks account existence
- * via timing or response shape.
+ * ARCH-20 deviation: no `export const runtime` — Server Actions files only
+ * allow async function exports. Runtime inherits from the invoking route.
  */
 
 import { headers } from 'next/headers'
 import { z } from 'zod'
 import { Redis } from '@upstash/redis'
 import { Ratelimit } from '@upstash/ratelimit'
-import { signIn, AUTH_ERROR_PAGE_PATH } from '@/lib/auth/config'
+import { AuthError } from 'next-auth'
+import { signIn } from '@/lib/auth/config'
+import { db } from '@/lib/db'
 import { env } from '@/lib/env'
-import { verifyTurnstile } from '@/lib/utils/submission-guard'
 
 // ─── Result type ──────────────────────────────────────────────────────────────
 
@@ -42,13 +28,14 @@ export type SignInActionResult =
   | { ok: true }
   | {
       ok: false
-      code: 'VALIDATION_ERROR' | 'TURNSTILE_FAILED' | 'RATE_LIMITED' | 'EMAIL_UNAVAILABLE'
+      code:
+        | 'VALIDATION_ERROR'
+        | 'RATE_LIMITED'
+        | 'INVALID_CREDENTIALS'
+        | 'UNVERIFIED_EMAIL'
     }
 
-// ─── Rate limiters — lazy-init, skipped entirely when Redis creds absent ─────
-// (local dev). Two independent sliding windows: per-email is the primary
-// signal (an attacker rotating IPs still hits it), per-IP is the backstop
-// (mirrors src/app/api/reviews/[id]/vote/route.ts:17-35's shape).
+// ─── Rate limiters — lazy-init, skipped when Redis creds absent ───────────────
 
 let _emailLimiter: Ratelimit | null = null
 let _ipLimiter: Ratelimit | null = null
@@ -60,12 +47,12 @@ function getLimiters(): { email: Ratelimit; ip: Ratelimit } | null {
     const redis = new Redis({ url: env.KV_REST_API_URL, token: env.KV_REST_API_TOKEN })
     _emailLimiter = new Ratelimit({
       redis,
-      limiter: Ratelimit.slidingWindow(3, '1 h'),
+      limiter: Ratelimit.slidingWindow(10, '1 h'),
       prefix: 'ratelimit:auth-signin:email',
     })
     _ipLimiter = new Ratelimit({
       redis,
-      limiter: Ratelimit.slidingWindow(10, '1 h'),
+      limiter: Ratelimit.slidingWindow(20, '1 h'),
       prefix: 'ratelimit:auth-signin:ip',
     })
   }
@@ -74,12 +61,6 @@ function getLimiters(): { email: Ratelimit; ip: Ratelimit } | null {
 }
 
 async function getClientIp(): Promise<string> {
-  // Prefer x-real-ip. Fall back to the LAST entry of x-forwarded-for.
-  // On Vercel the platform APPENDS the real client IP to x-forwarded-for,
-  // so the first entry is attacker-controlled and cannot be trusted for
-  // rate-limit keying. Mirrors src/lib/utils/client-ip.ts (which takes a
-  // Request; this variant reads next/headers because server actions get
-  // headers via the async helper).
   const h = await headers()
   const realIp = h.get('x-real-ip')
   if (realIp) return realIp.trim()
@@ -95,54 +76,27 @@ async function getClientIp(): Promise<string> {
   return '0.0.0.0'
 }
 
-// ─── Input shape ──────────────────────────────────────────────────────────────
+// ─── Input schema ─────────────────────────────────────────────────────────────
 
-const emailSchema = z.string().email()
+const signInSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
+})
 
 // ─── submitSignIn ─────────────────────────────────────────────────────────────
 
 export async function submitSignIn(formData: FormData): Promise<SignInActionResult> {
   const rawEmail = formData.get('email')
-  const turnstileToken = formData.get('turnstileToken')
-  // Story 8.2, Task 3.3 / Dev Notes "Modal → return-to-page contract":
-  // SignInPromptModal sets this to the current pathname + a surface-specific
-  // query param (e.g. `?openReview=1`) so the magic-link click lands the
-  // user back where they started, with the form pre-opened. Optional —
-  // the plain /sign-in page form doesn't set it, and falls back to
-  // Auth.js's own default post-sign-in redirect.
-  const rawRedirectTo = formData.get('redirectTo')
+  const rawPassword = formData.get('password')
 
-  const emailParsed = emailSchema.safeParse(rawEmail)
-  if (!emailParsed.success || typeof turnstileToken !== 'string' || turnstileToken.length === 0) {
-    return { ok: false, code: 'VALIDATION_ERROR' }
-  }
-  // Normalise once (lowercase + trim) so the rate-limit key and the value
-  // handed to signIn() agree. Auth.js's Resend provider internally normalises
-  // to NFKC + lowercase + trim before creating the VerificationToken — if we
-  // key the limiter on the raw case, `Foo@Bar.com` and `foo@bar.com` land in
-  // separate buckets but target the same account, letting an attacker send
-  // >3 sign-in emails/hour to a target by rotating case.
-  const email = emailParsed.data.trim().toLowerCase()
+  const parsed = signInSchema.safeParse({ email: rawEmail, password: rawPassword })
+  if (!parsed.success) return { ok: false, code: 'VALIDATION_ERROR' }
 
+  const email = parsed.data.email.trim().toLowerCase()
+  const password = parsed.data.password
   const ip = await getClientIp()
 
-  // ── 1. Turnstile verification FIRST (fail-closed) ──────────────────────────
-  // Reuses the single Turnstile code path (ARCH-8) — runs before any rate
-  // limit check so a CAPTCHA glitch or timeout never burns the caller's
-  // submission quota.
-  let turnstilePassed: boolean
-  try {
-    turnstilePassed = await verifyTurnstile(turnstileToken, ip)
-  } catch {
-    return { ok: false, code: 'TURNSTILE_FAILED' }
-  }
-  if (!turnstilePassed) {
-    return { ok: false, code: 'TURNSTILE_FAILED' }
-  }
-
-  // ── 2. Rate limit: 3 requests/hour per email, 10 requests/hour per IP ──────
-  // Either breach blocks the request. Skipped silently when Upstash creds
-  // are absent (local dev), matching submissionGuard's documented intent.
+  // ── Rate limit ────────────────────────────────────────────────────────────
   const limiters = getLimiters()
   if (limiters) {
     const [emailResult, ipResult] = await Promise.all([
@@ -154,44 +108,84 @@ export async function submitSignIn(formData: FormData): Promise<SignInActionResu
     }
   }
 
-  // ── 3. Auth.js sign-in — redirect: false, caller controls navigation ───────
-  // No branch on whether `email` belongs to an existing User anywhere in
-  // this function — see the enumeration-defence note above.
-  //
-  // IMPORTANT (verified against the running dev server, not assumed from
-  // docs): with redirect: false, signIn() does NOT throw when the
-  // provider's sendVerificationRequest rejects. Auth.js catches that
-  // rejection internally, logs it via its own logger, and resolves with
-  // the URL of the configured error page (AUTH_ERROR_PAGE_PATH) instead of
-  // the verify-request page — because the thrown error is a plain Error,
-  // not an AuthError instance, and @auth/core only rethrows AuthErrors on
-  // this code path. A try/catch alone is not enough; the returned URL must
-  // be inspected.
-  // Open-redirect guard: only accept a same-origin relative path (must start
-  // with a single '/', never '//' which browsers treat as protocol-relative
-  // to an attacker-controlled host). Anything else is silently dropped —
-  // Auth.js falls back to its own default redirect.
-  const redirectTo =
-    typeof rawRedirectTo === 'string' && /^\/(?!\/)/.test(rawRedirectTo)
-      ? rawRedirectTo
-      : undefined
+  // ── Check unverified email BEFORE calling signIn ───────────────────────────
+  // Auth.js Credentials authorize() returns null for unverified users (same
+  // as wrong password). We check the DB here to surface a distinct error code
+  // so the UI can show a "verify your email" + resend link. This is acceptable
+  // enumeration per spec (Design Notes: duplicate email is explicit too).
+  const user = await db.user.findUnique({
+    where: { email },
+    select: { emailVerified: true, passwordHash: true },
+  })
 
-  let result: unknown
-  try {
-    result = await signIn('resend', { email, redirect: false, ...(redirectTo && { redirectTo }) })
-  } catch (error) {
-    // Belt-and-braces: some failure modes (e.g. a thrown AuthError from a
-    // future Auth.js version, or a genuine programming error) DO throw.
-    console.error('[sign-in] signIn() threw:', error)
-    return { ok: false, code: 'EMAIL_UNAVAILABLE' }
+  if (user && !user.emailVerified) {
+    return { ok: false, code: 'UNVERIFIED_EMAIL' }
   }
 
-  if (typeof result === 'string' && result.includes(AUTH_ERROR_PAGE_PATH)) {
-    // Resend outage / send failure. Logged at ERROR so it's visible in
-    // Vercel logs; the caller only ever sees the generic EMAIL_UNAVAILABLE
-    // code, never Auth.js's internal error page URL or query params.
-    console.error('[sign-in] sendVerificationRequest failed — Auth.js redirected to the error page:', result)
-    return { ok: false, code: 'EMAIL_UNAVAILABLE' }
+  // ── Credentials sign-in ────────────────────────────────────────────────────
+  try {
+    await signIn('credentials', { email, password, redirect: false })
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return { ok: false, code: 'INVALID_CREDENTIALS' }
+    }
+    // Non-AuthError (programming error, DB down, etc.)
+    console.error('[sign-in] unexpected error:', error)
+    return { ok: false, code: 'INVALID_CREDENTIALS' }
+  }
+
+  return { ok: true }
+}
+
+// ─── resendVerificationEmail ──────────────────────────────────────────────────
+
+import { createToken } from '@/lib/auth/tokens'
+import { sendVerifyEmail } from '@/lib/auth/email'
+import type { Locale } from '@/locales'
+
+const EMAIL_VERIFY_TTL_SECONDS = 60 * 60 * 24
+
+export type ResendVerifyResult = { ok: true } | { ok: false }
+
+// Lazy-init rate limiter: 1 resend per email per hour.
+// Skipped gracefully when Upstash creds are absent (dev).
+let _resendLimiter: Ratelimit | null = null
+
+function getResendLimiter(): Ratelimit | null {
+  if (!env.KV_REST_API_URL || !env.KV_REST_API_TOKEN) return null
+  if (!_resendLimiter) {
+    const redis = new Redis({ url: env.KV_REST_API_URL, token: env.KV_REST_API_TOKEN })
+    _resendLimiter = new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(1, '1 h'),
+      prefix: 'ratelimit:resend-verify:email',
+    })
+  }
+  return _resendLimiter
+}
+
+export async function resendVerificationEmail(
+  email: string,
+  locale: Locale
+): Promise<ResendVerifyResult> {
+  const normEmail = email.trim().toLowerCase()
+
+  // Rate limit: 1 request per email per hour
+  const resendLimiter = getResendLimiter()
+  if (resendLimiter) {
+    const { success } = await resendLimiter.limit(normEmail)
+    if (!success) return { ok: true } // silent — no enumeration of rate limit status
+  }
+
+  const user = await db.user.findUnique({ where: { email: normEmail } })
+  if (!user || user.emailVerified) return { ok: true } // silent
+
+  try {
+    const token = await createToken(normEmail, 'email_verify', EMAIL_VERIFY_TTL_SECONDS)
+    await sendVerifyEmail(normEmail, locale, token)
+  } catch (err) {
+    console.error('[sign-in] resend verify email failed:', err)
+    return { ok: false }
   }
 
   return { ok: true }

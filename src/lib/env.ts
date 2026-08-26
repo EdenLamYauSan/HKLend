@@ -45,6 +45,9 @@ const envSchema = z.object({
   // Vercel deployments infer this automatically from VERCEL_URL.
   AUTH_URL: z.string().url('AUTH_URL must be a valid URL').optional(),
 
+  // Set automatically by Vercel on every deployment (no protocol prefix — just hostname).
+  VERCEL_URL: z.string().optional(),
+
   // Account deletion hash salt (Story 8.3, AC-7, FR-68).
   // A DIFFERENT secret from AUTH_SECRET — never share them. Used only to
   // compute deletedUserHash = sha256(user.id + ACCOUNT_HASH_SALT) at the

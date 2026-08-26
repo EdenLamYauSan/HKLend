@@ -1,7 +1,7 @@
 /**
- * src/lib/auth/config.ts — Auth.js v5 configuration (Story 8.1).
+ * src/lib/auth/config.ts — Auth.js v5 configuration.
  *
- * Borrower authentication: email magic link only (Resend provider), database
+ * Borrower authentication: email + password (Credentials provider), database
  * session strategy, 30-day rolling expiry (FR-65).
  *
  * ARCH-6: This is a SEPARATE island from admin's iron-session
@@ -17,9 +17,9 @@
  * `process.env.*` directly.
  *
  * ARCH-9: TC ('/zh/') is canonical. The `pages` redirects below are
- * hardcoded to '/zh/...' because Auth.js's own error/verify-request
- * redirects don't know about the `[locale]` segment. English users still
- * land on the TC page and can switch locale from there.
+ * hardcoded to '/zh/...' because Auth.js's own error redirects don't know
+ * about the `[locale]` segment. English users still land on the TC page and
+ * can switch locale from there.
  *
  * ARCH-20: declared for consistency with every other server file that
  * touches Prisma/Auth.js/Upstash (this module isn't a route/page/layout
@@ -32,123 +32,15 @@ export const runtime = 'nodejs'
 
 import { cache } from 'react'
 import NextAuth from 'next-auth'
-import Resend from 'next-auth/providers/resend'
+import Credentials from 'next-auth/providers/credentials'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import { db } from '@/lib/db'
 import { env } from '@/lib/env'
-import { getTranslations } from '@/locales'
-
-// ─── Custom verification email (TC-default, 15-minute expiry) ────────────────
-
-/**
- * Renders the magic-link email HTML body.
- * TC-default per AC-3 — the email is always sent in Traditional Chinese
- * regardless of which locale the borrower was browsing in, with a short
- * English toggle line at the bottom (auth.email.enToggleLine).
- */
-function buildEmailHtml(url: string): string {
-  const copy = getTranslations('zh').auth.email
-
-  const escapedUrl = url.replace(/&/g, '&amp;')
-
-  return `
-<body style="background:#f7f7f5;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;">
-  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background:#f7f7f5;padding:32px 0;">
-    <tr>
-      <td align="center">
-        <table width="480" border="0" cellspacing="0" cellpadding="0" style="background:#ffffff;border-radius:12px;padding:32px;">
-          <tr>
-            <td style="font-size:20px;font-weight:600;color:#1a2b33;padding-bottom:16px;">
-              hklend
-            </td>
-          </tr>
-          <tr>
-            <td style="font-size:15px;color:#333333;padding-bottom:20px;">
-              ${copy.greeting}
-            </td>
-          </tr>
-          <tr>
-            <td align="center" style="padding:8px 0 24px 0;">
-              <a href="${escapedUrl}" target="_blank" style="display:inline-block;background:#c8963e;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;border-radius:8px;padding:12px 28px;">
-                ${copy.linkCta}
-              </a>
-            </td>
-          </tr>
-          <tr>
-            <td style="font-size:13px;color:#6b6b6b;padding-bottom:8px;">
-              ${copy.expiryLine}
-            </td>
-          </tr>
-          <tr>
-            <td style="font-size:13px;color:#6b6b6b;padding-bottom:20px;">
-              ${copy.ignoreIfNotYou}
-            </td>
-          </tr>
-          <tr>
-            <td style="font-size:12px;color:#9a9a9a;border-top:1px solid #eeeeee;padding-top:16px;">
-              ${copy.enToggleLine}
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-`
-}
-
-/** Plain-text fallback body for email clients that don't render HTML. */
-function buildEmailText(url: string): string {
-  const copy = getTranslations('zh').auth.email
-  return `${copy.greeting}\n\n${copy.linkCta}: ${url}\n\n${copy.expiryLine}\n${copy.ignoreIfNotYou}\n\n${copy.enToggleLine}\n`
-}
-
-/**
- * Custom sendVerificationRequest — calls the Resend API directly.
- *
- * On any Resend API failure (network error, non-2xx status), this throws.
- * Auth.js propagates the thrown error out of `signIn()`; the sign-in server
- * action (src/app/[locale]/(public)/sign-in/actions.ts) catches it and
- * reports EMAIL_UNAVAILABLE to the caller — see AC-3 / AC-8.
- */
-async function sendVerificationRequest({
-  identifier: to,
-  url,
-  provider,
-}: {
-  identifier: string
-  url: string
-  provider: { apiKey?: string; from?: string }
-}): Promise<void> {
-  const copy = getTranslations('zh').auth.email
-
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${provider.apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: provider.from,
-      to,
-      subject: copy.subject,
-      html: buildEmailHtml(url),
-      text: buildEmailText(url),
-    }),
-  })
-
-  if (!res.ok) {
-    const body = await res.text().catch(() => '')
-    throw new Error(`Resend API error (${res.status}): ${body}`)
-  }
-}
+import { verifyPassword } from '@/lib/auth/password'
 
 // ─── Well-known page paths ────────────────────────────────────────────────
-// Exported so the sign-in server action can tell a genuine send failure
-// apart from success — see the long comment on AUTH_ERROR_PAGE_PATH below.
 
-export const AUTH_ERROR_PAGE_PATH = '/zh/sign-in/expired'
-const AUTH_VERIFY_REQUEST_PAGE_PATH = '/zh/sign-in/sent'
+export const AUTH_ERROR_PAGE_PATH = '/zh/sign-in'
 
 // ─── Display-name derivation (Story 8.3, AC-1/AC-2, PRD A-13) ───────────────
 //
@@ -198,13 +90,39 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
 
   providers: [
-    Resend({
-      apiKey: env.AUTH_RESEND_KEY,
-      from: env.AUTH_EMAIL_FROM,
-      // 15 minutes — must match the "15-min expiry copy" in the email body
-      // (auth.email.expiryLine) so the UI claim and the actual token TTL agree.
-      maxAge: 15 * 60,
-      sendVerificationRequest,
+    Credentials({
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
+      },
+      async authorize(credentials) {
+        if (
+          typeof credentials?.email !== 'string' ||
+          typeof credentials?.password !== 'string'
+        ) {
+          return null
+        }
+
+        const email = credentials.email.trim().toLowerCase()
+        const password = credentials.password
+
+        const user = await db.user.findUnique({ where: { email } })
+
+        // No enumeration: return null for any failure — unknown email,
+        // unverified, wrong password, or no password set (legacy user).
+        if (!user) return null
+        if (!user.emailVerified) return null
+
+        const ok = await verifyPassword(password, user.passwordHash ?? null)
+        if (!ok) return null
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          image: user.image,
+        }
+      },
     }),
   ],
 
@@ -212,14 +130,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
   pages: {
     signIn: '/zh/sign-in',
-    verifyRequest: AUTH_VERIFY_REQUEST_PAGE_PATH,
-    // Auth.js redirects here with ?error=Verification for an already-used
-    // or expired magic link (see AC-7) — AND, verified against the running
-    // dev server, also for a sendVerificationRequest failure (Resend down).
-    // signIn(provider, { redirect: false }) does NOT throw in that case; it
-    // resolves with this page's URL instead of the verify-request URL. The
-    // sign-in server action must inspect the returned URL to tell the two
-    // apart — see AUTH_ERROR_PAGE_PATH and actions.ts.
     error: AUTH_ERROR_PAGE_PATH,
   },
 

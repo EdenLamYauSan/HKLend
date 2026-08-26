@@ -17,7 +17,6 @@ import { useRef, useState, useTransition } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Turnstile } from '@marsidev/react-turnstile'
 import type { TurnstileInstance } from '@marsidev/react-turnstile'
-import { toast } from 'sonner'
 import { submitSignIn } from './actions'
 import { SIGN_IN_EMAIL_STORAGE_KEY } from './session-email'
 import { getTurnstileSiteKey } from '@/lib/env-client'
@@ -78,11 +77,8 @@ export function SignInEmailForm({ locale, t }: Props) {
 
       if (result.code === 'RATE_LIMITED') {
         setError(t.signIn.rateLimitError)
-      } else if (result.code === 'EMAIL_UNAVAILABLE') {
-        setError(t.signIn.emailServiceDown)
-        toast.error(t.signIn.emailServiceDown)
       } else {
-        setError(t.signIn.turnstileError)
+        setError(t.signIn.invalidCredentials)
       }
     })
   }

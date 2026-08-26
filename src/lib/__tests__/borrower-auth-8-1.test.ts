@@ -238,23 +238,8 @@ describe('AC-6: /sign-in/sent confirmation page', () => {
   })
 })
 
-describe('AC-7: /sign-in/expired is the Auth.js error page target', () => {
-  const expired = readFile('src/app/[locale]/(public)/sign-in/expired/page.tsx')
-  const config = readFile('src/lib/auth/config.ts')
-
-  it('declares runtime = "nodejs"', () => {
-    expect(expired).toMatch(/export const runtime\s*=\s*['"]nodejs['"]/)
-  })
-
-  it('renders the same shared ResendButton as /sent (identical UX)', () => {
-    expect(expired).toContain('ResendButton')
-  })
-
-  it("config.ts error page points at /zh/sign-in/expired", () => {
-    expect(config).toContain("export const AUTH_ERROR_PAGE_PATH = '/zh/sign-in/expired'")
-    expect(config).toContain('error: AUTH_ERROR_PAGE_PATH')
-  })
-})
+// AC-7: /sign-in/expired removed — Auth.js Credentials provider no longer routes there.
+// The error page now falls back to /zh/sign-in (AUTH_ERROR_PAGE_PATH in config.ts).
 
 // ─── AC-8: sign-in server action — enumeration defence ───────────────────────
 
@@ -433,7 +418,7 @@ describe('AC-14: runtime = "nodejs" on every new server file', () => {
     'src/app/api/auth/[...nextauth]/route.ts',
     'src/app/[locale]/(public)/sign-in/page.tsx',
     'src/app/[locale]/(public)/sign-in/sent/page.tsx',
-    'src/app/[locale]/(public)/sign-in/expired/page.tsx',
+    // expired/page.tsx removed — no longer routed to by Auth.js Credentials provider
   ]
 
   for (const file of serverFiles) {

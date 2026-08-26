@@ -14,7 +14,7 @@ import { Suspense } from 'react'
 import { notFound, redirect } from 'next/navigation'
 import { isLocale, getTranslations } from '@/locales'
 import { auth } from '@/lib/auth/config'
-import { SignInEmailForm } from './SignInEmailForm'
+import { SignInForm } from './SignInForm'
 import { PromptModalSmokeTest } from './PromptModalSmokeTest'
 
 type PageParams = Promise<{ locale: string }>
@@ -53,7 +53,7 @@ export default async function SignInPage({ params }: { params: PageParams }) {
             `callbackUrl` query param) — needs a Suspense ancestor, same
             reason ScamReportForm needed one in Story 8.2. */}
         <Suspense fallback={null}>
-          <SignInEmailForm locale={locale} t={t.auth} />
+          <SignInForm locale={locale} t={t.auth} />
         </Suspense>
       </div>
 
