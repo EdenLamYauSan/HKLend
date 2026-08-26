@@ -52,15 +52,20 @@ import { getVoteSortedReviews } from '@/lib/votes'
 // the existing per-(fingerprint+IP)-per-lender limit enforced by
 // submissionGuard below. Both must fire; whichever hits first blocks the
 // submission (Dev Notes: "Coexistence with existing IP limits").
-const reviewUserRedis = new Redis({
-  url: env.KV_REST_API_URL,
-  token: env.KV_REST_API_TOKEN,
-})
-const reviewUserLimiter = new Ratelimit({
-  redis: reviewUserRedis,
-  limiter: Ratelimit.slidingWindow(3, '24 h'),
-  prefix: 'ratelimit:review:user',
-})
+// Lazy-initialised so that missing KV env vars don't crash the module at load
+// time in dev (same pattern as submission-guard.ts).
+let _reviewUserLimiter: Ratelimit | null = null
+function getReviewUserLimiter(): Ratelimit | null {
+  if (!env.KV_REST_API_URL || !env.KV_REST_API_TOKEN) return null
+  if (!_reviewUserLimiter) {
+    _reviewUserLimiter = new Ratelimit({
+      redis: new Redis({ url: env.KV_REST_API_URL, token: env.KV_REST_API_TOKEN }),
+      limiter: Ratelimit.slidingWindow(3, '24 h'),
+      prefix: 'ratelimit:review:user',
+    })
+  }
+  return _reviewUserLimiter
+}
 
 // ─── Pagination schema ────────────────────────────────────────────────────────
 
@@ -183,12 +188,15 @@ export async function POST(
   }
 
   // ── 3. AC-2: per-account rate limit ──────────────────────────────────────
-  const { success: withinUserLimit } = await reviewUserLimiter.limit(session.user.id)
-  if (!withinUserLimit) {
-    return Response.json(
-      apiError('RATE_LIMITED', '你在 24 小時內的評論次數已達上限，請稍後再試。'),
-      { status: 429, headers: { 'X-RateLimit-Remaining': '0' } }
-    )
+  const limiter = getReviewUserLimiter()
+  if (limiter) {
+    const { success: withinUserLimit } = await limiter.limit(session.user.id)
+    if (!withinUserLimit) {
+      return Response.json(
+        apiError('RATE_LIMITED', '你在 24 小時內的評論次數已達上限，請稍後再試。'),
+        { status: 429, headers: { 'X-RateLimit-Remaining': '0' } }
+      )
+    }
   }
 
   // ── 4. Per-lender IP + fingerprint counter (INCR happens here) ───────────

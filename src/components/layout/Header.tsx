@@ -1,25 +1,26 @@
 /**
  * Header — persistent navigation bar (AC-4).
  *
- * Layout: logo (left) + LanguageToggle (right).
+ * Layout: logo (left) + auth indicator + LanguageToggle (right).
  * Server Component: receives locale from the [locale] layout.
- * The toggle is a Client Component child (needs router + cookie).
- *
- * Positioned below ScopeBanner (top-8 = 32px offset to clear the fixed strip).
- * sticky so it stays visible while scrolling.
+ * Auth state is read server-side via auth() — no client flash.
  */
 
 import Link from 'next/link'
 import { LanguageToggle } from './LanguageToggle'
+import { SignOutButton } from '@/components/auth/SignOutButton'
 import { getTranslations } from '@/locales'
+import { auth } from '@/lib/auth/config'
 import type { Locale } from '@/locales'
 
 interface HeaderProps {
   locale: Locale
 }
 
-export function Header({ locale }: HeaderProps) {
-  const { nav } = getTranslations(locale)
+export async function Header({ locale }: HeaderProps) {
+  const { nav, auth: authT } = getTranslations(locale)
+  const session = await auth()
+  const user = session?.user
 
   return (
     <header
@@ -52,20 +53,41 @@ export function Header({ locale }: HeaderProps) {
 
         {/* Right-side controls */}
         <div className="flex items-center gap-2">
-          <Link
-            href={`/${locale}/sign-in`}
-            className="
-              inline-flex items-center
-              h-8 px-2.5
-              rounded-md
-              text-sm font-medium
-              text-white/60 hover:text-white hover:bg-white/10
-              focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2
-              transition-colors
-            "
-          >
-            {locale === 'zh' ? '登入' : 'Log in'}
-          </Link>
+          {user ? (
+            <>
+              {/* Show truncated email so user knows they're signed in */}
+              <span className="hidden sm:block text-xs text-white/60 max-w-[160px] truncate" title={user.email ?? ''}>
+                {user.email}
+              </span>
+              <SignOutButton
+                t={authT}
+                className="
+                  inline-flex items-center
+                  h-8 px-2.5
+                  rounded-md
+                  text-sm font-medium
+                  text-white/60 hover:text-white hover:bg-white/10
+                  focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2
+                  transition-colors
+                "
+              />
+            </>
+          ) : (
+            <Link
+              href={`/${locale}/sign-in`}
+              className="
+                inline-flex items-center
+                h-8 px-2.5
+                rounded-md
+                text-sm font-medium
+                text-white/60 hover:text-white hover:bg-white/10
+                focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2
+                transition-colors
+              "
+            >
+              {locale === 'zh' ? '登入' : 'Log in'}
+            </Link>
+          )}
           <nav aria-label="Language switcher">
             <LanguageToggle currentLocale={locale} />
           </nav>
