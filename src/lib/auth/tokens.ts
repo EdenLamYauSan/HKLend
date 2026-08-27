@@ -43,8 +43,6 @@ export async function createToken(
     data: { identifier, token, expires, type },
   })
 
-  console.log('[createToken] created', { identifier, tokenPrefix: token.slice(0, 8), type, expires })
-
   return token
 }
 
@@ -64,16 +62,9 @@ export async function consumeToken(
     where: { identifier_token: { identifier, token } },
   })
 
-  if (!row) {
-    console.error('[consumeToken] not found', { identifier, tokenPrefix: token.slice(0, 8), type })
-    return false
-  }
-  if (row.type !== type) {
-    console.error('[consumeToken] type mismatch', { expected: type, got: row.type })
-    return false
-  }
+  if (!row) return false
+  if (row.type !== type) return false
   if (row.expires < new Date()) {
-    console.error('[consumeToken] expired', { expires: row.expires, now: new Date() })
     await db.verificationToken.deleteMany({ where: { identifier, token } })
     return false
   }
@@ -81,10 +72,6 @@ export async function consumeToken(
   const { count } = await db.verificationToken.deleteMany({
     where: { identifier, token },
   })
-
-  if (count === 0) {
-    console.error('[consumeToken] race: concurrent consumer already deleted row')
-  }
 
   return count > 0
 }

@@ -129,8 +129,6 @@ export async function sendPasswordResetEmail(
 ): Promise<void> {
   const t = getTranslations(locale).auth.forgotPassword.email
   const url = `${getAppBaseUrl()}/${locale}/reset-password?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`
-  console.log('[sendPasswordResetEmail] link URL:', url)
-
   const html = buildEmailWrapper(url, t.linkCta, [t.expiryLine, t.ignoreIfNotYou])
   const text = `${t.linkCta}: ${url}\n\n${t.expiryLine}\n${t.ignoreIfNotYou}\n`
 
