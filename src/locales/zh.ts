@@ -499,6 +499,18 @@ export const zh: Translation = {
         unauthorizedError: '登入狀態已過期，請重新登入後再試。',
         deletedToast: '你的帳戶已刪除。',
       },
+      activity: {
+        reviewsTitle: '我的評論',
+        flagsTitle: '我的紅旗標記',
+        votesTitle: '我的投票',
+        noReviews: '暫無評論。',
+        noFlags: '暫無紅旗標記。',
+        noVotes: '暫無投票。',
+        statusApproved: '已通過',
+        statusPending: '審核中',
+        statusRejected: '已拒絕',
+        viewLender: '查看放債人',
+      },
     },
     vote: {
       upvote: '有用',

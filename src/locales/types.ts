@@ -505,6 +505,18 @@ export type Translation = {
         // `/[locale]?deleted=1`.
         deletedToast: string
       }
+      activity: {
+        reviewsTitle: string
+        flagsTitle: string
+        votesTitle: string
+        noReviews: string
+        noFlags: string
+        noVotes: string
+        statusApproved: string
+        statusPending: string
+        statusRejected: string
+        viewLender: string
+      }
     }
     // Story 8.3, AC-3/AC-4: upvote button on Review cards and Flag entries.
     vote: {

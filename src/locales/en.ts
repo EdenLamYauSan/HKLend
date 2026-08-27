@@ -503,6 +503,18 @@ export const en: Translation = {
         unauthorizedError: 'Your session has expired. Please sign in again and try once more.',
         deletedToast: 'Your account has been deleted.',
       },
+      activity: {
+        reviewsTitle: 'My reviews',
+        flagsTitle: 'My flags',
+        votesTitle: 'My votes',
+        noReviews: 'No reviews yet.',
+        noFlags: 'No flags yet.',
+        noVotes: 'No votes yet.',
+        statusApproved: 'Approved',
+        statusPending: 'Pending',
+        statusRejected: 'Rejected',
+        viewLender: 'View lender',
+      },
     },
     vote: {
       upvote: 'Helpful',

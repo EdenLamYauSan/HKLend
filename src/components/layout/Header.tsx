@@ -55,10 +55,13 @@ export async function Header({ locale }: HeaderProps) {
         <div className="flex items-center gap-2">
           {user ? (
             <>
-              {/* Show truncated email so user knows they're signed in */}
-              <span className="hidden sm:block text-xs text-white/60 max-w-[160px] truncate" title={user.email ?? ''}>
+              <Link
+                href={`/${locale}/account`}
+                className="hidden sm:block text-xs text-white/60 hover:text-white max-w-[160px] truncate transition-colors"
+                title={user.email ?? ''}
+              >
                 {user.email}
-              </span>
+              </Link>
               <SignOutButton
                 t={authT}
                 className="
