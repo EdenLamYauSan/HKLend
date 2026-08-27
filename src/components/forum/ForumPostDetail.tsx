@@ -210,7 +210,7 @@ export function ForumPostDetail({
             onClick={upvotePost}
             className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 border border-gray-200 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 transition-colors"
           >
-            ▲ <span>{post.upvotes}</span> <span className="text-xs text-gray-400">贊</span>
+            🤍 <span>{post.upvotes}</span> <span className="text-xs text-gray-400">讚好</span>
           </button>
         </div>
       </article>
@@ -255,7 +255,7 @@ export function ForumPostDetail({
                   onClick={() => upvoteReply(reply.id)}
                   className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-brand-navy transition-colors"
                 >
-                  ▲ {replyUpvotes[reply.id] ?? reply.upvotes} 贊
+                  🤍 {replyUpvotes[reply.id] ?? reply.upvotes} 讚好
                 </button>
                 <button
                   onClick={() => startReplyTo(reply)}

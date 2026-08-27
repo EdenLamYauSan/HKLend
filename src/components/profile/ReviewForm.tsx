@@ -292,7 +292,7 @@ export function ReviewForm({ lenderSlug, locale, turnstileSiteKey, onCancel }: P
       <Turnstile
         ref={turnstileRef}
         siteKey={turnstileSiteKey}
-        options={{ execution: 'execute', appearance: 'interaction-only' }}
+        options={{ execution: 'render', appearance: 'interaction-only' }}
         onSuccess={setTurnstileToken}
         onExpire={() => setTurnstileToken(null)}
         onError={() => {

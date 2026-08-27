@@ -502,10 +502,10 @@ export const zh: Translation = {
       activity: {
         reviewsTitle: '我的評論',
         flagsTitle: '我的標記',
-        votesTitle: '我的投票',
+        votesTitle: '我的讚好',
         noReviews: '暫無評論。',
         noFlags: '暫無標記。',
-        noVotes: '暫無投票。',
+        noVotes: '暫無讚好。',
         statusApproved: '已通過',
         statusPending: '審核中',
         statusRejected: '已拒絕',
@@ -513,9 +513,9 @@ export const zh: Translation = {
       },
     },
     vote: {
-      upvote: '有用',
-      removeVote: '取消讚好',
-      selfDisabled: '不能為自己的內容投票',
+      like: '讚好',
+      unlike: '取消讚好',
+      selfDisabled: '不能為自己的內容讚好',
     },
     signUp: {
       title: '建立帳戶',

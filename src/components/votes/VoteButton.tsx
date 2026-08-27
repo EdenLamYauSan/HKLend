@@ -81,7 +81,7 @@ export function VoteButton({
     })
   }
 
-  const label = voted ? t.vote.removeVote : t.vote.upvote
+  const label = voted ? t.vote.unlike : t.vote.like
 
   return (
     <>
@@ -97,8 +97,8 @@ export function VoteButton({
             : 'border-gray-300 text-gray-500 hover:border-gray-400'
         } disabled:opacity-50`}
       >
-        <span aria-hidden="true">{voted ? '▲' : '△'}</span>
-        {count}
+        <span aria-hidden="true">{voted ? '❤️' : '🤍'}</span>
+        {count > 0 && count}
       </button>
 
       <SignInPromptModal

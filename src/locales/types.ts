@@ -518,10 +518,10 @@ export type Translation = {
         viewLender: string
       }
     }
-    // Story 8.3, AC-3/AC-4: upvote button on Review cards and Flag entries.
+    // Story 8.3, AC-3/AC-4: like button on Review cards and Flag entries.
     vote: {
-      upvote: string
-      removeVote: string
+      like: string
+      unlike: string
       selfDisabled: string
     }
     // Password-auth overhaul: sign-up flow

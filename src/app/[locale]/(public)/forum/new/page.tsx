@@ -188,7 +188,7 @@ export default function NewForumPostPage() {
         <Turnstile
           ref={turnstileRef}
           siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? ''}
-          options={{ execution: 'execute', appearance: 'interaction-only' }}
+          options={{ execution: 'render', appearance: 'interaction-only' }}
           onSuccess={setTurnstileToken}
           onExpire={() => setTurnstileToken(null)}
           onError={() => {

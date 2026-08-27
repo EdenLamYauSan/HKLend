@@ -506,10 +506,10 @@ export const en: Translation = {
       activity: {
         reviewsTitle: 'My reviews',
         flagsTitle: 'My flags',
-        votesTitle: 'My votes',
+        votesTitle: 'My likes',
         noReviews: 'No reviews yet.',
         noFlags: 'No flags yet.',
-        noVotes: 'No votes yet.',
+        noVotes: 'No likes yet.',
         statusApproved: 'Approved',
         statusPending: 'Pending',
         statusRejected: 'Rejected',
@@ -517,9 +517,9 @@ export const en: Translation = {
       },
     },
     vote: {
-      upvote: 'Helpful',
-      removeVote: 'Remove vote',
-      selfDisabled: "You can't vote on your own content",
+      like: 'Like',
+      unlike: 'Unlike',
+      selfDisabled: "You can't like your own content",
     },
     signUp: {
       title: 'Create an account',

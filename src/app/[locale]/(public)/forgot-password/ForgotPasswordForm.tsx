@@ -115,7 +115,7 @@ export function ForgotPasswordForm({ locale, t, turnstileSiteKey }: Props) {
       <Turnstile
         ref={turnstileRef}
         siteKey={turnstileSiteKey}
-        options={{ execution: 'execute', appearance: 'interaction-only' }}
+        options={{ execution: 'render', appearance: 'interaction-only' }}
         onSuccess={handleTurnstileSuccess}
         onExpire={() => setTurnstileToken(null)}
       />
