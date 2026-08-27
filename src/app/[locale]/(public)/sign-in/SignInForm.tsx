@@ -122,7 +122,7 @@ export function SignInForm({ locale, t }: Props) {
           <div className="mb-1 flex items-center justify-between">
             <label
               htmlFor="sign-in-password"
-              className="text-sm font-medium text-gray-700"
+              className="text-sm font-medium text-brand-navy"
             >
               {t.signIn.passwordLabel}
             </label>

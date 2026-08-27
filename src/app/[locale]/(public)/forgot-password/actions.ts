@@ -32,7 +32,7 @@ async function getClientIp(): Promise<string> {
   return '0.0.0.0'
 }
 
-const RESET_TTL_SECONDS = 15 * 60 // 15 minutes
+const RESET_TTL_SECONDS = 60 * 60 // 1 hour
 
 const emailSchema = z.string().email()
 

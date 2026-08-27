@@ -6,7 +6,7 @@
  *
  * TTLs:
  *   email_verify  — 24 h
- *   password_reset — 15 min
+ *   password_reset — 1 h
  *
  * ARCH-2: Uses the shared `db` singleton, never `new PrismaClient()`.
  */
