@@ -1,13 +1,6 @@
 'use client'
 
-/**
- * SignUpForm — interactive registration form.
- *
- * Client component: needs form state and transition. Server Component page
- * passes translated strings.
- */
-
-import { useState, useRef, useTransition } from 'react'
+import { useState, useRef, useTransition, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Turnstile } from '@marsidev/react-turnstile'
@@ -29,6 +22,43 @@ export function SignUpForm({ locale, t, turnstileSiteKey }: Props) {
   const [pending, startTransition] = useTransition()
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
   const turnstileRef = useRef<TurnstileInstance>(null)
+  // When true: user already clicked submit, just waiting for turnstile token
+  const awaitingTurnstile = useRef(false)
+
+  const submitForm = useCallback(
+    (token: string) => {
+      const formData = new FormData()
+      formData.set('email', email)
+      formData.set('password', password)
+      formData.set('turnstileToken', token)
+
+      startTransition(async () => {
+        const result = await register(formData, locale)
+
+        if (result.ok) {
+          router.push(`/${locale}/sign-in/sent`)
+          return
+        }
+
+        if (result.code === 'DUPLICATE_EMAIL') {
+          setError(t.signUp.duplicateEmail)
+        } else if (result.code === 'VALIDATION_ERROR') {
+          setError(t.signUp.passwordMinLength)
+        } else {
+          setError(t.signUp.genericError)
+        }
+      })
+    },
+    [email, locale, password, router, t.signUp]
+  )
+
+  function handleTurnstileSuccess(token: string) {
+    setTurnstileToken(token)
+    if (awaitingTurnstile.current) {
+      awaitingTurnstile.current = false
+      submitForm(token)
+    }
+  }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -45,32 +75,12 @@ export function SignUpForm({ locale, t, turnstileSiteKey }: Props) {
     }
 
     if (!turnstileToken) {
+      awaitingTurnstile.current = true
       turnstileRef.current?.execute()
-      setError(t.signUp.turnstileFailed)
       return
     }
 
-    const formData = new FormData()
-    formData.set('email', email)
-    formData.set('password', password)
-    formData.set('turnstileToken', turnstileToken)
-
-    startTransition(async () => {
-      const result = await register(formData, locale)
-
-      if (result.ok) {
-        router.push(`/${locale}/sign-in/sent`)
-        return
-      }
-
-      if (result.code === 'DUPLICATE_EMAIL') {
-        setError(t.signUp.duplicateEmail)
-      } else if (result.code === 'VALIDATION_ERROR') {
-        setError(t.signUp.passwordMinLength)
-      } else {
-        setError(t.signUp.genericError)
-      }
-    })
+    submitForm(turnstileToken)
   }
 
   return (
@@ -78,7 +88,7 @@ export function SignUpForm({ locale, t, turnstileSiteKey }: Props) {
       <div>
         <label
           htmlFor="sign-up-email"
-          className="mb-1 block text-sm font-medium text-gray-700"
+          className="mb-1 block text-sm font-medium text-brand-navy"
         >
           {t.signUp.emailLabel}
         </label>
@@ -90,7 +100,6 @@ export function SignUpForm({ locale, t, turnstileSiteKey }: Props) {
           autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder={t.signUp.emailPlaceholder}
           className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
         />
       </div>
@@ -98,7 +107,7 @@ export function SignUpForm({ locale, t, turnstileSiteKey }: Props) {
       <div>
         <label
           htmlFor="sign-up-password"
-          className="mb-1 block text-sm font-medium text-gray-700"
+          className="mb-1 block text-sm font-medium text-brand-navy"
         >
           {t.signUp.passwordLabel}
         </label>
@@ -110,7 +119,6 @@ export function SignUpForm({ locale, t, turnstileSiteKey }: Props) {
           autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder={t.signUp.passwordPlaceholder}
           minLength={8}
           className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
         />
@@ -134,7 +142,7 @@ export function SignUpForm({ locale, t, turnstileSiteKey }: Props) {
         {t.signUp.alreadyHaveAccount}{' '}
         <Link
           href={`/${locale}/sign-in`}
-          className="font-medium text-brand-navy underline"
+          className="font-medium text-brand-amber hover:opacity-80"
         >
           {t.signUp.signInLink}
         </Link>
@@ -144,7 +152,7 @@ export function SignUpForm({ locale, t, turnstileSiteKey }: Props) {
         ref={turnstileRef}
         siteKey={turnstileSiteKey}
         options={{ execution: 'execute', appearance: 'interaction-only' }}
-        onSuccess={setTurnstileToken}
+        onSuccess={handleTurnstileSuccess}
         onExpire={() => setTurnstileToken(null)}
       />
     </form>

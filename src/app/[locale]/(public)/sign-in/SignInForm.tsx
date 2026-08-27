@@ -102,7 +102,7 @@ export function SignInForm({ locale, t }: Props) {
         <div>
           <label
             htmlFor="sign-in-email"
-            className="mb-1 block text-sm font-medium text-gray-700"
+            className="mb-1 block text-sm font-medium text-brand-navy"
           >
             {t.signIn.emailLabel}
           </label>
@@ -114,7 +114,6 @@ export function SignInForm({ locale, t }: Props) {
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder={t.signIn.emailPlaceholder}
             className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
           />
         </div>
@@ -129,7 +128,7 @@ export function SignInForm({ locale, t }: Props) {
             </label>
             <Link
               href={`/${locale}/forgot-password`}
-              className="text-xs text-brand-navy underline"
+              className="text-xs text-brand-amber hover:opacity-80"
             >
               {t.signIn.forgotPassword}
             </Link>
@@ -142,7 +141,6 @@ export function SignInForm({ locale, t }: Props) {
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder={t.signIn.passwordPlaceholder}
             className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
           />
         </div>
@@ -187,7 +185,7 @@ export function SignInForm({ locale, t }: Props) {
         {t.signIn.noAccount}{' '}
         <Link
           href={`/${locale}/sign-up`}
-          className="font-medium text-brand-navy underline"
+          className="font-medium text-brand-amber hover:opacity-80"
         >
           {t.signIn.signUpLink}
         </Link>

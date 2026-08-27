@@ -62,7 +62,7 @@ export function ResetPasswordForm({ token, email, locale, t }: Props) {
       <div>
         <label
           htmlFor="reset-password"
-          className="mb-1 block text-sm font-medium text-gray-700"
+          className="mb-1 block text-sm font-medium text-brand-navy"
         >
           {t.resetPassword.passwordLabel}
         </label>
@@ -74,7 +74,6 @@ export function ResetPasswordForm({ token, email, locale, t }: Props) {
           autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder={t.resetPassword.passwordPlaceholder}
           minLength={8}
           className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy"
         />
@@ -106,7 +105,7 @@ export function ResetExpiredUI({
 }) {
   return (
     <div className="text-center">
-      <h1 className="mb-3 text-xl font-semibold text-gray-900">{t.expiredTitle}</h1>
+      <h1 className="mb-3 text-xl font-semibold text-brand-navy">{t.expiredTitle}</h1>
       <p className="mb-6 text-sm text-gray-600">{t.expiredBody}</p>
       <Link
         href={`/${locale}/forgot-password`}

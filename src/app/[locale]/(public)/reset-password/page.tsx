@@ -53,12 +53,12 @@ export default async function ResetPasswordPage({
 
   return (
     <div className="mx-auto max-w-md px-4 py-12 sm:px-6">
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="rounded-xl border border-gray-200 border-t-4 border-t-brand-amber bg-white p-6 shadow-sm">
         {isExpired ? (
           <ResetExpiredUI locale={locale} t={t.auth.resetPassword} />
         ) : (
           <>
-            <h1 className="mb-6 text-xl font-semibold text-gray-900">
+            <h1 className="mb-6 text-xl font-semibold text-brand-navy">
               {t.auth.resetPassword.title}
             </h1>
             <ResetPasswordForm

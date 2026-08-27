@@ -40,8 +40,8 @@ export default async function ForgotPasswordPage({
 
   return (
     <div className="mx-auto max-w-md px-4 py-12 sm:px-6">
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h1 className="mb-6 text-xl font-semibold text-gray-900">
+      <div className="rounded-xl border border-gray-200 border-t-4 border-t-brand-amber bg-white p-6 shadow-sm">
+        <h1 className="mb-6 text-xl font-semibold text-brand-navy">
           {t.auth.forgotPassword.title}
         </h1>
         <ForgotPasswordForm
