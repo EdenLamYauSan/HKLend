@@ -110,20 +110,18 @@ export async function checkRateLimit(
   // Two independent keys — one per fingerprint, one per IP.
   // Block if EITHER reaches the limit: IP rotation does not reset the
   // fingerprint counter, and fingerprint spoofing does not reset the IP counter.
-  const [[, fpCount], , [, ipCount]] = await redis
+  const results = await redis
     .pipeline()
     .incr(fpKey)
     .expire(fpKey, windowSeconds)
     .incr(ipKey)
     .expire(ipKey, windowSeconds)
-    .exec() as [
-      [null, number],
-      [null, number],
-      [null, number],
-      [null, number],
-    ]
+    .exec()
 
-  return { allowed: (fpCount as number) <= limit && (ipCount as number) <= limit }
+  const fpCount = results[0] as number
+  const ipCount = results[2] as number
+
+  return { allowed: fpCount <= limit && ipCount <= limit }
 }
 
 // ─── Turnstile verification ───────────────────────────────────────────────────
