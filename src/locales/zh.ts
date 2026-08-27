@@ -501,10 +501,10 @@ export const zh: Translation = {
       },
       activity: {
         reviewsTitle: '我的評論',
-        flagsTitle: '我的紅旗標記',
+        flagsTitle: '我的標記',
         votesTitle: '我的投票',
         noReviews: '暫無評論。',
-        noFlags: '暫無紅旗標記。',
+        noFlags: '暫無標記。',
         noVotes: '暫無投票。',
         statusApproved: '已通過',
         statusPending: '審核中',
