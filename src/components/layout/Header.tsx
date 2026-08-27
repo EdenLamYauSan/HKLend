@@ -57,10 +57,24 @@ export async function Header({ locale }: HeaderProps) {
             <>
               <Link
                 href={`/${locale}/account`}
-                className="hidden sm:block text-xs text-white/60 hover:text-white max-w-[160px] truncate transition-colors"
+                className="
+                  inline-flex items-center gap-1.5
+                  h-8 px-2.5
+                  rounded-md
+                  text-sm font-medium
+                  text-white/60 hover:text-white hover:bg-white/10
+                  focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2
+                  transition-colors
+                "
                 title={user.email ?? ''}
               >
-                {user.email}
+                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="8" r="4" />
+                  <path d="M4 21v-1a6 6 0 0 1 12 0v1" />
+                </svg>
+                <span className="hidden sm:inline max-w-[120px] truncate text-xs">
+                  {user.name || user.email}
+                </span>
               </Link>
               <SignOutButton
                 t={authT}
