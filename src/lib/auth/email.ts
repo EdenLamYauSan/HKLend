@@ -88,9 +88,9 @@ function buildEmailWrapper(ctaHref: string, ctaLabel: string, lines: string[]): 
 // ─── App base URL ─────────────────────────────────────────────────────────────
 
 function getAppBaseUrl(): string {
-  // Auth.js sets AUTH_URL on self-hosted; Vercel sets VERCEL_URL automatically.
   if (env.AUTH_URL) return env.AUTH_URL.replace(/\/$/, '')
   if (env.VERCEL_URL) return `https://${env.VERCEL_URL}`
+  console.warn('[getAppBaseUrl] no AUTH_URL or VERCEL_URL — falling back to localhost')
   return 'http://localhost:3000'
 }
 
@@ -129,6 +129,7 @@ export async function sendPasswordResetEmail(
 ): Promise<void> {
   const t = getTranslations(locale).auth.forgotPassword.email
   const url = `${getAppBaseUrl()}/${locale}/reset-password?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`
+  console.log('[sendPasswordResetEmail] link URL:', url)
 
   const html = buildEmailWrapper(url, t.linkCta, [t.expiryLine, t.ignoreIfNotYou])
   const text = `${t.linkCta}: ${url}\n\n${t.expiryLine}\n${t.ignoreIfNotYou}\n`
