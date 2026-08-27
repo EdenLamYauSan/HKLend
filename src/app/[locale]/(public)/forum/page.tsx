@@ -52,7 +52,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 }
 
 const CATEGORY_COLOURS: Record<string, string> = {
-  LENDER_RECO: 'bg-green-50 text-green-700',
+  LENDER_RECO: 'bg-brand-navy/10 text-brand-navy',
   LOAN_QUESTION: 'bg-blue-50 text-blue-700',
   REPAYMENT: 'bg-amber-50 text-amber-700',
   DEBT_CLEARANCE: 'bg-rose-50 text-rose-700',
@@ -217,9 +217,10 @@ export default async function ForumListPage({ params, searchParams }: PageProps)
       ) : (
         <div className="space-y-3">
           {posts.map(post => (
-            <article
+            <Link
               key={post.id}
-              className="rounded-xl border border-gray-200 bg-white p-5 hover:shadow-sm transition-shadow"
+              href={`/${locale}/forum/${post.id}`}
+              className="block rounded-xl border border-gray-200 bg-white p-5 hover:shadow-sm hover:border-brand-navy/30 transition-all"
             >
               <div className="flex items-start gap-4">
                 <div className="flex-1 min-w-0">
@@ -235,19 +236,26 @@ export default async function ForumListPage({ params, searchParams }: PageProps)
                       {formatDateZh(post.createdAt)}
                     </span>
                   </div>
-                  <Link
-                    href={`/${locale}/forum/${post.id}`}
-                    className="block text-base font-medium text-gray-900 hover:text-brand-navy transition-colors"
-                  >
+                  <h2 className="text-base font-medium text-gray-900">
                     {post.titleZh}
-                  </Link>
+                  </h2>
                   <div className="mt-2 flex items-center gap-4 text-xs text-gray-400">
-                    <span>▲ {post.upvotes} 贊</span>
-                    <span>❝ {post._count.replies} 回覆</span>
+                    <span className="inline-flex items-center gap-1">
+                      <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                      </svg>
+                      {post.upvotes} 讚好
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                      </svg>
+                      {post._count.replies} 回覆
+                    </span>
                   </div>
                 </div>
               </div>
-            </article>
+            </Link>
           ))}
         </div>
       )}
