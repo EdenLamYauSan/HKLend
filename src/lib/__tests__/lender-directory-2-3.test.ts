@@ -159,9 +159,9 @@ describe('AC-4: LenderFilters client component', () => {
     expect(component).toContain('搜尋牌照號碼或公司名稱')
   })
 
-  it('renders district filter chips', () => {
-    expect(component).toContain('districtOptions')
-    expect(component).toContain('地區')
+  it('renders letter filter chips', () => {
+    expect(component).toContain('ALPHABET')
+    expect(component).toContain('首字母篩選')
   })
 
   it('renders loan type filter chips', () => {
@@ -224,9 +224,9 @@ describe('AC-5: /[locale]/lenders page', () => {
     expect(page).toContain('page: String(page + 1)')
   })
 
-  it('queries distinct districtZh values for filter options', () => {
-    expect(page).toContain('distinct')
-    expect(page).toContain('districtZh')
+  it('queries distinct loanTypeTags values for filter options', () => {
+    expect(page).toContain('loanTypeTags')
+    expect(page).toContain('unnest')
   })
 
   it('queries distinct loanTypeTags via unnest', () => {

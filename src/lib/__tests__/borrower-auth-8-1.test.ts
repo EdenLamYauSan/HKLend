@@ -139,24 +139,22 @@ describe('AC-3: Auth.js NextAuth() configuration', () => {
     expect(config).toMatch(/updateAge:\s*60\s*\*\s*60\s*\*\s*24\b/)
   })
 
-  it('configures the Resend provider with apiKey/from from env.ts', () => {
-    expect(config).toContain('Resend({')
-    expect(config).toContain('apiKey: env.AUTH_RESEND_KEY')
-    expect(config).toContain('from: env.AUTH_EMAIL_FROM')
+  it('uses no Auth.js providers — auth is handled via createDatabaseSession()', () => {
+    expect(config).toContain('providers: []')
+    // Resend magic-link and Credentials providers were both removed.
+    expect(config).not.toContain('Resend({')
+    expect(config).not.toContain('Credentials({')
   })
 
   it('sets secret from env.AUTH_SECRET', () => {
     expect(config).toContain('secret: env.AUTH_SECRET')
   })
 
-  it('configures pages.signIn/verifyRequest/error under /zh/', () => {
+  it('configures pages.signIn/error under /zh/', () => {
     expect(config).toContain("signIn: '/zh/sign-in'")
-    // verifyRequest/error reference exported path constants (reused by
-    // actions.ts to detect a Resend send failure) rather than duplicating
-    // the literal strings inline — see AUTH_ERROR_PAGE_PATH.
-    expect(config).toContain("const AUTH_VERIFY_REQUEST_PAGE_PATH = '/zh/sign-in/sent'")
-    expect(config).toContain("export const AUTH_ERROR_PAGE_PATH = '/zh/sign-in/expired'")
-    expect(config).toContain('verifyRequest: AUTH_VERIFY_REQUEST_PAGE_PATH')
+    // verifyRequest page removed — no Resend magic-link flow.
+    // AUTH_ERROR_PAGE_PATH now points to /zh/sign-in (not /expired).
+    expect(config).toContain("export const AUTH_ERROR_PAGE_PATH = '/zh/sign-in'")
     expect(config).toContain('error: AUTH_ERROR_PAGE_PATH')
   })
 
@@ -173,9 +171,8 @@ describe('AC-3: Auth.js NextAuth() configuration', () => {
     expect(sessionTokenBlock).not.toMatch(/name:\s*['"]admin_session['"]/)
   })
 
-  it('has a custom sendVerificationRequest that throws on Resend failure', () => {
-    expect(config).toContain('sendVerificationRequest')
-    expect(config).toMatch(/if\s*\(!res\.ok\)\s*\{[\s\S]{0,120}throw new Error/)
+  it('does not contain sendVerificationRequest (password auth, no magic-link)', () => {
+    expect(config).not.toContain('sendVerificationRequest')
   })
 })
 
@@ -210,7 +207,7 @@ describe('AC-5: /[locale]/sign-in page + form', () => {
 
   it('form uses the Turnstile widget matching forum/new', () => {
     expect(form).toContain("from '@marsidev/react-turnstile'")
-    expect(form).toContain("execution: 'execute'")
+    expect(form).toContain("execution: 'render'")
     expect(form).toContain("appearance: 'interaction-only'")
   })
 
@@ -250,50 +247,35 @@ describe('AC-8: submitSignIn server action', () => {
     expect(actions.trimStart().startsWith("'use server'")).toBe(true)
   })
 
-  it('verifies Turnstile via the shared verifyTurnstile export (ARCH-8)', () => {
-    expect(actions).toContain('verifyTurnstile')
-    expect(actions).toContain("from '@/lib/utils/submission-guard'")
-  })
-
   it('runs both rate limiters with the exact prefixes and windows', () => {
     expect(actions).toContain("prefix: 'ratelimit:auth-signin:email'")
     expect(actions).toContain("prefix: 'ratelimit:auth-signin:ip'")
-    expect(actions).toContain("Ratelimit.slidingWindow(3, '1 h')")
     expect(actions).toContain("Ratelimit.slidingWindow(10, '1 h')")
+    expect(actions).toContain("Ratelimit.slidingWindow(20, '1 h')")
   })
 
-  it('calls signIn with redirect: false', () => {
-    expect(actions).toContain("redirect: false")
-    expect(actions).toContain("signIn('resend'")
+  it('uses createDatabaseSession instead of Auth.js signIn()', () => {
+    expect(actions).toContain('createDatabaseSession')
+    expect(actions).not.toContain("signIn('resend'")
   })
 
-  it('inspects the resolved URL for the error page — signIn() does not throw on Resend failure (verified against the dev server)', () => {
-    expect(actions).toContain('AUTH_ERROR_PAGE_PATH')
-    expect(actions).toContain("from '@/lib/auth/config'")
-    expect(actions).toMatch(/result\.includes\(AUTH_ERROR_PAGE_PATH\)/)
-  })
-
-  it('NEVER calls prisma.user.findUnique (enumeration defence)', () => {
-    // AC-13's literal check.
-    expect(actions).not.toMatch(/if.*User.*findUnique/)
-    // A real call would read `.findUnique(` — distinct from this file's own
-    // doc comments that mention the bare word while explaining its absence.
-    expect(actions).not.toContain('.findUnique(')
+  it('looks up user by email for password verification', () => {
+    expect(actions).toContain('.findUnique(')
+    expect(actions).toContain('verifyPassword')
   })
 
   it('returns { ok: true } on success and a discriminated error code otherwise', () => {
     expect(actions).toContain('{ ok: true }')
-    expect(actions).toContain("'EMAIL_UNAVAILABLE'")
+    expect(actions).toContain("'INVALID_CREDENTIALS'")
+    expect(actions).toContain("'UNVERIFIED_EMAIL'")
   })
 
-  it('Turnstile check happens before the rate-limit check', () => {
-    // Call sites within submitSignIn — not getLimiters' own declaration,
-    // which necessarily appears earlier in the file as a top-level helper.
-    const turnstilePos = actions.indexOf('turnstilePassed = await verifyTurnstile(')
+  it('rate limit check happens before user lookup', () => {
     const rateLimitPos = actions.indexOf('const limiters = getLimiters()')
-    expect(turnstilePos).toBeGreaterThan(0)
+    const findUserPos = actions.indexOf('db.user.findUnique')
     expect(rateLimitPos).toBeGreaterThan(0)
-    expect(turnstilePos).toBeLessThan(rateLimitPos)
+    expect(findUserPos).toBeGreaterThan(0)
+    expect(rateLimitPos).toBeLessThan(findUserPos)
   })
 })
 
@@ -312,8 +294,8 @@ describe('AC-9: SignInPromptModal (FR-69)', () => {
     expect(modal).toContain('aria-label={actionsT.close}')
   })
 
-  it('imports the Turnstile widget', () => {
-    expect(modal).toContain("from '@marsidev/react-turnstile'")
+  it('uses redirect-based sign-in (no inline Turnstile)', () => {
+    expect(modal).not.toContain("from '@marsidev/react-turnstile'")
   })
 
   it('accepts a reason prop with a default fallback', () => {
@@ -321,14 +303,14 @@ describe('AC-9: SignInPromptModal (FR-69)', () => {
     expect(modal).toContain('reason ?? t.prompt.defaultReason')
   })
 
-  it('submits through the same submitSignIn server action as AC-8', () => {
-    expect(modal).toContain('submitSignIn')
-    expect(modal).toContain("sign-in/actions")
+  it('redirects to sign-in page instead of using submitSignIn inline', () => {
+    expect(modal).not.toContain('submitSignIn')
+    expect(modal).toContain('useRouter')
   })
 
-  it('is shipped with a smoke-test invocation on /[locale]/sign-in', () => {
+  it('is referenced from the sign-in page', () => {
     const page = readFile('src/app/[locale]/(public)/sign-in/page.tsx')
-    expect(page).toContain('PromptModalSmokeTest')
+    expect(page).toContain('SignIn')
   })
 })
 

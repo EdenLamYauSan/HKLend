@@ -430,7 +430,7 @@ describe('AC-10: i18n keys for account + vote + reasonVote', () => {
     'createdAtLabel', 'signOut', 'deleteAccount',
   ]
   const deletionKeys = ['title', 'body', 'confirmLabel', 'confirmButton', 'cancel', 'mismatchError']
-  const voteKeys = ['upvote', 'removeVote', 'selfDisabled']
+  const voteKeys = ['like', 'unlike', 'selfDisabled']
 
   it('types.ts declares the account, deletion, and vote namespaces', () => {
     expect(types).toContain('account: {')

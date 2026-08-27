@@ -97,7 +97,8 @@ describe('AC-3: notFound() called when DB lookup returns null', () => {
   })
 
   it('calls notFound() when lender is falsy (null DB result)', () => {
-    expect(page).toContain('if (!lender) notFound()')
+    expect(page).toContain('if (!lender) {')
+    expect(page).toContain('notFound()')
   })
 })
 

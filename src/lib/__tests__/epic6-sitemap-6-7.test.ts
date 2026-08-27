@@ -83,8 +83,8 @@ describe('6.7 AC-3: sitemap covers districts, loan-types, best-of pages', () => 
     expect(sitemap).toContain("'sitemap-loan-types'")
   })
 
-  it('includes /compare and /scam-board static pages', () => {
-    expect(sitemap).toContain("'/compare'")
+  it('includes /blog and /scam-board static pages', () => {
+    expect(sitemap).toContain("'/blog'")
     expect(sitemap).toContain("'/scam-board'")
   })
 })

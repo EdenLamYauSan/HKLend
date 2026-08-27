@@ -203,16 +203,16 @@ describe('AC-6: SignInPromptModal wired into all 4 client submit surfaces', () =
     expect(layout).toContain('SessionProviderWrapper')
   })
 
-  it('SignInPromptModal accepts a redirectTo prop and forwards it to submitSignIn', () => {
+  it('SignInPromptModal accepts a redirectTo prop and forwards it as callbackUrl', () => {
     const modal = readFile('src/components/auth/SignInPromptModal.tsx')
     expect(modal).toContain('redirectTo')
-    expect(modal).toContain("formData.set('redirectTo'")
+    expect(modal).toContain('callbackUrl')
   })
 
-  it('submitSignIn forwards redirectTo to signIn() with an open-redirect guard', () => {
+  it('submitSignIn uses password-based auth with createDatabaseSession', () => {
     const actions = readFile('src/app/[locale]/(public)/sign-in/actions.ts')
-    expect(actions).toContain('redirectTo')
-    expect(actions).toContain("signIn('resend'")
+    expect(actions).toContain('submitSignIn')
+    expect(actions).toContain('createDatabaseSession')
   })
 
   it('the 4 i18n reason keys exist in types.ts, zh.ts, and en.ts', () => {

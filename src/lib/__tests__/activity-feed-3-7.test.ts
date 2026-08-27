@@ -31,19 +31,19 @@ describe('AC-1: activity feed shows events sorted by detectedAt descending', () 
 // ─── AC-2: Event type icons ───────────────────────────────────────────────────
 
 describe('AC-2: event type icons rendered per eventType', () => {
-  it('STATUS_CHANGE maps to 🔄', () => {
+  it('STATUS_CHANGE maps to ↻', () => {
     expect(feed).toContain('STATUS_CHANGE')
-    expect(feed).toContain('🔄')
+    expect(feed).toContain('↻')
   })
 
-  it('ADDRESS_CHANGE maps to 📍', () => {
+  it('ADDRESS_CHANGE maps to ⌂', () => {
     expect(feed).toContain('ADDRESS_CHANGE')
-    expect(feed).toContain('📍')
+    expect(feed).toContain('⌂')
   })
 
-  it('NAME_CHANGE maps to ✏️', () => {
+  it('NAME_CHANGE maps to ¶', () => {
     expect(feed).toContain('NAME_CHANGE')
-    expect(feed).toContain('✏️')
+    expect(feed).toContain('¶')
   })
 })
 

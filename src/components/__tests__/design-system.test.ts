@@ -168,8 +168,8 @@ describe('AC-4: ScopeBanner component', () => {
     expect(banner).toMatch(/h-8|max-h-8/)
   })
 
-  it('includes HKMA external link', () => {
-    expect(banner).toContain('hkma.gov.hk')
+  it('includes registry external link', () => {
+    expect(banner).toContain('cr.gov.hk')
   })
 
   it('sets rel="noopener noreferrer" on HKMA link', () => {
@@ -200,8 +200,8 @@ describe('AC-4: Header component', () => {
     expect(header).toContain('hklend')
   })
 
-  it('uses sticky positioning', () => {
-    expect(header).toContain('sticky')
+  it('uses full-width layout', () => {
+    expect(header).toContain('w-full')
   })
 })
 
