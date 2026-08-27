@@ -12,7 +12,7 @@
 
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Turnstile } from '@marsidev/react-turnstile'
 import type { TurnstileInstance } from '@marsidev/react-turnstile'
@@ -42,6 +42,7 @@ export default function NewForumPostPage() {
   const [serverError, setServerError] = useState<string | null>(null)
 
   const turnstileRef = useRef<TurnstileInstance>(null)
+  const awaitingTurnstile = useRef(false)
 
   function validate(): boolean {
     const errs: Record<string, string> = {}
@@ -53,18 +54,7 @@ export default function NewForumPostPage() {
     return Object.keys(errs).length === 0
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setServerError(null)
-
-    if (!validate()) return
-
-    if (!turnstileToken) {
-      turnstileRef.current?.execute()
-      setServerError('請完成人機驗證。')
-      return
-    }
-
+  const submitForm = useCallback(async (token: string) => {
     setSubmitting(true)
     try {
       const res = await fetch('/api/forum/posts', {
@@ -75,7 +65,7 @@ export default function NewForumPostPage() {
           titleZh: title.trim(),
           bodyZh: body.trim(),
           authorName: authorName.trim() || undefined,
-          cfTurnstileResponse: turnstileToken,
+          cfTurnstileResponse: token,
         }),
       })
 
@@ -94,6 +84,29 @@ export default function NewForumPostPage() {
     } finally {
       setSubmitting(false)
     }
+  }, [category, title, body, authorName, router])
+
+  function handleTurnstileSuccess(token: string) {
+    setTurnstileToken(token)
+    if (awaitingTurnstile.current) {
+      awaitingTurnstile.current = false
+      submitForm(token)
+    }
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setServerError(null)
+
+    if (!validate()) return
+
+    if (!turnstileToken) {
+      awaitingTurnstile.current = true
+      turnstileRef.current?.execute()
+      return
+    }
+
+    submitForm(turnstileToken)
   }
 
   return (
@@ -189,12 +202,8 @@ export default function NewForumPostPage() {
           ref={turnstileRef}
           siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? ''}
           options={{ execution: 'render', appearance: 'interaction-only' }}
-          onSuccess={setTurnstileToken}
+          onSuccess={handleTurnstileSuccess}
           onExpire={() => setTurnstileToken(null)}
-          onError={() => {
-            setTurnstileToken(null)
-            setServerError('人機驗證失敗，請重試。')
-          }}
         />
 
         {/* Actions */}
