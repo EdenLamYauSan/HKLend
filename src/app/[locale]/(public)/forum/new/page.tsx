@@ -203,7 +203,10 @@ export default function NewForumPostPage() {
           siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? ''}
           options={{ execution: 'render', appearance: 'interaction-only' }}
           onSuccess={handleTurnstileSuccess}
-          onExpire={() => setTurnstileToken(null)}
+          onExpire={() => {
+            setTurnstileToken(null)
+            turnstileRef.current?.reset()
+          }}
         />
 
         {/* Actions */}
