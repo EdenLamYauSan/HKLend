@@ -43,6 +43,8 @@ export async function createToken(
     data: { identifier, token, expires, type },
   })
 
+  console.log('[createToken] created', { identifier, tokenPrefix: token.slice(0, 8), type, expires })
+
   return token
 }
 
@@ -62,21 +64,27 @@ export async function consumeToken(
     where: { identifier_token: { identifier, token } },
   })
 
-  if (!row) return false
-  if (row.type !== type) return false
+  if (!row) {
+    console.error('[consumeToken] not found', { identifier, tokenPrefix: token.slice(0, 8), type })
+    return false
+  }
+  if (row.type !== type) {
+    console.error('[consumeToken] type mismatch', { expected: type, got: row.type })
+    return false
+  }
   if (row.expires < new Date()) {
-    // Token found but expired — clean it up (deleteMany avoids P2025 on concurrent requests)
-    await db.verificationToken.deleteMany({
-      where: { identifier, token },
-    })
+    console.error('[consumeToken] expired', { expires: row.expires, now: new Date() })
+    await db.verificationToken.deleteMany({ where: { identifier, token } })
     return false
   }
 
-  // deleteMany avoids P2025 crash if a concurrent request already deleted the row.
-  // count === 0 means a concurrent consumer beat us here — treat as invalid.
   const { count } = await db.verificationToken.deleteMany({
     where: { identifier, token },
   })
+
+  if (count === 0) {
+    console.error('[consumeToken] race: concurrent consumer already deleted row')
+  }
 
   return count > 0
 }
