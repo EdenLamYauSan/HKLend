@@ -70,7 +70,7 @@ export async function Header({ locale }: HeaderProps) {
               >
                 <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="8" r="4" />
-                  <path d="M4 21v-1a6 6 0 0 1 12 0v1" />
+                  <path d="M5 21a7 7 0 0 1 14 0" />
                 </svg>
                 <span className="hidden sm:inline max-w-[120px] truncate text-xs">
                   {user.name || user.email}
