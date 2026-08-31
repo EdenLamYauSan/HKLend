@@ -12,7 +12,7 @@
  * - Quote block shown above replies that have a replyToId
  */
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -97,37 +97,69 @@ export function ForumPostDetail({
   const [submitting, setSubmitting] = useState(false)
   const [replyError, setReplyError] = useState<string | null>(null)
 
-  // ── Like post ──────────────────────────────────────────────────────────────
+  // ── Check existing like status on mount ──────────────────────────────────────
 
-  async function likePost() {
-    if (postLiked) return
-    setPostLiked(true)
-    setPost(p => ({ ...p, upvotes: p.upvotes + 1 }))
+  useEffect(() => {
+    fetch(`/api/forum/posts/${initialPost.id}/upvote`)
+      .then(r => r.json())
+      .then(d => { if (d.liked) setPostLiked(true) })
+      .catch(() => {})
+
+    initialPost.replies.forEach(reply => {
+      fetch(`/api/forum/replies/${reply.id}/upvote`)
+        .then(r => r.json())
+        .then(d => { if (d.liked) setLikedReplies(prev => new Set(prev).add(reply.id)) })
+        .catch(() => {})
+    })
+  }, [initialPost.id, initialPost.replies])
+
+  // ── Toggle like post ────────────────────────────────────────────────────────
+
+  async function toggleLikePost() {
+    const wasLiked = postLiked
+    setPostLiked(!wasLiked)
+    setPost(p => ({ ...p, upvotes: p.upvotes + (wasLiked ? -1 : 1) }))
     try {
       const res = await fetch(`/api/forum/posts/${post.id}/upvote`, { method: 'POST' })
-      if (res.status === 409) {
-        setPost(p => ({ ...p, upvotes: p.upvotes - 1 }))
+      if (res.ok) {
+        const data = await res.json()
+        setPostLiked(data.liked)
+        setPost(p => ({ ...p, upvotes: data.upvotes }))
       }
     } catch {
-      setPost(p => ({ ...p, upvotes: p.upvotes - 1 }))
-      setPostLiked(false)
+      setPostLiked(wasLiked)
+      setPost(p => ({ ...p, upvotes: p.upvotes + (wasLiked ? 1 : -1) }))
     }
   }
 
-  // ── Like reply ─────────────────────────────────────────────────────────────
+  // ── Toggle like reply ──────────────────────────────────────────────────────
 
-  async function likeReply(id: string) {
-    if (likedReplies.has(id)) return
-    setLikedReplies(prev => new Set(prev).add(id))
-    setReplyUpvotes(prev => ({ ...prev, [id]: (prev[id] ?? 0) + 1 }))
+  async function toggleLikeReply(id: string) {
+    const wasLiked = likedReplies.has(id)
+    setLikedReplies(prev => {
+      const s = new Set(prev)
+      wasLiked ? s.delete(id) : s.add(id)
+      return s
+    })
+    setReplyUpvotes(prev => ({ ...prev, [id]: (prev[id] ?? 0) + (wasLiked ? -1 : 1) }))
     try {
       const res = await fetch(`/api/forum/replies/${id}/upvote`, { method: 'POST' })
-      if (res.status === 409) {
-        setReplyUpvotes(prev => ({ ...prev, [id]: (prev[id] ?? 0) - 1 }))
+      if (res.ok) {
+        const data = await res.json()
+        setLikedReplies(prev => {
+          const s = new Set(prev)
+          data.liked ? s.add(id) : s.delete(id)
+          return s
+        })
+        setReplyUpvotes(prev => ({ ...prev, [id]: data.upvotes }))
       }
     } catch {
-      setReplyUpvotes(prev => ({ ...prev, [id]: (prev[id] ?? 0) - 1 }))
-      setLikedReplies(prev => { const s = new Set(prev); s.delete(id); return s })
+      setLikedReplies(prev => {
+        const s = new Set(prev)
+        wasLiked ? s.add(id) : s.delete(id)
+        return s
+      })
+      setReplyUpvotes(prev => ({ ...prev, [id]: (prev[id] ?? 0) + (wasLiked ? 1 : -1) }))
     }
   }
 
@@ -221,8 +253,7 @@ export function ForumPostDetail({
 
         <div className="mt-4 flex items-center gap-2">
           <button
-            onClick={likePost}
-            disabled={postLiked}
+            onClick={toggleLikePost}
             className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm transition-colors ${
               postLiked
                 ? 'bg-red-50 border-red-200 text-red-500'
@@ -232,7 +263,7 @@ export function ForumPostDetail({
             <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill={postLiked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
-            <span>{post.upvotes}</span> <span className="text-xs">讚好</span>
+            <span>{post.upvotes}</span>
           </button>
         </div>
       </article>
@@ -274,8 +305,7 @@ export function ForumPostDetail({
 
               <div className="mt-3 flex items-center gap-3">
                 <button
-                  onClick={() => likeReply(reply.id)}
-                  disabled={likedReplies.has(reply.id)}
+                  onClick={() => toggleLikeReply(reply.id)}
                   className={`inline-flex items-center gap-1 text-xs transition-colors ${
                     likedReplies.has(reply.id)
                       ? 'text-red-500'
@@ -285,7 +315,7 @@ export function ForumPostDetail({
                   <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill={likedReplies.has(reply.id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                   </svg>
-                  {replyUpvotes[reply.id] ?? reply.upvotes} 讚好
+                  {replyUpvotes[reply.id] ?? reply.upvotes}
                 </button>
                 <button
                   onClick={() => startReplyTo(reply)}
